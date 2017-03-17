@@ -1,0 +1,60 @@
+@layout(./views/layout.atat)@
+
+@{
+	var show = true;
+	var i = 0;
+	var j = 3;
+}@
+
+@{
+	this.output += "Hello world!";
+}@
+
+<p>Hello! My name is @(model.name)@!</p>
+
+<p>Date now: @( Date.now() )@</p>
+
+<p>Date now: @( "<strong>raw html</strong>" )@</p>
+
+<p>Date now: @!( "<strong>raw html</strong>" )@</p>
+
+<p>1+1=@(1+1)@</p>
+
+@if(true){
+
+	<p @if(show){class="active"}@>Always visible</p>
+
+	@if(Date.now() % 2){
+
+		<p>Always visible</p>
+
+	} else {
+
+		<p>Always hidden</p>
+
+	}@
+
+
+	@while(i < j){
+
+		<p>While loop @(i++)@</p>
+
+	}@
+
+}@
+
+
+@for(let i = 0; i < j; i++){
+
+	<p>For loop @(i)@ </p>
+
+}@
+
+
+@(foo())@
+
+@function foo() {
+
+	return 'foo';
+
+}@
