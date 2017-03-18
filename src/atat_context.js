@@ -18,6 +18,10 @@ class AtContext {
 
 		this.tags = get_tags(this.options.tags);
 		this.inline = get_tags_inline(this.options.inline);
+
+		this.__layout = null;
+		this.__partials = [];
+		this.__sections = [];
 	}
 
 	compiler(left, right) {

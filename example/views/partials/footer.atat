@@ -1,0 +1,3 @@
+<footer>
+	Footer from partial, value from model @(model.name)@
+</footer>

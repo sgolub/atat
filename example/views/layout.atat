@@ -10,5 +10,6 @@
 <body>
 	<p>Layout text</p>
 	@!(body)@
+	@partial(./views/partials/footer.atat model)@
 </body>
 </html>

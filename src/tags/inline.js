@@ -22,16 +22,34 @@ function compile_layout(inside, ctx, callback) {
 	});
 }
 
-function compile_partial(uri, ctx, callback) {
+function compile_partial(inside, ctx, callback) {
 
-	loader(uri, (err, input) => {
+	let value = inside.value.trim();
+	let match = regexp_exec(value, /^([^\s]*)\s/g);
+
+	if (!match && value == '') {
+		return callback(new Error('Partial parsing error'));
+	}
+
+	let uri = !match ? value : match[0];
+	let args = '';
+
+	if (match && match.length == 2) {
+		uri = match[1];
+		args = value.slice(match[0].length).trim();
+	}
+
+	Atat.compileUri(uri, ctx.options, (err, template) => {
 
 		if (err) {
-			
+
 			return callback(err);
 		}
 
-		this.compile(input, ctx.options, callback);
+		ctx.__partials.push(template);
+
+		let output = `this.output += this.__partials[${ctx.__partials.length - 1}](${args});`;
+
+		callback(null, output);
 	});
 }
-

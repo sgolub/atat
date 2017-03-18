@@ -138,6 +138,10 @@ var AtContext = function () {
 
 		this.tags = get_tags(this.options.tags);
 		this.inline = get_tags_inline(this.options.inline);
+
+		this.__layout = null;
+		this.__partials = [];
+		this.__sections = [];
 	}
 
 	_createClass(AtContext, [{
@@ -536,6 +540,7 @@ function regexp_exec(str, regexp) {
 function match_inline(str, regexp) {
 
 	var global = regexp.global,
+	    sticky = regexp.sticky,
 	    output = [],
 	    lastEnd = 0,
 	    leftStart = 0,
@@ -551,6 +556,11 @@ function match_inline(str, regexp) {
 		}
 
 		leftStart = match.index;
+
+		if (sticky && leftStart > lastEnd) {
+			break;
+		}
+
 		innerStart = leftStart + match[1].length;
 		innerEnd = lastEnd + innerStart + match[2].length;
 
@@ -680,17 +690,35 @@ function compile_layout(inside, ctx, callback) {
 	});
 }
 
-function compile_partial(uri, ctx, callback) {
-	var _this4 = this;
+function compile_partial(inside, ctx, callback) {
 
-	loader(uri, function (err, input) {
+	var value = inside.value.trim();
+	var match = regexp_exec(value, /^([^\s]*)\s/g);
+
+	if (!match && value == '') {
+		return callback(new Error('Partial parsing error'));
+	}
+
+	var uri = !match ? value : match[0];
+	var args = '';
+
+	if (match && match.length == 2) {
+		uri = match[1];
+		args = value.slice(match[0].length).trim();
+	}
+
+	Atat.compileUri(uri, ctx.options, function (err, template) {
 
 		if (err) {
 
 			return callback(err);
 		}
 
-		_this4.compile(input, ctx.options, callback);
+		ctx.__partials.push(template);
+
+		var output = 'this.output += this.__partials[' + (ctx.__partials.length - 1) + '](' + args + ');';
+
+		callback(null, output);
 	});
 }
 

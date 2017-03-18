@@ -137,6 +137,7 @@ function regexp_exec(str, regexp, pos = 0) {
 function match_inline(str, regexp) {
 
 	let global = regexp.global,
+		sticky = regexp.sticky,
 		output = [],
 		lastEnd = 0,
 		leftStart = 0,
@@ -152,6 +153,11 @@ function match_inline(str, regexp) {
 		}
 
 		leftStart = match.index;
+
+		if (sticky && leftStart > lastEnd) {
+			break;
+		}
+
 		innerStart = leftStart + match[1].length;
 		innerEnd = lastEnd + innerStart + match[2].length;
 

@@ -55,6 +55,9 @@ module.exports = function(grunt) {
 			dist: ['dist/*']
 		},
 		watch: {
+			options: {
+				spawn: false
+			},
 			scripts: {
 				files: ['src/**/*.js'],
 				tasks: ['build']
