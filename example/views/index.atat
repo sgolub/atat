@@ -58,3 +58,11 @@
 	return 'foo';
 
 }@
+
+@section scripts{
+	<script>
+		(function(){
+			'some js code';
+		})();
+	</script>
+}@

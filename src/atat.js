@@ -65,12 +65,12 @@ Atat.options = {
 		'@while...}@': compile_while,
 		'@for...}@': compile_for,
 		'@function...}@': compile_function,
-		// '@section...}@': compile_section
+		'@section...}@': compile_section
 	},
 	inline: {
+		// '@section...@': output_section,
 		'@layout(...)@': compile_layout,
 		'@partial(...)@': compile_partial,
-		// '@section(...)@': compile_section
 		'@(...)@': output_as_text,
 		'@!(...)@': output_as_html
 	},

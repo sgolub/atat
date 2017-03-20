@@ -53,3 +53,16 @@ function compile_partial(inside, ctx, callback) {
 		callback(null, output);
 	});
 }
+
+function output_section(inside, ctx, callback) {
+
+	let name = inside.value.trim();
+
+	if(ctx.__sections[name]){
+		return callback(new Error(`Section "${name}" not specified`));
+	}
+
+	let output = `this.output += this.__sections['${name}'];`;
+
+	callback(null, output);
+}

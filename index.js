@@ -235,12 +235,13 @@ Atat.options = {
 		'@if...}@': compile_if,
 		'@while...}@': compile_while,
 		'@for...}@': compile_for,
-		'@function...}@': compile_function
+		'@function...}@': compile_function,
+		'@section...}@': compile_section
 	},
 	inline: {
+		// '@section...@': output_section,
 		'@layout(...)@': compile_layout,
 		'@partial(...)@': compile_partial,
-		// '@section(...)@': compile_section
 		'@(...)@': output_as_text,
 		'@!(...)@': output_as_html
 	},
@@ -739,6 +740,50 @@ function compile_partial(inside, ctx, callback) {
 		var output = 'this.output += this.__partials[' + (ctx.__partials.length - 1) + '](' + args + ');';
 
 		callback(null, output);
+	});
+}
+
+function output_section(inside, ctx, callback) {
+
+	var name = inside.value.trim();
+
+	if (ctx.__sections[name]) {
+		return callback(new Error('Section "' + name + '" not specified'));
+	}
+
+	var output = 'this.output += this.__sections[\'' + name + '\'];';
+
+	callback(null, output);
+}
+
+function compile_section(inside, ctx, callback) {
+
+	var value = inside.value.trim();
+	var reg_name = /^\s*([A-Za-z0-9]+)\s*\{/g;
+
+	var match = regexp_exec(value, reg_name);
+	var block = value.replace(reg_name, '');
+
+	if (!match && match.length > 1) {
+		return callback(new Error('Section parsing error'));
+	}
+
+	var name = match[1].trim();
+
+	if (ctx.__sections[name]) {
+		return callback(new Error('Section already exists'));
+	}
+
+	this.compile(block, ctx, function (err, output) {
+
+		if (err) {
+
+			return callback(err);
+		}
+
+		ctx.__sections[name] = output;
+
+		callback(null);
 	});
 }
 
