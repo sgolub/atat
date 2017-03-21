@@ -1,6 +1,6 @@
 function compile_while(inside, ctx, callback) {
 
-	let code = 'while' + inside.value + '}';
+	let code = 'while(' + inside.value + '}';
 
 	const blocks = match_recursive(code, /\{/g, /\}/g);
 

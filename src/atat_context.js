@@ -19,13 +19,36 @@ class AtContext {
 		this.tags = get_tags(this.options.tags);
 		this.inline = get_tags_inline(this.options.inline);
 
+		this.tags.compilers = [];
+
+		loop(this.options.tags, (compiler, regexp) => {
+			this.tags.compilers.push({
+				compiler: compiler,
+				regexp: new RegExp(regexp, 'g')
+			});
+		});
+
+		loop(this.options.inline, (compiler, regexp) => {
+			this.tags.compilers.push({
+				compiler: compiler,
+				regexp: new RegExp(regexp, 'g')
+			});
+		});
+
 		this.__layout = null;
 		this.__partials = [];
 		this.__sections = [];
 	}
 
-	compiler(left, right) {
-		return this.options.tags[left + '...' + right] ||
-			this.options.inline[left + '...' + right];
+	compiler(str = '') {
+
+		for (let i = 0, l = this.tags.compilers.length; i < l; i++) {
+			let item = this.tags.compilers[i];
+			if (regexp_test(str, item.regexp)) {
+				return item.compiler;
+			}
+		}
+
+		return null;
 	}
 }

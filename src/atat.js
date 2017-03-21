@@ -60,19 +60,19 @@ Atat.options = {
 	modelname: 'model',
 	helpersname: '$',
 	tags: {
-		'@{...}@': compile_code,
-		'@if...}@': compile_if,
-		'@while...}@': compile_while,
-		'@for...}@': compile_for,
-		'@function...}@': compile_function,
-		'@section...}@': compile_section
+		'@\\{': compile_code,
+		'@if\\s*\\(': compile_if,
+		'@while\\s*\\(': compile_while,
+		'@for\\s*\\(': compile_for,
+		'@function\\s+[$A-Za-z0-9]*\\s*\\(': compile_function,
+		'@section\\s+[$A-Za-z0-9]*\\s*\\{': compile_section
 	},
 	inline: {
-		// '@section...@': output_section,
-		'@layout(...)@': compile_layout,
-		'@partial(...)@': compile_partial,
-		'@(...)@': output_as_text,
-		'@!(...)@': output_as_html
+		'(@section\\()([^]*?)(\\)@)': output_section,
+		'(@layout\\()([^]*?)(\\)@)': compile_layout,
+		'(@partial\\()([^]*?)(\\)@)': compile_partial,
+		'(@\\()([^]*?)(\\)@)': output_as_text,
+		'(@!\\()([^]*?)(\\)@)': output_as_html
 	},
 	helpers: {
 		encode: encode_html

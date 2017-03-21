@@ -42,7 +42,7 @@ var AtCompiler = function () {
 					    inside = block,
 					    right = block.right;
 
-					var compiler = ctx.compiler(left.value, right.value);
+					var compiler = ctx.compiler(left.value);
 
 					if (!compiler) {
 
@@ -98,7 +98,7 @@ function compile_inline(input, ctx, callback) {
 				return;
 			}
 
-			var compiler = ctx.compiler(left.value, right.value);
+			var compiler = ctx.compiler(left.value + inside.value + right.value);
 
 			if (!compiler) {
 				ctx.parts.push(left.value + inside.value + right.value);
@@ -123,6 +123,8 @@ function compile_inline(input, ctx, callback) {
 
 var AtContext = function () {
 	function AtContext(opts) {
+		var _this3 = this;
+
 		_classCallCheck(this, AtContext);
 
 		this.options = merge(Atat.options, opts);
@@ -139,6 +141,22 @@ var AtContext = function () {
 		this.tags = get_tags(this.options.tags);
 		this.inline = get_tags_inline(this.options.inline);
 
+		this.tags.compilers = [];
+
+		loop(this.options.tags, function (compiler, regexp) {
+			_this3.tags.compilers.push({
+				compiler: compiler,
+				regexp: new RegExp(regexp, 'g')
+			});
+		});
+
+		loop(this.options.inline, function (compiler, regexp) {
+			_this3.tags.compilers.push({
+				compiler: compiler,
+				regexp: new RegExp(regexp, 'g')
+			});
+		});
+
 		this.__layout = null;
 		this.__partials = [];
 		this.__sections = [];
@@ -146,8 +164,18 @@ var AtContext = function () {
 
 	_createClass(AtContext, [{
 		key: 'compiler',
-		value: function compiler(left, right) {
-			return this.options.tags[left + '...' + right] || this.options.inline[left + '...' + right];
+		value: function compiler() {
+			var str = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
+
+
+			for (var i = 0, l = this.tags.compilers.length; i < l; i++) {
+				var item = this.tags.compilers[i];
+				if (regexp_test(str, item.regexp)) {
+					return item.compiler;
+				}
+			}
+
+			return null;
 		}
 	}]);
 
@@ -231,19 +259,19 @@ Atat.options = {
 	modelname: 'model',
 	helpersname: '$',
 	tags: {
-		'@{...}@': compile_code,
-		'@if...}@': compile_if,
-		'@while...}@': compile_while,
-		'@for...}@': compile_for,
-		'@function...}@': compile_function,
-		'@section...}@': compile_section
+		'@\\{': compile_code,
+		'@if\\s*\\(': compile_if,
+		'@while\\s*\\(': compile_while,
+		'@for\\s*\\(': compile_for,
+		'@function\\s+[$A-Za-z0-9]*\\s*\\(': compile_function,
+		'@section\\s+[$A-Za-z0-9]*\\s*\\{': compile_section
 	},
 	inline: {
-		// '@section...@': output_section,
-		'@layout(...)@': compile_layout,
-		'@partial(...)@': compile_partial,
-		'@(...)@': output_as_text,
-		'@!(...)@': output_as_html
+		'(@section\\()([^]*?)(\\)@)': output_section,
+		'(@layout\\()([^]*?)(\\)@)': compile_layout,
+		'(@partial\\()([^]*?)(\\)@)': compile_partial,
+		'(@\\()([^]*?)(\\)@)': output_as_text,
+		'(@!\\()([^]*?)(\\)@)': output_as_html
 	},
 	helpers: {
 		encode: encode_html
@@ -271,67 +299,30 @@ var VALUE_NAME_OUTSIDE = 'outside',
 
 function get_tags(compilers) {
 
-	var open = [],
-	    close = [];
+	var regexps = [];
 
-	loop(compilers, function (compiler, tags) {
+	loop(compilers, function (compiler, regexp) {
 
-		tags = tags.split('...');
-
-		tags[0] = tags[0].replace(CLEAR_TAGS, '\\$&');
-		tags[1] = tags[1].replace(CLEAR_TAGS, '\\$&');
-
-		if (open.indexOf(tags[0]) === -1) {
-			open.push(tags[0]);
+		if (regexps.indexOf(regexp) === -1) {
+			regexps.push(regexp);
 		}
-
-		if (close.indexOf(tags[1]) === -1) {
-			close.push(tags[1]);
-		}
-	});
-
-	open.sort(function (a, b) {
-		return a.length < b.length;
-	});
-	close.sort(function (a, b) {
-		return a.length < b.length;
 	});
 
 	return {
-		open: new RegExp(open.join('|'), 'g'),
-		close: new RegExp(close.join('|'), 'g')
+		open: new RegExp(regexps.join('|'), 'g'),
+		close: /}@/g
 	};
 }
 
 function get_tags_inline(compilers) {
 
-	var open = [],
-	    close = [];
+	var regexps = [];
 
-	loop(compilers, function (compiler, tags) {
-
-		tags = tags.split('...');
-
-		tags[0] = tags[0].replace(CLEAR_TAGS, '\\$&');
-		tags[1] = tags[1].replace(CLEAR_TAGS, '\\$&');
-
-		if (open.indexOf(tags[0]) === -1) {
-			open.push(tags[0]);
-		}
-
-		if (close.indexOf(tags[1]) === -1) {
-			close.push(tags[1]);
-		}
+	loop(compilers, function (compiler, regexp) {
+		regexps.push(regexp);
 	});
 
-	open.sort(function (a, b) {
-		return a.length < b.length;
-	});
-	close.sort(function (a, b) {
-		return a.length < b.length;
-	});
-
-	return new RegExp('(' + open.join('|') + ')([^]*?)(' + close.join('|') + ')', 'g');
+	return new RegExp(regexps.join('|'), 'g');
 }
 
 function encode_html() {
@@ -522,6 +513,22 @@ function match_recursive(str, left, right) {
 	return output;
 }
 
+function regexp_test(str, regexp) {
+	var pos = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
+
+
+	regexp.lastIndex = pos;
+
+	var test = regexp.test(str);
+
+	if (regexp.global) {
+
+		regexp.lastIndex = test ? regexp.lastIndex : 0;
+	}
+
+	return test;
+}
+
 function regexp_exec(str, regexp) {
 	var pos = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
 
@@ -536,6 +543,15 @@ function regexp_exec(str, regexp) {
 	}
 
 	return match;
+}
+
+function clean_array(array) {
+	for (var i = 0; i < array.length; i++) {
+		if (typeof array[i] === 'undefined') {
+			array.splice(i, 1);
+			i--;
+		}
+	}
 }
 
 function match_inline(str, regexp) {
@@ -561,6 +577,8 @@ function match_inline(str, regexp) {
 		if (sticky && leftStart > lastEnd) {
 			break;
 		}
+
+		clean_array(match);
 
 		innerStart = leftStart + match[1].length;
 		innerEnd = lastEnd + innerStart + match[2].length;
@@ -618,7 +636,7 @@ function compile_code(inside, ctx, callback) {
 
 function compile_for(inside, ctx, callback) {
 
-	var code = 'for' + inside.value + '}';
+	var code = 'for(' + inside.value + '}';
 
 	var blocks = match_recursive(code, /\{/g, /\}/g);
 
@@ -642,13 +660,15 @@ function compile_for(inside, ctx, callback) {
 
 function compile_function(inside, ctx, callback) {
 
-	callback(null, 'function ' + inside.value.trim() + '}');
+	var left = inside.left.value.trim().substring(1);
+
+	callback(null, left + inside.value.trim() + '}');
 }
 
 function compile_if(inside, ctx, callback) {
-	var _this3 = this;
+	var _this4 = this;
 
-	var code = 'if' + inside.value + '}';
+	var code = 'if(' + inside.value + '}';
 
 	var blocks = match_recursive(code, /\{/g, /\}/g);
 
@@ -658,7 +678,7 @@ function compile_if(inside, ctx, callback) {
 			return callback(null, block.value);
 		}
 
-		_this3.compile(block.value, ctx, callback);
+		_this4.compile(block.value, ctx, callback);
 	}, function (err, results) {
 		if (err) {
 			return callback(err);
@@ -738,13 +758,13 @@ function output_section(inside, ctx, callback) {
 
 function compile_section(inside, ctx, callback) {
 
-	var value = inside.value.trim();
-	var reg_name = /^\s*([A-Za-z0-9]+)\s*\{/g;
+	var block = inside.value.trim();
 
+	var value = inside.left.value.trim();
+	var reg_name = /^@section\s+([A-Za-z0-9]+)\s*\{/g;
 	var match = regexp_exec(value, reg_name);
-	var block = value.replace(reg_name, '');
 
-	if (!match && match.length > 1) {
+	if (!match || match.length > 2) {
 		return callback(new Error('Section parsing error'));
 	}
 
@@ -769,7 +789,7 @@ function compile_section(inside, ctx, callback) {
 
 function compile_while(inside, ctx, callback) {
 
-	var code = 'while' + inside.value + '}';
+	var code = 'while(' + inside.value + '}';
 
 	var blocks = match_recursive(code, /\{/g, /\}/g);
 

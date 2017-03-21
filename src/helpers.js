@@ -14,69 +14,31 @@ const
 
 function get_tags(compilers) {
 
-	let open = [],
-		close = [];
+	let regexps = [];
 
-	loop(compilers, (compiler, tags) => {
+	loop(compilers, (compiler, regexp) => {
 
-		tags = tags.split('...');
-
-		tags[0] = tags[0].replace(CLEAR_TAGS, '\\$&');
-		tags[1] = tags[1].replace(CLEAR_TAGS, '\\$&');
-
-		if (open.indexOf(tags[0]) === -1) {
-			open.push(tags[0]);
+		if (regexps.indexOf(regexp) === -1) {
+			regexps.push(regexp);
 		}
 
-		if (close.indexOf(tags[1]) === -1) {
-			close.push(tags[1]);
-		}
-
-	});
-
-	open.sort((a, b) => {
-		return a.length < b.length;
-	});
-	close.sort((a, b) => {
-		return a.length < b.length;
 	});
 
 	return {
-		open: new RegExp(open.join('|'), 'g'),
-		close: new RegExp(close.join('|'), 'g')
+		open: new RegExp(regexps.join('|'), 'g'),
+		close: /}@/g
 	};
 }
 
 function get_tags_inline(compilers) {
 
-	let open = [],
-		close = [];
+	let regexps = [];
 
-	loop(compilers, (compiler, tags) => {
-
-		tags = tags.split('...');
-
-		tags[0] = tags[0].replace(CLEAR_TAGS, '\\$&');
-		tags[1] = tags[1].replace(CLEAR_TAGS, '\\$&');
-
-		if (open.indexOf(tags[0]) === -1) {
-			open.push(tags[0]);
-		}
-
-		if (close.indexOf(tags[1]) === -1) {
-			close.push(tags[1]);
-		}
-
+	loop(compilers, (compiler, regexp) => {
+		regexps.push(regexp);
 	});
 
-	open.sort((a, b) => {
-		return a.length < b.length;
-	});
-	close.sort((a, b) => {
-		return a.length < b.length;
-	});
-
-	return new RegExp(`(${open.join('|')})([^]*?)(${close.join('|')})`, 'g');
+	return new RegExp(regexps.join('|'), 'g');
 }
 
 function encode_html(code = '') {

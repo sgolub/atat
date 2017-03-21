@@ -26,7 +26,7 @@ class AtCompiler {
 					inside = block,
 					right = block.right;
 
-				let compiler = ctx.compiler(left.value, right.value);
+				let compiler = ctx.compiler(left.value);
 
 				if (!compiler) {
 
@@ -79,7 +79,7 @@ function compile_inline(input, ctx, callback) {
 				return;
 			}
 
-			let compiler = ctx.compiler(left.value, right.value);
+			let compiler = ctx.compiler(left.value + inside.value + right.value);
 
 			if (!compiler) {
 				ctx.parts.push(left.value + inside.value + right.value);

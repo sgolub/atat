@@ -120,6 +120,20 @@ function match_recursive(str, left, right) {
 	return output;
 }
 
+function regexp_test(str, regexp, pos = 0) {
+
+	regexp.lastIndex = pos;
+
+	let test = regexp.test(str);
+
+	if (regexp.global) {
+
+		regexp.lastIndex = test ? regexp.lastIndex : 0;
+	}
+
+	return test;
+}
+
 function regexp_exec(str, regexp, pos = 0) {
 
 	regexp.lastIndex = pos;
@@ -132,6 +146,15 @@ function regexp_exec(str, regexp, pos = 0) {
 	}
 
 	return match;
+}
+
+function clean_array(array) {
+	for (let i = 0; i < array.length; i++) {
+		if (typeof array[i] === 'undefined') {
+			array.splice(i, 1);
+			i--;
+		}
+	}
 }
 
 function match_inline(str, regexp) {
@@ -157,6 +180,8 @@ function match_inline(str, regexp) {
 		if (sticky && leftStart > lastEnd) {
 			break;
 		}
+
+		clean_array(match);
 
 		innerStart = leftStart + match[1].length;
 		innerEnd = lastEnd + innerStart + match[2].length;

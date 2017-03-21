@@ -1,12 +1,12 @@
 function compile_section(inside, ctx, callback) {
 
-	let value = inside.value.trim();
-	let reg_name = /^\s*([A-Za-z0-9]+)\s*\{/g;
+	let block = inside.value.trim();
 
+	let value = inside.left.value.trim();
+	let reg_name = /^@section\s+([A-Za-z0-9]+)\s*\{/g;
 	let match = regexp_exec(value, reg_name);
-	let block = value.replace(reg_name, '');
 
-	if (!match && match.length > 1) {
+	if (!match || match.length > 2) {
 		return callback(new Error('Section parsing error'));
 	}
 

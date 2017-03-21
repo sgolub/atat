@@ -1,6 +1,6 @@
 function compile_for(inside, ctx, callback) {
 
-	let code = 'for' + inside.value + '}';
+	let code = 'for(' + inside.value + '}';
 
 	let blocks = match_recursive(code, /\{/g, /\}/g);
 

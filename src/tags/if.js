@@ -1,6 +1,6 @@
 function compile_if(inside, ctx, callback) {
 
-	let code = 'if' + inside.value + '}';
+	let code = 'if(' + inside.value + '}';
 
 	let blocks = match_recursive(code, /\{/g, /\}/g);
 
