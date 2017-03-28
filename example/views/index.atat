@@ -36,18 +36,14 @@
 
 
 	@while(i < j){
-
 		<p>While loop @(i++)@</p>
-
 	}@
 
 }@
 
 
 @for(let i = 0; i < j; i++){
-
-	<p>For loop @(i)@ </p>
-
+	<p>@(i+1)@. loop</p>
 }@
 
 
@@ -55,7 +51,7 @@
 
 @function foo() {
 
-	return 'foo';
+	return "foo";
 
 }@
 

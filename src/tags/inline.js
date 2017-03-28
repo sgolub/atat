@@ -1,11 +1,23 @@
 function output_as_text(inside, ctx, callback) {
 
-	callback(null, 'this.output += $.encode((' + inside.value.trim() + ')||"");');
+	var val = inside.value.trim();
+
+	if (val === '') {
+		callback();
+	}
+
+	callback(null, `this.output += $.encode(${inside.value.trim()});`);
 }
 
 function output_as_html(inside, ctx, callback) {
 
-	callback(null, 'this.output += ((' + inside.value.trim() + ')||"");');
+	var val = inside.value.trim();
+
+	if (val === '') {
+		callback();
+	}
+
+	callback(null, `this.output += (${inside.value.trim()});`);
 }
 
 function compile_layout(inside, ctx, callback) {

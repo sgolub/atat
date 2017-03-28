@@ -10,7 +10,7 @@ app.set('view engine', 'atat');
 
 app.get('/', (req, res, next) => {
 
-	return res.render('index', { name: 'Atat' });
+	return res.render('index', { title: 'Atat example', name: 'Atat' });
 });
 
 app.listen(3000, () => {

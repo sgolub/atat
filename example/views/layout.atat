@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8" />
 	<base href="/pager/">
-	<title>Pager Admin panel</title>
+	<title>@(model.title)@</title>
 	<link rel="stylesheet" href="/pager/static/style.css" />
 	<script src="/pager/static/app/components/editor/sidebar/tree.js"></script>
 </head>
@@ -11,7 +11,7 @@
 	<p>Layout text</p>
 	@!(body)@
 	@partial(./views/partials/footer.atat model)@
-	layout footer (:
+	<p>Layout footer (:</p>
 	@section(scripts)@
 </body>
 </html>
