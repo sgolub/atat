@@ -37,7 +37,17 @@ class AtContext {
 
 		this.__layout = null;
 		this.__partials = [];
-		this.__sections = [];
+		this.__sections = {};
+
+		this.parent = null;
+	}
+
+	section(name) {
+		if(!name){
+			return null;
+		}
+
+		return this.__sections[name] || (this.parent && this.parent.section(name));
 	}
 
 	compiler(str = '') {

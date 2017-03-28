@@ -16,14 +16,15 @@ function compile_section(inside, ctx, callback) {
 		return callback(new Error('Section already exists'));
 	}
 
-	this.compile(block, ctx, (err, output) => {
+	Atat.compile(block, ctx.options, (err, template) => {
 
 		if (err) {
 
 			return callback(err);
 		}
 
-		ctx.__sections[name] = output;
+		ctx.__sections[name] = template;
+		template.__context.parent = ctx;
 
 		callback(null);
 	});

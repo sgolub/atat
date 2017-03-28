@@ -16,7 +16,13 @@ function compile_layout(inside, ctx, callback) {
 
 	Atat.compileUri(inside.value.trim(), ctx.options, (err, template) => {
 
+		if (err) {
+
+			return callback(err);
+		}
+
 		ctx.__layout = template;
+		template.__context.parent = ctx;
 
 		callback();
 	});
@@ -47,6 +53,7 @@ function compile_partial(inside, ctx, callback) {
 		}
 
 		ctx.__partials.push(template);
+		template.__context.parent = ctx;
 
 		let output = `this.output += this.__partials[${ctx.__partials.length - 1}](${args});`;
 
@@ -58,11 +65,7 @@ function output_section(inside, ctx, callback) {
 
 	let name = inside.value.trim();
 
-	if(ctx.__sections[name]){
-		return callback(new Error(`Section "${name}" not specified`));
-	}
-
-	let output = `this.output += this.__sections['${name}'];`;
+	let output = `this.output += (function(){var s = this.section('${name}'); return s?s(${ctx.arguments}):"";}).call(this);`;
 
 	callback(null, output);
 }

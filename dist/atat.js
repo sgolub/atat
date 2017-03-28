@@ -159,10 +159,21 @@ var AtContext = function () {
 
 		this.__layout = null;
 		this.__partials = [];
-		this.__sections = [];
+		this.__sections = {};
+
+		this.parent = null;
 	}
 
 	_createClass(AtContext, [{
+		key: 'section',
+		value: function section(name) {
+			if (!name) {
+				return null;
+			}
+
+			return this.__sections[name] || this.parent && this.parent.section(name);
+		}
+	}, {
 		key: 'compiler',
 		value: function compiler() {
 			var str = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
@@ -705,7 +716,13 @@ function compile_layout(inside, ctx, callback) {
 
 	Atat.compileUri(inside.value.trim(), ctx.options, function (err, template) {
 
+		if (err) {
+
+			return callback(err);
+		}
+
 		ctx.__layout = template;
+		template.__context.parent = ctx;
 
 		callback();
 	});
@@ -736,6 +753,7 @@ function compile_partial(inside, ctx, callback) {
 		}
 
 		ctx.__partials.push(template);
+		template.__context.parent = ctx;
 
 		var output = 'this.output += this.__partials[' + (ctx.__partials.length - 1) + '](' + args + ');';
 
@@ -747,11 +765,7 @@ function output_section(inside, ctx, callback) {
 
 	var name = inside.value.trim();
 
-	if (ctx.__sections[name]) {
-		return callback(new Error('Section "' + name + '" not specified'));
-	}
-
-	var output = 'this.output += this.__sections[\'' + name + '\'];';
+	var output = 'this.output += (function(){var s = this.section(\'' + name + '\'); return s?s(' + ctx.arguments + '):"";}).call(this);';
 
 	callback(null, output);
 }
@@ -774,14 +788,15 @@ function compile_section(inside, ctx, callback) {
 		return callback(new Error('Section already exists'));
 	}
 
-	this.compile(block, ctx, function (err, output) {
+	Atat.compile(block, ctx.options, function (err, template) {
 
 		if (err) {
 
 			return callback(err);
 		}
 
-		ctx.__sections[name] = output;
+		ctx.__sections[name] = template;
+		template.__context.parent = ctx;
 
 		callback(null);
 	});

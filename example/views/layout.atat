@@ -11,6 +11,7 @@
 	<p>Layout text</p>
 	@!(body)@
 	@partial(./views/partials/footer.atat model)@
+	layout footer (:
 	@section(scripts)@
 </body>
 </html>
