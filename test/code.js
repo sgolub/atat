@@ -1,4 +1,4 @@
-var assert = require('assert');
+var expect = require('expect.js');
 var Atat = require('../');
 
 describe("Code block", function() {
@@ -11,7 +11,7 @@ describe("Code block", function() {
 
 		Atat.compile(template, function(err, tmpl) {
 
-			assert.equal(tmpl(), "Hello world!");
+			expect(tmpl()).to.eql("Hello world!");
 
 			done();
 		});
@@ -23,7 +23,7 @@ describe("Code block", function() {
 
 		Atat.compile(template, function(err, tmpl) {
 
-			assert.equal(tmpl(), "Hello world!");
+			expect(tmpl()).to.eql("Hello world!");
 
 			done();
 		});

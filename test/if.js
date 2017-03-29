@@ -1,4 +1,4 @@
-var assert = require('assert');
+var expect = require('expect.js');
 var Atat = require('../');
 
 describe("If block", function() {
@@ -11,7 +11,7 @@ describe("If block", function() {
 
 		Atat.compile(template, function(err, tmpl) {
 
-			assert.equal(tmpl(), "Hello world!");
+			expect(tmpl()).to.eql("Hello world!");
 
 			done();
 		});
@@ -23,7 +23,7 @@ describe("If block", function() {
 
 		Atat.compile(template, function(err, tmpl) {
 
-			assert.equal(tmpl(), " world!");
+			expect(tmpl()).to.eql(" world!");
 
 			done();
 		});
@@ -35,7 +35,7 @@ describe("If block", function() {
 
 		Atat.compile(template, function(err, tmpl) {
 
-			assert.equal(tmpl({ show: true }), "Hello world!");
+			expect(tmpl({ show: true })).to.eql("Hello world!");
 
 			done();
 		});
@@ -47,7 +47,7 @@ describe("If block", function() {
 
 		Atat.compile(template, function(err, tmpl) {
 
-			assert.equal(tmpl({ show: false }), " world!");
+			expect(tmpl({ show: false })).to.eql(" world!");
 
 			done();
 		});

@@ -1,4 +1,4 @@
-var assert = require('assert');
+var expect = require('expect.js');
 var Atat = require('../');
 
 describe("Simple templates", function() {
@@ -11,7 +11,7 @@ describe("Simple templates", function() {
 
 		Atat.compile(template, function(err, tmpl) {
 
-			assert.equal(tmpl({ name: 'world' }), "Hello world!");
+			expect(tmpl({ name: "world" })).to.eql("Hello world!");
 
 			done();
 		});
@@ -23,7 +23,7 @@ describe("Simple templates", function() {
 
 		Atat.compile(template, function(err, tmpl) {
 
-			assert.equal(tmpl({ name: '<strong>world</strong>' }), "Hello <strong>world</strong>!");
+			expect(tmpl({ name: "<strong>world</strong>" })).to.eql("Hello <strong>world</strong>!");
 
 			done();
 		});
@@ -35,7 +35,7 @@ describe("Simple templates", function() {
 
 		Atat.compile(template, function(err, tmpl) {
 
-			assert.equal(tmpl({ name: "<strong>world</strong>" }), "Hello &#60;strong&#62;world&#60;&#47;strong&#62;!");
+			expect(tmpl({ name: "<strong>world</strong>" })).to.eql("Hello &#60;strong&#62;world&#60;&#47;strong&#62;!");
 
 			done();
 		});
