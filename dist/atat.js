@@ -1,5 +1,4 @@
 (function(){
-	
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -291,8 +290,21 @@ Atat.options = {
 
 function loader(path, callback) {
 
-	// load by http
+	var request = new XMLHttpRequest();
+	request.open('GET', path, true);
 
+	request.onreadystatechange = function () {
+		if (this.readyState === 4) {
+			if (this.status >= 200 && this.status < 400) {
+				callback(null, this.responseText);
+			} else {
+				callback(new Error('Not able to load template "' + path + '"'));
+			}
+		}
+	};
+
+	request.send();
+	request = null;
 }
 
 var VALUE_NAME_OUTSIDE = 'outside',
@@ -839,6 +851,6 @@ function compile_while(inside, ctx, callback) {
 }
 
 var root = (function() { return this || (0, eval)("this"); }());
-if(typeof root !== "undefined"){var previous_atat = root.atat; Atat.noConflict = function(){ root.atat = previous_atat; return Atat; }}
-if(typeof module !== "undefined" && module.exports){ module.exports = Atat; }else if(typeof define === "function" && define.amd){ define(function() { return Atat; }); }else{ root.atat = Atat; }
+if(typeof root !== "undefined"){var previous_atat = root.Atat; Atat.noConflict = function(){ root.Atat = previous_atat; return Atat; }}
+if(typeof module !== "undefined" && module.exports){ module.exports = Atat; }else if(typeof define === "function" && define.amd){ define(function() { return Atat; }); }else{ root.Atat = Atat; }
 }());

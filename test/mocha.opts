@@ -1,0 +1,5 @@
+--require expect.js
+--require index.js
+--require ./test/setup
+--reporter nyan
+--timeout 200

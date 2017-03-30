@@ -1,9 +1,12 @@
-var expect = require('expect.js');
-var Atat = require('../');
+'use strict';
 
 describe("While block", function() {
 
 	var template;
+
+	beforeEach(function() {
+		template = "";
+	});
 
 	it("Simple loop", function(done) {
 

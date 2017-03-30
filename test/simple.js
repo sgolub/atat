@@ -1,9 +1,12 @@
-var expect = require('expect.js');
-var Atat = require('../');
+'use strict';
 
 describe("Simple templates", function() {
 
 	var template;
+
+	beforeEach(function() {
+		template = "";
+	});
 
 	it("Inline value", function(done) {
 
