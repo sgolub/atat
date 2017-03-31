@@ -38,6 +38,8 @@ function get_tags_inline(compilers) {
 		regexps.push(regexp);
 	});
 
+	regexps.push('(@[A-Za-z0-9$]+\\()([^]*?)(\\)@)');
+
 	return new RegExp(regexps.join('|'), 'g');
 }
 

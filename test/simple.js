@@ -2,7 +2,7 @@
 
 describe("Simple templates", function() {
 
-	var template;
+	var template = "";
 
 	beforeEach(function() {
 		template = "";
@@ -10,10 +10,11 @@ describe("Simple templates", function() {
 
 	it("Inline value", function(done) {
 
-		template = "Hello @(model.name)@!";
+		template = "Hello @(it.name)@!";
 
 		Atat.compile(template, function(err, tmpl) {
 
+			expect(err).to.be(null);
 			expect(tmpl({ name: "world" })).to.eql("Hello world!");
 
 			done();
@@ -22,10 +23,11 @@ describe("Simple templates", function() {
 
 	it("Inline raw html", function(done) {
 
-		template = "Hello @!(model.name)@!";
+		template = "Hello @!(it.name)@!";
 
 		Atat.compile(template, function(err, tmpl) {
 
+			expect(err).to.be(null);
 			expect(tmpl({ name: "<strong>world</strong>" })).to.eql("Hello <strong>world</strong>!");
 
 			done();
@@ -34,10 +36,37 @@ describe("Simple templates", function() {
 
 	it("Inline encode html", function(done) {
 
-		template = "Hello @(model.name)@!";
+		template = "Hello @(it.name)@!";
 
 		Atat.compile(template, function(err, tmpl) {
 
+			expect(err).to.be(null);
+			expect(tmpl({ name: "<strong>world</strong>" })).to.eql("Hello &#60;strong&#62;world&#60;&#47;strong&#62;!");
+
+			done();
+		});
+	});
+
+	it("Inline encode html with custom helpers name", function(done) {
+
+		template = "Hello @(it.name)@!";
+
+		Atat.compile(template, { helpersname: '$$' }, function(err, tmpl) {
+
+			expect(err).to.be(null);
+			expect(tmpl({ name: "<strong>world</strong>" })).to.eql("Hello &#60;strong&#62;world&#60;&#47;strong&#62;!");
+
+			done();
+		});
+	});
+
+	it("Inline encode helper", function(done) {
+
+		template = "Hello @encode(it.name)@!";
+
+		Atat.compile(template, function(err, tmpl) {
+
+			expect(err).to.be(null);
 			expect(tmpl({ name: "<strong>world</strong>" })).to.eql("Hello &#60;strong&#62;world&#60;&#47;strong&#62;!");
 
 			done();

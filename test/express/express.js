@@ -1,10 +1,29 @@
 'use strict';
 
-describe("Express tests", function() {
+describe("Browser only tests", function() {
+
+	var fs;
+
+	beforeEach(function() {
+		fs = require('fs');
+	});
+
+	afterEach(function() {
+		simple.restore(fs, "readFile");
+	});
 
 	it("Render template", function(done) {
 
-		done();
+		simple.mock(fs, "readFile").callback(null, "Hello @(it.name)@!");
+
+		Atat.__express("/path/", { name: 'world' }, function(err, result) {
+
+			expect(err).to.eql(null);
+			expect(result).to.eql("Hello world!");
+
+			done();
+
+		});
 	});
 
 });

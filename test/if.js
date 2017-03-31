@@ -2,7 +2,7 @@
 
 describe("If block", function() {
 
-	var template;
+	var template = "";
 
 	beforeEach(function() {
 		template = "";
@@ -34,7 +34,7 @@ describe("If block", function() {
 
 	it("Model expretion TRUE", function(done) {
 
-		template = "@if ( model.show ) {Hello}@ world!";
+		template = "@if ( it.show ) {Hello}@ world!";
 
 		Atat.compile(template, function(err, tmpl) {
 
@@ -46,7 +46,7 @@ describe("If block", function() {
 
 	it("Model expretion TRUE", function(done) {
 
-		template = "@if ( model.show ) {Hello}@ world!";
+		template = "@if ( it.show ) {Hello}@ world!";
 
 		Atat.compile(template, function(err, tmpl) {
 

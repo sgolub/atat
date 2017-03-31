@@ -6,7 +6,7 @@ function output_as_text(inside, ctx, callback) {
 		callback();
 	}
 
-	callback(null, `this.output += $.encode(${inside.value.trim()});`);
+	callback(null, `this.output += this.helpers.encode(${inside.value.trim()});`);
 }
 
 function output_as_html(inside, ctx, callback) {
@@ -80,4 +80,18 @@ function output_section(inside, ctx, callback) {
 	let output = `this.output += (function(){var s = this.section('${name}'); return s?s(${ctx.arguments}):"";}).call(this);`;
 
 	callback(null, output);
+}
+
+function output_call_helper(inside, ctx, callback) {
+
+	let name = inside.left.value.substring(1, inside.left.value.length - 1);
+
+	if (typeof ctx.helpers[name] === 'function') {
+
+		callback(null, `this.output += this.helpers.${name}(${inside.value.trim()});`);
+
+		return;
+	}
+
+	callback(new Error(`Helper "${name}" didn't declarated`));
 }

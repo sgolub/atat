@@ -2,7 +2,7 @@
 
 describe("Code block", function() {
 
-	var template;
+	var template = "";
 
 	beforeEach(function() {
 		template = "";

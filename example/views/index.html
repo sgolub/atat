@@ -1,4 +1,4 @@
-@layout(./views/layout.atat)@
+@layout(./views/layout.html)@
 
 @{
 	var show = true;
@@ -10,7 +10,7 @@
 	this.output += "Hello world!";
 }@
 
-<p>Hello! My name is @(model.name)@!</p>
+<p>Hello! My name is @(it.name)@!</p>
 
 <p>Date now: @( Date.now() )@</p>
 

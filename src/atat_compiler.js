@@ -82,8 +82,7 @@ function compile_inline(input, ctx, callback) {
 			let compiler = ctx.compiler(left.value + inside.value + right.value);
 
 			if (!compiler) {
-				ctx.parts.push(left.value + inside.value + right.value);
-				callback('this.output += this.parts[' + (ctx.parts.length - 1) + '];');
+				output_call_helper.call(this, inside, ctx, callback);
 				return;
 			}
 

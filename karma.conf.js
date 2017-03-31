@@ -17,7 +17,10 @@ module.exports = function(config) {
 		client: {
 			mocha: {
 				reporter: 'html',
-				require: [require.resolve('expect.js')]
+				require: [
+					require.resolve('expect.js'),
+					require.resolve('simple-mock')
+				]
 			}
 		},
 		plugins: [

@@ -100,8 +100,7 @@ function compile_inline(input, ctx, callback) {
 			var compiler = ctx.compiler(left.value + inside.value + right.value);
 
 			if (!compiler) {
-				ctx.parts.push(left.value + inside.value + right.value);
-				callback('this.output += this.parts[' + (ctx.parts.length - 1) + '];');
+				output_call_helper.call(_this2, inside, ctx, callback);
 				return;
 			}
 
@@ -266,7 +265,7 @@ var Atat = function () {
 }();
 
 Atat.options = {
-	modelname: 'model',
+	modelname: 'it',
 	helpersname: '$',
 	tags: {
 		'@\\{': compile_code,
@@ -287,6 +286,218 @@ Atat.options = {
 		encode: encode_html
 	}
 };
+
+function compile_code(inside, ctx, callback) {
+
+	callback(null, inside.value.trim());
+}
+
+function compile_for(inside, ctx, callback) {
+
+	var code = 'for(' + inside.value + '}';
+
+	var blocks = match_recursive(code, /\{/g, /\}/g);
+
+	var out = '';
+
+	out += blocks[0].value;
+	out += '{';
+
+	this.compile(blocks[1].value, ctx, function (err, res) {
+
+		if (err) {
+			return callback(err);
+		}
+
+		out += res;
+		out += '}';
+
+		callback(null, out);
+	});
+}
+
+function compile_function(inside, ctx, callback) {
+
+	var left = inside.left.value.trim().substring(1);
+
+	callback(null, left + inside.value.trim() + '}');
+}
+
+function compile_if(inside, ctx, callback) {
+	var _this4 = this;
+
+	var code = 'if(' + inside.value + '}';
+
+	var blocks = match_recursive(code, /\{/g, /\}/g);
+
+	loop_async(blocks, function (block, i, array, callback) {
+
+		if (block.name == VALUE_NAME_OUTSIDE) {
+			return callback(null, block.value);
+		}
+
+		_this4.compile(block.value, ctx, callback);
+	}, function (err, results) {
+		if (err) {
+			return callback(err);
+		}
+		callback(null, results.join(''));
+	});
+}
+
+function output_as_text(inside, ctx, callback) {
+
+	var val = inside.value.trim();
+
+	if (val === '') {
+		callback();
+	}
+
+	callback(null, 'this.output += this.helpers.encode(' + inside.value.trim() + ');');
+}
+
+function output_as_html(inside, ctx, callback) {
+
+	var val = inside.value.trim();
+
+	if (val === '') {
+		callback();
+	}
+
+	callback(null, 'this.output += (' + inside.value.trim() + ');');
+}
+
+function compile_layout(inside, ctx, callback) {
+
+	if (ctx.__layout) {
+		return callback();
+	}
+
+	Atat.compileUri(inside.value.trim(), ctx.options, function (err, template) {
+
+		if (err) {
+
+			return callback(err);
+		}
+
+		ctx.__layout = template;
+		template.__context.parent = ctx;
+
+		callback();
+	});
+}
+
+function compile_partial(inside, ctx, callback) {
+
+	var value = inside.value.trim();
+	var match = regexp_exec(value, /^([^\s]*)\s/g);
+
+	if (!match && value == '') {
+		return callback(new Error('Partial parsing error'));
+	}
+
+	var uri = !match ? value : match[0];
+	var args = '';
+
+	if (match && match.length == 2) {
+		uri = match[1];
+		args = value.slice(match[0].length).trim();
+	}
+
+	Atat.compileUri(uri, ctx.options, function (err, template) {
+
+		if (err) {
+
+			return callback(err);
+		}
+
+		ctx.__partials.push(template);
+		template.__context.parent = ctx;
+
+		var output = 'this.output += this.__partials[' + (ctx.__partials.length - 1) + '](' + args + ');';
+
+		callback(null, output);
+	});
+}
+
+function output_section(inside, ctx, callback) {
+
+	var name = inside.value.trim();
+
+	var output = 'this.output += (function(){var s = this.section(\'' + name + '\'); return s?s(' + ctx.arguments + '):"";}).call(this);';
+
+	callback(null, output);
+}
+
+function output_call_helper(inside, ctx, callback) {
+
+	var name = inside.left.value.substring(1, inside.left.value.length - 1);
+
+	if (typeof ctx.helpers[name] === 'function') {
+
+		callback(null, 'this.output += this.helpers.' + name + '(' + inside.value.trim() + ');');
+
+		return;
+	}
+
+	callback(new Error('Helper "' + name + '" didn\'t declarated'));
+}
+
+function compile_section(inside, ctx, callback) {
+
+	var block = inside.value.trim();
+
+	var value = inside.left.value.trim();
+	var reg_name = /^@section\s+([A-Za-z0-9]+)\s*\{/g;
+	var match = regexp_exec(value, reg_name);
+
+	if (!match || match.length > 2) {
+		return callback(new Error('Section parsing error'));
+	}
+
+	var name = match[1].trim();
+
+	if (ctx.__sections[name]) {
+		return callback(new Error('Section already exists'));
+	}
+
+	Atat.compile(block, ctx.options, function (err, template) {
+
+		if (err) {
+
+			return callback(err);
+		}
+
+		ctx.__sections[name] = template;
+		template.__context.parent = ctx;
+
+		callback(null);
+	});
+}
+
+function compile_while(inside, ctx, callback) {
+
+	var code = 'while(' + inside.value + '}';
+
+	var blocks = match_recursive(code, /\{/g, /\}/g);
+
+	var out = '';
+
+	out += blocks[0].value;
+	out += '{';
+
+	this.compile(blocks[1].value, ctx, function (err, res) {
+
+		if (err) {
+			return callback(err);
+		}
+
+		out += res;
+		out += '}';
+
+		callback(null, out);
+	});
+}
 
 function loader(path, callback) {
 
@@ -344,6 +555,8 @@ function get_tags_inline(compilers) {
 	loop(compilers, function (compiler, regexp) {
 		regexps.push(regexp);
 	});
+
+	regexps.push('(@[A-Za-z0-9$]+\\()([^]*?)(\\)@)');
 
 	return new RegExp(regexps.join('|'), 'g');
 }
@@ -650,204 +863,6 @@ function match_inline(str, regexp) {
 	}
 
 	return output;
-}
-
-function compile_code(inside, ctx, callback) {
-
-	callback(null, inside.value.trim());
-}
-
-function compile_for(inside, ctx, callback) {
-
-	var code = 'for(' + inside.value + '}';
-
-	var blocks = match_recursive(code, /\{/g, /\}/g);
-
-	var out = '';
-
-	out += blocks[0].value;
-	out += '{';
-
-	this.compile(blocks[1].value, ctx, function (err, res) {
-
-		if (err) {
-			return callback(err);
-		}
-
-		out += res;
-		out += '}';
-
-		callback(null, out);
-	});
-}
-
-function compile_function(inside, ctx, callback) {
-
-	var left = inside.left.value.trim().substring(1);
-
-	callback(null, left + inside.value.trim() + '}');
-}
-
-function compile_if(inside, ctx, callback) {
-	var _this4 = this;
-
-	var code = 'if(' + inside.value + '}';
-
-	var blocks = match_recursive(code, /\{/g, /\}/g);
-
-	loop_async(blocks, function (block, i, array, callback) {
-
-		if (block.name == VALUE_NAME_OUTSIDE) {
-			return callback(null, block.value);
-		}
-
-		_this4.compile(block.value, ctx, callback);
-	}, function (err, results) {
-		if (err) {
-			return callback(err);
-		}
-		callback(null, results.join(''));
-	});
-}
-
-function output_as_text(inside, ctx, callback) {
-
-	var val = inside.value.trim();
-
-	if (val === '') {
-		callback();
-	}
-
-	callback(null, 'this.output += $.encode(' + inside.value.trim() + ');');
-}
-
-function output_as_html(inside, ctx, callback) {
-
-	var val = inside.value.trim();
-
-	if (val === '') {
-		callback();
-	}
-
-	callback(null, 'this.output += (' + inside.value.trim() + ');');
-}
-
-function compile_layout(inside, ctx, callback) {
-
-	if (ctx.__layout) {
-		return callback();
-	}
-
-	Atat.compileUri(inside.value.trim(), ctx.options, function (err, template) {
-
-		if (err) {
-
-			return callback(err);
-		}
-
-		ctx.__layout = template;
-		template.__context.parent = ctx;
-
-		callback();
-	});
-}
-
-function compile_partial(inside, ctx, callback) {
-
-	var value = inside.value.trim();
-	var match = regexp_exec(value, /^([^\s]*)\s/g);
-
-	if (!match && value == '') {
-		return callback(new Error('Partial parsing error'));
-	}
-
-	var uri = !match ? value : match[0];
-	var args = '';
-
-	if (match && match.length == 2) {
-		uri = match[1];
-		args = value.slice(match[0].length).trim();
-	}
-
-	Atat.compileUri(uri, ctx.options, function (err, template) {
-
-		if (err) {
-
-			return callback(err);
-		}
-
-		ctx.__partials.push(template);
-		template.__context.parent = ctx;
-
-		var output = 'this.output += this.__partials[' + (ctx.__partials.length - 1) + '](' + args + ');';
-
-		callback(null, output);
-	});
-}
-
-function output_section(inside, ctx, callback) {
-
-	var name = inside.value.trim();
-
-	var output = 'this.output += (function(){var s = this.section(\'' + name + '\'); return s?s(' + ctx.arguments + '):"";}).call(this);';
-
-	callback(null, output);
-}
-
-function compile_section(inside, ctx, callback) {
-
-	var block = inside.value.trim();
-
-	var value = inside.left.value.trim();
-	var reg_name = /^@section\s+([A-Za-z0-9]+)\s*\{/g;
-	var match = regexp_exec(value, reg_name);
-
-	if (!match || match.length > 2) {
-		return callback(new Error('Section parsing error'));
-	}
-
-	var name = match[1].trim();
-
-	if (ctx.__sections[name]) {
-		return callback(new Error('Section already exists'));
-	}
-
-	Atat.compile(block, ctx.options, function (err, template) {
-
-		if (err) {
-
-			return callback(err);
-		}
-
-		ctx.__sections[name] = template;
-		template.__context.parent = ctx;
-
-		callback(null);
-	});
-}
-
-function compile_while(inside, ctx, callback) {
-
-	var code = 'while(' + inside.value + '}';
-
-	var blocks = match_recursive(code, /\{/g, /\}/g);
-
-	var out = '';
-
-	out += blocks[0].value;
-	out += '{';
-
-	this.compile(blocks[1].value, ctx, function (err, res) {
-
-		if (err) {
-			return callback(err);
-		}
-
-		out += res;
-		out += '}';
-
-		callback(null, out);
-	});
 }
 
 var root = (function() { return this || (0, eval)("this"); }());

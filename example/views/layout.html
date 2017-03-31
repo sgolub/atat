@@ -3,14 +3,14 @@
 <head>
 	<meta charset="utf-8" />
 	<base href="/pager/">
-	<title>@(model.title)@</title>
+	<title>@(it.title)@</title>
 	<link rel="stylesheet" href="/pager/static/style.css" />
 	<script src="/pager/static/app/components/editor/sidebar/tree.js"></script>
 </head>
 <body>
 	<p>Layout text</p>
 	@!(body)@
-	@partial(./views/partials/footer.atat model)@
+	@partial(./views/partials/footer.html it)@
 	<p>Layout footer (:</p>
 	@section(scripts)@
 </body>

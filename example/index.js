@@ -3,10 +3,10 @@ const
 	fs = require('fs'),
 	app = express();
 
-app.engine('atat', require('./../index').__express);
+app.engine('html', require('./../index').__express);
 
 app.set('views', './views');
-app.set('view engine', 'atat');
+app.set('view engine', 'html');
 
 app.get('/', (req, res, next) => {
 

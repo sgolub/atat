@@ -57,7 +57,7 @@ class Atat {
 }
 
 Atat.options = {
-	modelname: 'model',
+	modelname: 'it',
 	helpersname: '$',
 	tags: {
 		'@\\{': compile_code,
