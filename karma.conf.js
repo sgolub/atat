@@ -3,14 +3,11 @@ module.exports = function(config) {
 		singleRun: true,
 		frameworks: ["mocha"],
 		files: [
-			"dist/atat.js",
-			"test/browser/*.js",
-			"test/!(setup).js"
+			'dist/atat.js',
+			'test/browser/*.js',
+			'test/!(setup).js'
 		],
-		exclude: [
-			'client/express/**/*.js'
-		],
-		browsers: ["Chrome", "IE", "IE9"],
+		browsers: ['Chrome', 'Firefox', 'IE', 'IE9'],
 		customLaunchers: {
 			IE9: {
 				base: 'IE',
@@ -19,14 +16,15 @@ module.exports = function(config) {
 		},
 		client: {
 			mocha: {
-				reporter: "html",
-				require: [require.resolve("expect.js")]
+				reporter: 'html',
+				require: [require.resolve('expect.js')]
 			}
 		},
 		plugins: [
-			"karma-ie-launcher",
-			"karma-chrome-launcher",
-			"karma-mocha"
+			'karma-ie-launcher',
+			'karma-chrome-launcher',
+			'karma-firefox-launcher',
+			'karma-mocha'
 		]
 	});
 };
