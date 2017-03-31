@@ -1,6 +1,6 @@
 {
   "name": "atat",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Fast and simple JavaScript template engine",
   "repository": "https://github.com/sgolub/atat",
   "main": "index.js",
