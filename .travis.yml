@@ -3,3 +3,4 @@ node_js:
   - 4.0
 install:
   - npm install
+script: mocha ./test ./test/express
