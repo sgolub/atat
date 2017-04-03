@@ -1,6 +1,6 @@
 'use strict';
 
-describe("Browser only tests", function() {
+describe("Express only tests", function() {
 
 	var fs;
 

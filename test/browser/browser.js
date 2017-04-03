@@ -8,7 +8,7 @@ describe("Express tests", function() {
 			this.onreadystatechange.call({
 				readyState: 4,
 				status: 200,
-				responseText: "Hello @(it.name)@!",
+				responseText: "Hello @(it.name)@!"
 			});
 		});
 	});
