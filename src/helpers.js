@@ -93,7 +93,6 @@ function loop_async(array, fn, callback) {
 	}
 }
 
-
 function merge(src, dest = {}) {
 	for (let x in src) {
 		if (!dest.hasOwnProperty(x) && src.hasOwnProperty(x)) {
@@ -106,4 +105,24 @@ function merge(src, dest = {}) {
 	}
 
 	return dest;
+}
+
+function trim_string(str, ...chars) {
+	if (chars.length == 0) {
+		return String.prototype.trim.call(str);
+	}
+
+	while (chars.indexOf(str.charAt(0)) >= 0) {
+		str = str.substring(1);
+	}
+
+	while (chars.indexOf(str.charAt(string.length - 1)) >= 0) {
+		str = str.substring(0, str.length - 1);
+	}
+
+	return str;
+}
+
+function escape_quotes(str) {
+	return trim_string(str).replace(/^"(.*)"$/g, '$1').replace(/^'(.*)'$/g, '$1');
 }

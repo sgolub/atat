@@ -26,7 +26,7 @@ function compile_layout(inside, ctx, callback) {
 		return callback();
 	}
 
-	Atat.compileUri(inside.value.trim(), ctx.options, (err, template) => {
+	Atat.compileUri(escape_quotes(inside.value), ctx.options, (err, template) => {
 
 		if (err) {
 
@@ -43,19 +43,14 @@ function compile_layout(inside, ctx, callback) {
 function compile_partial(inside, ctx, callback) {
 
 	let value = inside.value.trim();
-	let match = regexp_exec(value, /^([^\s]*)\s/g);
 
-	if (!match && value == '') {
+	if (value == '') {
 		return callback(new Error('Partial parsing error'));
 	}
 
-	let uri = !match ? value : match[0];
-	let args = '';
+	let args = value.split(/\s*,\s*/g);
 
-	if (match && match.length == 2) {
-		uri = match[1];
-		args = value.slice(match[0].length).trim();
-	}
+	let uri = escape_quotes(args.shift());
 
 	Atat.compileUri(uri, ctx.options, (err, template) => {
 
@@ -75,7 +70,7 @@ function compile_partial(inside, ctx, callback) {
 
 function output_section(inside, ctx, callback) {
 
-	let name = inside.value.trim();
+	let name = escape_quotes(inside.value);
 
 	let output = `this.output += (function(){var s = this.section('${name}'); return s?s(${ctx.arguments}):"";}).call(this);`;
 

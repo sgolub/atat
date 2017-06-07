@@ -37,7 +37,7 @@ describe("Express partials tests", function() {
 
 		template = "<div>Partial view @(it.value)@</div>";
 
-		Atat.compile("Body @(it.value)@ <strong>content</strong> @partial(./path/partial it)@", function(err, tmpl) {
+		Atat.compile("Body @(it.value)@ <strong>content</strong> @partial(./path/partial, it)@", function(err, tmpl) {
 
 			expect(err).to.eql(null);
 			expect(tmpl({ value: "foo" })).to.eql("Body foo <strong>content</strong> <div>Partial view foo</div>");

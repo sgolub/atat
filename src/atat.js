@@ -1,13 +1,13 @@
 class Atat {
 
-	static compileUri(uri, opts = {}, callback = () => {}) {
+	static compileUri(uri, opts = {}, callback = () => { }) {
 
 		if (typeof opts === 'function') {
 			callback = opts;
 			opts = {};
 		}
 
-		loader(uri, (err, input) => {
+		Atat.fileLoader(uri, (err, input) => {
 			if (err) {
 				return callback(err);
 			}
@@ -15,7 +15,7 @@ class Atat {
 		});
 	}
 
-	static compile(input, opts = {}, callback = () => {}) {
+	static compile(input, opts = {}, callback = () => { }) {
 
 		if (typeof opts === 'function') {
 			callback = opts;
@@ -34,7 +34,7 @@ class Atat {
 
 			let render = new Function(ctx.arguments, output + ';return this.output;');
 
-			ctx.template = function(model) {
+			ctx.template = function (model) {
 
 				ctx.output = '';
 				ctx.model = model || ctx.model;
@@ -55,6 +55,8 @@ class Atat {
 		});
 	}
 }
+
+Atat.fileLoader = fileLoader;
 
 Atat.options = {
 	modelname: 'it',

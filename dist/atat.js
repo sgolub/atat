@@ -208,7 +208,7 @@ var Atat = function () {
 				opts = {};
 			}
 
-			loader(uri, function (err, input) {
+			Atat.fileLoader(uri, function (err, input) {
 				if (err) {
 					return callback(err);
 				}
@@ -263,6 +263,8 @@ var Atat = function () {
 
 	return Atat;
 }();
+
+Atat.fileLoader = fileLoader;
 
 Atat.options = {
 	modelname: 'it',
@@ -373,7 +375,7 @@ function compile_layout(inside, ctx, callback) {
 		return callback();
 	}
 
-	Atat.compileUri(inside.value.trim(), ctx.options, function (err, template) {
+	Atat.compileUri(escape_quotes(inside.value), ctx.options, function (err, template) {
 
 		if (err) {
 
@@ -390,19 +392,14 @@ function compile_layout(inside, ctx, callback) {
 function compile_partial(inside, ctx, callback) {
 
 	var value = inside.value.trim();
-	var match = regexp_exec(value, /^([^\s]*)\s/g);
 
-	if (!match && value == '') {
+	if (value == '') {
 		return callback(new Error('Partial parsing error'));
 	}
 
-	var uri = !match ? value : match[0];
-	var args = '';
+	var args = value.split(/\s*,\s*/g);
 
-	if (match && match.length == 2) {
-		uri = match[1];
-		args = value.slice(match[0].length).trim();
-	}
+	var uri = escape_quotes(args.shift());
 
 	Atat.compileUri(uri, ctx.options, function (err, template) {
 
@@ -422,7 +419,7 @@ function compile_partial(inside, ctx, callback) {
 
 function output_section(inside, ctx, callback) {
 
-	var name = inside.value.trim();
+	var name = escape_quotes(inside.value);
 
 	var output = 'this.output += (function(){var s = this.section(\'' + name + '\'); return s?s(' + ctx.arguments + '):"";}).call(this);';
 
@@ -499,7 +496,7 @@ function compile_while(inside, ctx, callback) {
 	});
 }
 
-function loader(path, callback) {
+function fileLoader(path, callback) {
 
 	var request = new XMLHttpRequest();
 	request.open('GET', path, true);
@@ -629,6 +626,29 @@ function merge(src) {
 	return dest;
 }
 
+function trim_string(str) {
+	for (var _len = arguments.length, chars = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+		chars[_key - 1] = arguments[_key];
+	}
+
+	if (chars.length == 0) {
+		return String.prototype.trim.call(str);
+	}
+
+	while (chars.indexOf(str.charAt(0)) >= 0) {
+		str = str.substring(1);
+	}
+
+	while (chars.indexOf(str.charAt(string.length - 1)) >= 0) {
+		str = str.substring(0, str.length - 1);
+	}
+
+	return str;
+}
+
+function escape_quotes(str) {
+	return trim_string(str).replace(/^"(.*)"$/g, '$1').replace(/^'(.*)'$/g, '$1');
+}
 function match_recursive(str, left, right) {
 
 	var global = left.global,

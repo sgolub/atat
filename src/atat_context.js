@@ -43,7 +43,7 @@ class AtContext {
 	}
 
 	section(name) {
-		if(!name){
+		if (!name) {
 			return null;
 		}
 
