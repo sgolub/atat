@@ -77,6 +77,7 @@ Atat.options = {
 		'(@!\\()([^]*?)(\\)@)': output_as_html
 	},
 	helpers: {
-		encode: encode_html
+		encode: encode_html,
+		json: json
 	}
 };

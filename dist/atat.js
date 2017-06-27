@@ -285,7 +285,8 @@ Atat.options = {
 		'(@!\\()([^]*?)(\\)@)': output_as_html
 	},
 	helpers: {
-		encode: encode_html
+		encode: encode_html,
+		json: json
 	}
 };
 
@@ -564,6 +565,12 @@ function encode_html() {
 	return code.toString().replace(MATCH_HTML, function (m) {
 		return HTML_RULES[m] || m;
 	});
+}
+
+function json() {
+	var obj = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
+
+	return JSON.stringify(obj);
 }
 
 function loop(array, fn) {
