@@ -5,6 +5,7 @@
   "repository": "https://github.com/sgolub/atat",
   "main": "index.js",
   "scripts": {
+    "build": "grunt",
     "test": "mocha ./test ./test/express & karma start"
   },
   "author": "Sergey Golub",

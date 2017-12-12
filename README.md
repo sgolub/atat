@@ -1,4 +1,4 @@
-# atat
+# atat β
 
 Fast and simple asynchronous JavaScript template engine without dependencies for any environment.
 
@@ -28,7 +28,7 @@ In a browser:
 
  - ```modelname``` default to ```it```
  - ```helpersname``` default to ```$```
- - 
+ - ```this```
  - 
  - 
 
@@ -59,6 +59,65 @@ Atat.compileUri(templateUri, options, function(err, template) {
 
 ### Syntax
 
+Encoded output
+```html
+<p>@(it.user.firstName)@</p>
+```
+
+Raw html
+```html
+<p>@!(it.rawHTML)@</p>
+```
+
+JavaScript block
+```html
+@{
+    var now = Date.now();
+}@
+
+<p>@(now)@</p>
+```
+
+@if statement
+```html
+@if(it.user){
+    <p>@(it.user.firstName)@</p>
+    <p>@(it.user.secondName)@</p>
+}@
+```
+
+@if...else statement
+```html
+@if(it.user){
+    <p>@(it.user.firstName)@</p>
+    <p>@(it.user.secondName)@</p>
+} else {
+    <p>User is not defined</p>
+}@
+```
+
+@for statement
+```html
+<ul>
+@for(var i = 0, l = it.users.length; i < l; i++>){
+    <li>@(it.users[i].firstName)@ @(it.users[i].secondName)@</li>
+}@
+</ul>
+```
+
+@while statement
+```html
+<ul>
+    @{
+        var i = 0; j = 10;        
+    }@
+
+    @while(i < j){
+        <li>@(i++)@</li>
+    }@
+</ul>
+```
+
 ### Helpers
 
 ### Layout
@@ -71,5 +130,5 @@ Atat.compileUri(templateUri, options, function(err, template) {
 
 ### Testing
 
-### License
-MIT
+## License
+The JavaScript Templates script is released under the [MIT license](https://opensource.org/licenses/MIT).
