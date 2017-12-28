@@ -613,12 +613,6 @@ function encode_html() {
 	});
 }
 
-function json() {
-	var obj = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
-
-	return JSON.stringify(obj);
-}
-
 function loop(array, fn) {
 
 	if (Object.prototype.toString.call(array) !== '[object Array]') {

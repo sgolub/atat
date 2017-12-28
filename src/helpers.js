@@ -49,10 +49,6 @@ function encode_html(code = '') {
 	});
 }
 
-function json(obj = '') {
-	return JSON.stringify(obj);
-}
-
 function loop(array, fn) {
 
 	if (Object.prototype.toString.call(array) !== '[object Array]') {
