@@ -24,14 +24,6 @@ In a browser:
  - Complies with Express
  - Layouts, partials and sections
 
-### Options
-
- - ```modelname``` default to ```it```
- - ```helpersname``` default to ```$```
- - ```this```
- - 
- - 
-
 ### Usage
 
 
@@ -40,7 +32,7 @@ var Atat = require('atat');
 ```
 
 ```js
-Atat.compile(templateString, options, function(err, template) {
+Atat.compile(templateString, helpers, function(err, template) {
     if (!err) {
         var result = template(model);
     }
@@ -50,7 +42,7 @@ Atat.compile(templateString, options, function(err, template) {
 or you can use ```compileUri``` method to read template from file or download it by ajax request
 
 ```js
-Atat.compileUri(templateUri, options, function(err, template) {
+Atat.compileUri(templateUri, helpers, function(err, template) {
     if (!err) {
         var result = template(model);
     }
@@ -69,7 +61,7 @@ Raw html
 <p>@!(it.rawHTML)@</p>
 ```
 
-JavaScript block
+Embedded JavaScript code
 ```html
 @{
     var now = Date.now();

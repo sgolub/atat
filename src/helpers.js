@@ -78,15 +78,22 @@ function loop_async(array, fn, callback) {
 
 	function cb(index) {
 		return (err, res) => {
-			if (err && !finished) {
-				finished = true
+
+			if (finished) {
+				return;
+			}
+
+			if (err) {
+				finished = true;
 				callback(err);
 				return;
 			}
+
 			results[index] = res;
 			ready++;
-			if (!finished && ready == length) {
-				finished = true
+
+			if (ready == length) {
+				finished = true;
 				callback(null, results);
 			}
 		};
@@ -125,4 +132,20 @@ function trim_string(str, ...chars) {
 
 function escape_quotes(str) {
 	return trim_string(str).replace(/^"(.*)"$/g, '$1').replace(/^'(.*)'$/g, '$1');
+}
+
+function json_stringify(obj) {
+	return JSON.stringify(obj);
+}
+
+function join_helper(array = [], separator = '') {
+	return Array.prototype.join.call(array, separator);
+}
+
+function uppercase_helper(str = '') {
+	return str.toString().toUpperCase();
+}
+
+function lowercase_helper(str = '') {
+	return str.toString().toLowerCase();
 }

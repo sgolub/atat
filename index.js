@@ -17,20 +17,81 @@ var AtCompiler = function () {
 		value: function compile(input, ctx, callback) {
 			var _this = this;
 
-			var blocks = match_recursive(input, ctx.tags.open, ctx.tags.close);
+			try {
+				var blocks = match_recursive(input, ctx.tags.open, ctx.tags.close);
 
-			loop_async(blocks, function (block, i, array, callback) {
+				loop_async(blocks, function (block, i, array, callback) {
 
-				if (block.name == VALUE_NAME_OUTSIDE) {
+					try {
 
-					if (block.value.trim() == '') {
+						if (block.name == VALUE_NAME_OUTSIDE) {
 
-						callback(null, '');
+							if (block.value.trim() == '') {
 
-						return;
+								callback(null, '');
+
+								return;
+							}
+
+							compile_inline.call(_this, block.value, ctx, callback);
+
+							return;
+						}
+
+						if (block.name == VALUE_NAME_INSIDE) {
+
+							var left = block.left,
+							    inside = block,
+							    right = block.right;
+
+							var compiler = ctx.compiler(left.value);
+
+							if (!compiler) {
+
+								compile_inline.call(_this, left.value + inside.value + right.value, ctx, callback);
+
+								return;
+							}
+
+							compiler.call(_this, inside, ctx, callback);
+
+							return;
+						}
+					} catch (e) {
+
+						callback(e);
+					}
+				}, function (err, results) {
+
+					if (err) {
+
+						return callback(err);
 					}
 
-					compile_inline.call(_this, block.value, ctx, callback);
+					callback(null, results.join(''));
+				});
+			} catch (e) {
+				callback(e);
+			}
+		}
+	}]);
+
+	return AtCompiler;
+}();
+
+function compile_inline(input, ctx, callback) {
+	var _this2 = this;
+
+	try {
+		var blocks = match_inline(input, ctx.inline);
+
+		loop_async(blocks, function (block, i, array, callback) {
+
+			try {
+				if (block.name == VALUE_NAME_OUTSIDE) {
+
+					ctx.parts.push(block.value);
+					callback(null, 'this.output += this.parts[' + (ctx.parts.length - 1) + '];');
 
 					return;
 				}
@@ -41,82 +102,40 @@ var AtCompiler = function () {
 					    inside = block,
 					    right = block.right;
 
-					var compiler = ctx.compiler(left.value);
+					if (inside.value.trim() == '') {
 
-					if (!compiler) {
-
-						compile_inline.call(_this, left.value + inside.value + right.value, ctx, callback);
+						callback(null, '');
 
 						return;
 					}
 
-					compiler.call(_this, inside, ctx, callback);
+					var compiler = ctx.compiler(left.value + inside.value + right.value);
+
+					if (!compiler) {
+						output_call_helper.call(_this2, inside, ctx, callback);
+						return;
+					}
+
+					compiler.call(_this2, inside, ctx, callback);
 
 					return;
 				}
-			}, function (err, results) {
+			} catch (e) {
 
-				if (err) {
+				callback(e);
+			}
+		}, function (err, results) {
 
-					return callback(err);
-				}
+			if (err) {
 
-				callback(null, results.join(''));
-			});
-		}
-	}]);
-
-	return AtCompiler;
-}();
-
-function compile_inline(input, ctx, callback) {
-	var _this2 = this;
-
-	var blocks = match_inline(input, ctx.inline);
-
-	loop_async(blocks, function (block, i, array, callback) {
-
-		if (block.name == VALUE_NAME_OUTSIDE) {
-
-			ctx.parts.push(block.value);
-			callback(null, 'this.output += this.parts[' + (ctx.parts.length - 1) + '];');
-
-			return;
-		}
-
-		if (block.name == VALUE_NAME_INSIDE) {
-
-			var left = block.left,
-			    inside = block,
-			    right = block.right;
-
-			if (inside.value.trim() == '') {
-
-				callback(null, '');
-
-				return;
+				return callback(err);
 			}
 
-			var compiler = ctx.compiler(left.value + inside.value + right.value);
-
-			if (!compiler) {
-				output_call_helper.call(_this2, inside, ctx, callback);
-				return;
-			}
-
-			compiler.call(_this2, inside, ctx, callback);
-
-			return;
-		}
-	}, function (err, results) {
-
-		if (err) {
-
-			return callback(err);
-		}
-
-		callback(null, results.join(''));
-	});
+			callback(null, results.join(''));
+		});
+	} catch (e) {
+		callback(e);
+	}
 }
 
 var AtContext = function () {
@@ -241,17 +260,21 @@ var Atat = function () {
 
 				ctx.template = function (model) {
 
-					ctx.output = '';
-					ctx.model = model || ctx.model;
+					try {
+						ctx.output = '';
+						ctx.model = model || ctx.model;
 
-					var body = render.call(ctx, ctx.model, ctx.helpers, ctx.body);
+						var body = render.call(ctx, ctx.model, ctx.helpers, ctx.body);
 
-					if (ctx.__layout) {
-						ctx.__layout.__context.body = body;
-						body = ctx.__layout(ctx.model);
+						if (ctx.__layout) {
+							ctx.__layout.__context.body = body;
+							body = ctx.__layout(ctx.model);
+						}
+
+						return body;
+					} catch (e) {
+						return e.toString();
 					}
-
-					return body;
 				};
 
 				ctx.template.__context = ctx;
@@ -285,7 +308,11 @@ Atat.options = {
 		'(@!\\()([^]*?)(\\)@)': output_as_html
 	},
 	helpers: {
-		encode: encode_html
+		encode: encode_html,
+		json: json_stringify,
+		join: join_helper,
+		upper: uppercase_helper,
+		lower: lowercase_helper
 	}
 };
 
@@ -349,95 +376,116 @@ function compile_if(inside, ctx, callback) {
 
 function output_as_text(inside, ctx, callback) {
 
-	var val = inside.value.trim();
+	try {
+		var val = inside.value.trim();
 
-	if (val === '') {
-		callback();
+		if (val === '') {
+			callback();
+		}
+
+		callback(null, 'this.output += this.helpers.encode(' + inside.value.trim() + ');');
+	} catch (e) {
+		callback(e);
 	}
-
-	callback(null, 'this.output += this.helpers.encode(' + inside.value.trim() + ');');
 }
 
 function output_as_html(inside, ctx, callback) {
 
-	var val = inside.value.trim();
+	try {
+		var val = inside.value.trim();
 
-	if (val === '') {
-		callback();
+		if (val === '') {
+			callback();
+		}
+
+		callback(null, 'this.output += (' + inside.value.trim() + ');');
+	} catch (e) {
+		callback(e);
 	}
-
-	callback(null, 'this.output += (' + inside.value.trim() + ');');
 }
 
 function compile_layout(inside, ctx, callback) {
 
-	if (ctx.__layout) {
-		return callback();
-	}
-
-	Atat.compileUri(escape_quotes(inside.value), ctx.options, function (err, template) {
-
-		if (err) {
-
-			return callback(err);
+	try {
+		if (ctx.__layout) {
+			return callback();
 		}
 
-		ctx.__layout = template;
-		template.__context.parent = ctx;
+		Atat.compileUri(escape_quotes(inside.value), ctx.options, function (err, template) {
 
-		callback();
-	});
+			if (err) {
+
+				return callback(err);
+			}
+
+			ctx.__layout = template;
+			template.__context.parent = ctx;
+
+			callback();
+		});
+	} catch (e) {
+		callback(e);
+	}
 }
 
 function compile_partial(inside, ctx, callback) {
 
-	var value = inside.value.trim();
+	try {
+		var value = inside.value.trim();
 
-	if (value == '') {
-		return callback(new Error('Partial parsing error'));
-	}
-
-	var args = value.split(/\s*,\s*/g);
-
-	var uri = escape_quotes(args.shift());
-
-	Atat.compileUri(uri, ctx.options, function (err, template) {
-
-		if (err) {
-
-			return callback(err);
+		if (value == '') {
+			return callback(new Error('Partial parsing error'));
 		}
 
-		ctx.__partials.push(template);
-		template.__context.parent = ctx;
+		var args = value.split(/\s*,\s*/g);
 
-		var output = 'this.output += this.__partials[' + (ctx.__partials.length - 1) + '](' + args + ');';
+		var uri = escape_quotes(args.shift());
 
-		callback(null, output);
-	});
+		Atat.compileUri(uri, ctx.options, function (err, template) {
+
+			if (err) {
+
+				return callback(err);
+			}
+
+			ctx.__partials.push(template);
+			template.__context.parent = ctx;
+
+			var output = 'this.output += this.__partials[' + (ctx.__partials.length - 1) + '](' + args + ');';
+
+			callback(null, output);
+		});
+	} catch (e) {
+		callback(e);
+	}
 }
 
 function output_section(inside, ctx, callback) {
 
-	var name = escape_quotes(inside.value);
+	try {
+		var name = escape_quotes(inside.value);
 
-	var output = 'this.output += (function(){var s = this.section(\'' + name + '\'); return s?s(' + ctx.arguments + '):"";}).call(this);';
+		var output = 'this.output += (function(){var s = this.section(\'' + name + '\'); return s?s(' + ctx.arguments + '):"";}).call(this);';
 
-	callback(null, output);
+		callback(null, output);
+	} catch (e) {
+		callback(e);
+	}
 }
 
 function output_call_helper(inside, ctx, callback) {
 
-	var name = inside.left.value.substring(1, inside.left.value.length - 1);
+	try {
+		var name = inside.left.value.substring(1, inside.left.value.length - 1);
 
-	if (typeof ctx.helpers[name] === 'function') {
+		if (typeof ctx.helpers[name] !== 'function') {
+			throw 'Helper "' + name + '" didn\'t declarated';
+		}
 
 		callback(null, 'this.output += this.helpers.' + name + '(' + inside.value.trim() + ');');
-
-		return;
+	} catch (e) {
+		callback(e);
 	}
-
-	callback(new Error('Helper "' + name + '" didn\'t declarated'));
 }
 
 function compile_section(inside, ctx, callback) {
@@ -465,8 +513,8 @@ function compile_section(inside, ctx, callback) {
 			return callback(err);
 		}
 
-		ctx.__sections[name] = template;
 		template.__context.parent = ctx;
+		ctx.__sections[name] = template;
 
 		callback(null);
 	});
@@ -501,7 +549,7 @@ Atat.__express = function (path, options, callback) {
 	Atat.compileUri(path, function (err, template) {
 
 		if (err) {
-			return callback(err);
+			return callback(err.toString());
 		}
 
 		return callback(null, template(options));
@@ -594,14 +642,21 @@ function loop_async(array, fn, callback) {
 
 	function cb(index) {
 		return function (err, res) {
-			if (err && !finished) {
+
+			if (finished) {
+				return;
+			}
+
+			if (err) {
 				finished = true;
 				callback(err);
 				return;
 			}
+
 			results[index] = res;
 			ready++;
-			if (!finished && ready == length) {
+
+			if (ready == length) {
 				finished = true;
 				callback(null, results);
 			}
@@ -648,6 +703,30 @@ function trim_string(str) {
 function escape_quotes(str) {
 	return trim_string(str).replace(/^"(.*)"$/g, '$1').replace(/^'(.*)'$/g, '$1');
 }
+
+function json_stringify(obj) {
+	return JSON.stringify(obj);
+}
+
+function join_helper() {
+	var array = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+	var separator = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
+
+	return Array.prototype.join.call(array, separator);
+}
+
+function uppercase_helper() {
+	var str = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
+
+	return str.toString().toUpperCase();
+}
+
+function lowercase_helper() {
+	var str = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
+
+	return str.toString().toLowerCase();
+}
+
 function match_recursive(str, left, right) {
 
 	var global = left.global,
