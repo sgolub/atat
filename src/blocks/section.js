@@ -23,8 +23,8 @@ function compile_section(inside, ctx, callback) {
 			return callback(err);
 		}
 
-		ctx.__sections[name] = template;
 		template.__context.parent = ctx;
+		ctx.__sections[name] = template;
 
 		callback(null);
 	});

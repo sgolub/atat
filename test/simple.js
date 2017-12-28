@@ -51,7 +51,7 @@ describe("Simple templates", function() {
 
 		template = "Hello @(it.name)@!";
 
-		Atat.compile(template, { helpersname: '$$' }, function(err, tmpl) {
+		Atat.compile(template, function(err, tmpl) {
 
 			expect(err).to.be(null);
 			expect(tmpl({ name: "<strong>world</strong>" })).to.eql("Hello &#60;strong&#62;world&#60;&#47;strong&#62;!");

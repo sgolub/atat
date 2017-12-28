@@ -1,11 +1,13 @@
 {
   "name": "atat",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Fast and simple JavaScript template engine",
   "repository": "https://github.com/sgolub/atat",
   "main": "index.js",
   "scripts": {
-    "test": "mocha ./test ./test/express & karma start"
+    "build": "grunt",
+    "test": "mocha ./test ./test/express & karma start",
+    "mocha": "mocha ./test ./test/express"
   },
   "author": "Sergey Golub",
   "license": "MIT",

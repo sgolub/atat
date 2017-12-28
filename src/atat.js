@@ -36,17 +36,21 @@ class Atat {
 
 			ctx.template = function (model) {
 
-				ctx.output = '';
-				ctx.model = model || ctx.model;
-
-				let body = render.call(ctx, ctx.model, ctx.helpers, ctx.body);
-
-				if (ctx.__layout) {
-					ctx.__layout.__context.body = body;
-					body = ctx.__layout(ctx.model);
+				try {
+					ctx.output = '';
+					ctx.model = model || ctx.model;
+	
+					let body = render.call(ctx, ctx.model, ctx.helpers, ctx.body);
+	
+					if (ctx.__layout) {
+						ctx.__layout.__context.body = body;
+						body = ctx.__layout(ctx.model);
+					}
+	
+					return body;
+				} catch (e) {
+					return e.toString();
 				}
-
-				return body;
 			};
 
 			ctx.template.__context = ctx;
@@ -78,6 +82,9 @@ Atat.options = {
 	},
 	helpers: {
 		encode: encode_html,
-		json: json
+		json: json_stringify,
+		join: join_helper,
+		upper: uppercase_helper,
+		lower: lowercase_helper
 	}
 };

@@ -1,4 +1,4 @@
-# atat
+# atat β
 
 Fast and simple asynchronous JavaScript template engine without dependencies for any environment.
 
@@ -24,14 +24,6 @@ In a browser:
  - Complies with Express
  - Layouts, partials and sections
 
-### Options
-
- - ```modelname``` default to ```it```
- - ```helpersname``` default to ```$```
- - 
- - 
- - 
-
 ### Usage
 
 
@@ -40,7 +32,7 @@ var Atat = require('atat');
 ```
 
 ```js
-Atat.compile(templateString, options, function(err, template) {
+Atat.compile(templateString, helpers, function(err, template) {
     if (!err) {
         var result = template(model);
     }
@@ -50,7 +42,7 @@ Atat.compile(templateString, options, function(err, template) {
 or you can use ```compileUri``` method to read template from file or download it by ajax request
 
 ```js
-Atat.compileUri(templateUri, options, function(err, template) {
+Atat.compileUri(templateUri, helpers, function(err, template) {
     if (!err) {
         var result = template(model);
     }
@@ -58,6 +50,65 @@ Atat.compileUri(templateUri, options, function(err, template) {
 ```
 
 ### Syntax
+
+Encoded output
+```html
+<p>@(it.user.firstName)@</p>
+```
+
+Raw html
+```html
+<p>@!(it.rawHTML)@</p>
+```
+
+Embedded JavaScript code
+```html
+@{
+    var now = Date.now();
+}@
+
+<p>@(now)@</p>
+```
+
+@if statement
+```html
+@if(it.user){
+    <p>@(it.user.firstName)@</p>
+    <p>@(it.user.secondName)@</p>
+}@
+```
+
+@if...else statement
+```html
+@if(it.user){
+    <p>@(it.user.firstName)@</p>
+    <p>@(it.user.secondName)@</p>
+} else {
+    <p>User is not defined</p>
+}@
+```
+
+@for statement
+```html
+<ul>
+@for(var i = 0, l = it.users.length; i < l; i++>){
+    <li>@(it.users[i].firstName)@ @(it.users[i].secondName)@</li>
+}@
+</ul>
+```
+
+@while statement
+```html
+<ul>
+    @{
+        var i = 0; j = 10;        
+    }@
+
+    @while(i < j){
+        <li>@(i++)@</li>
+    }@
+</ul>
+```
 
 ### Helpers
 
@@ -71,5 +122,5 @@ Atat.compileUri(templateUri, options, function(err, template) {
 
 ### Testing
 
-### License
-MIT
+## License
+The JavaScript Templates script is released under the [MIT license](https://opensource.org/licenses/MIT).
