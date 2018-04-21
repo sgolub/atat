@@ -12,7 +12,7 @@ describe("Code block", function() {
 
 		template = "@{    }@Hello world!";
 
-		Atat.compile(template, function(err, tmpl) {
+		atat.compile(template, function(err, tmpl) {
 
 			expect(tmpl()).to.eql("Hello world!");
 
@@ -24,7 +24,7 @@ describe("Code block", function() {
 
 		template = "@{ var name = 'world'; }@Hello @(name)@!";
 
-		Atat.compile(template, function(err, tmpl) {
+		atat.compile(template, function(err, tmpl) {
 
 			expect(tmpl()).to.eql("Hello world!");
 

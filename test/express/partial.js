@@ -16,7 +16,7 @@ describe("Express partials tests", function() {
 
 		simple.mock(fs, "readFile").callback(null, "<div>Partial view</div>");
 
-		Atat.compile("Body <strong>content</strong> @partial(./path/partial)@", function(err, tmpl) {
+		atat.compile("Body <strong>content</strong> @partial(./path/partial)@", function(err, tmpl) {
 
 			expect(err).to.eql(null);
 			expect(tmpl()).to.eql("Body <strong>content</strong> <div>Partial view</div>");
@@ -29,7 +29,7 @@ describe("Express partials tests", function() {
 
 		simple.mock(fs, "readFile").callback(null, "<div>Partial view @(it.value)@</div>");
 
-		Atat.compile("Body @(it.value)@ <strong>content</strong> @partial(./path/partial, it)@", function(err, tmpl) {
+		atat.compile("Body @(it.value)@ <strong>content</strong> @partial(./path/partial, it)@", function(err, tmpl) {
 
 			expect(err).to.eql(null);
 			expect(tmpl({ value: "foo" })).to.eql("Body foo <strong>content</strong> <div>Partial view foo</div>");

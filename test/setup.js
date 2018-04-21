@@ -2,4 +2,4 @@
 
 global.expect = require('expect.js');
 global.simple = require('simple-mock');
-global.Atat = require('../');
+global.atat = require('../');

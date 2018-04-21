@@ -1,16 +1,17 @@
 const
 	express = require('express'),
 	fs = require('fs'),
+	atat = require('../index'),
 	app = express();
 
-app.engine('html', require('./../index').__express);
+app.engine('atat', atat.__express);
 
-app.set('views', './views');
-app.set('view engine', 'html');
+app.set('views',  __dirname + '/views');
+app.set('view engine', 'atat');
 
 app.get('/', (req, res, next) => {
 
-	return res.render('index', { title: 'Atat example', name: 'Atat' });
+	return res.render('index', { title: 'atat example', name: 'atat' });
 });
 
 app.listen(3000, () => {

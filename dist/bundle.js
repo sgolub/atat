@@ -1,10 +1,16 @@
-module.exports =
-/******/ (function(modules) { // webpackBootstrap
+(function webpackUniversalModuleDefinition(root, factory) {
+	if(typeof exports === 'object' && typeof module === 'object')
+		module.exports = factory();
+	else if(typeof define === 'function' && define.amd)
+		define([], factory);
+	else if(typeof exports === 'object')
+		exports["atat"] = factory();
+	else
+		root["atat"] = factory();
+})(window, function() {
+return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
-/******/
-/******/ 	// object to store loaded and loading wasm modules
-/******/ 	var installedWasmModules = {};
 /******/
 /******/ 	// The require function
 /******/ 	function __webpack_require__(moduleId) {
@@ -68,9 +74,6 @@ module.exports =
 /******/ 	// __webpack_public_path__
 /******/ 	__webpack_require__.p = "";
 /******/
-/******/ 	// object with all compiled WebAssembly.Modules
-/******/ 	__webpack_require__.w = {};
-/******/
 /******/
 /******/ 	// Load entry module and return exports
 /******/ 	return __webpack_require__(__webpack_require__.s = 3);
@@ -122,30 +125,23 @@ function merge(src, dest) {
     return dest;
 }
 exports.merge = merge;
-function get_tags(tags) {
+function get_tags(compilers) {
     var regexps = [];
-    loop(tags, function (compiler, regexp) {
+    loop(compilers, function (compiler, regexp) {
         if (regexps.indexOf(regexp) === -1) {
             regexps.push(regexp);
         }
     });
-    var compilers = [];
-    loop(tags, function (compiler, regexp) {
-        compilers.push({
-            compiler: compiler,
-            regexp: new RegExp(regexp, 'g')
-        });
-    });
     return {
         open: new RegExp(regexps.join('|'), 'g'),
         close: /}@/g,
-        compilers: compilers
+        compilers: []
     };
 }
 exports.get_tags = get_tags;
-function get_tags_inline(inline_tags) {
+function get_tags_inline(compilers) {
     var regexps = [];
-    loop(inline_tags, function (compiler, regexp) {
+    loop(compilers, function (compiler, regexp) {
         regexps.push(regexp);
     });
     regexps.push('(@[A-Za-z0-9$]+\\()([^]*?)(\\)@)');
@@ -241,23 +237,6 @@ function lowercase_helper(str) {
     return str.toString().toLowerCase();
 }
 exports.lowercase_helper = lowercase_helper;
-function resolveUrl(base, relative) {
-    var stack = base.split("/"), parts = relative.split("/");
-    stack.pop();
-    for (var i = 0; i < parts.length; i++) {
-        if (parts[i] == ".") {
-            continue;
-        }
-        if (parts[i] == "..") {
-            stack.pop();
-        }
-        else {
-            stack.push(parts[i]);
-        }
-    }
-    return stack.join("/");
-}
-exports.resolveUrl = resolveUrl;
 
 
 /***/ }),
@@ -452,10 +431,10 @@ exports.match_inline = match_inline;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var context_1 = __webpack_require__(10);
-var compiler_1 = __webpack_require__(7);
+var AtatContext_1 = __webpack_require__(9);
+var AtatCompiler_1 = __webpack_require__(6);
 var common_1 = __webpack_require__(0);
-var load_file_1 = __webpack_require__(6);
+var load_file_1 = __webpack_require__(5);
 exports.atat = {
     compileByPath: function (path, opts, callback) {
         if (opts === void 0) { opts = {}; }
@@ -478,8 +457,8 @@ exports.atat = {
             callback = opts;
             opts = {};
         }
-        var ctx = new context_1.AtatContext(opts);
-        var compiler = new compiler_1.AtatCompiler();
+        var ctx = new AtatContext_1.AtatContext(opts);
+        var compiler = new AtatCompiler_1.AtatCompiler();
         compiler.compile(input, ctx, function (err, output) {
             if (err) {
                 return callback(err);
@@ -490,9 +469,9 @@ exports.atat = {
                     ctx.output = '';
                     ctx.model = model || ctx.model;
                     var body = render.call(ctx, ctx.model, ctx.helpers, ctx.body);
-                    if (ctx.layout) {
-                        ctx.layout.context.body = body;
-                        body = ctx.layout(ctx.model);
+                    if (ctx.__layout) {
+                        ctx.__layout.__context.body = body;
+                        body = ctx.__layout(ctx.model);
                     }
                     return body;
                 }
@@ -500,7 +479,7 @@ exports.atat = {
                     return e.toString();
                 }
             };
-            ctx.template.context = ctx;
+            ctx.template.__context = ctx;
             callback(null, ctx.template);
         });
     },
@@ -557,15 +536,15 @@ function output_as_html(inside, ctx, callback) {
 }
 function compile_layout(inside, ctx, callback) {
     try {
-        if (ctx.layout) {
+        if (ctx.__layout) {
             return callback();
         }
         atat_1.atat.compileByPath(helpers_1.escape_quotes(inside.value), ctx.options, function (err, template) {
             if (err) {
                 return callback(err);
             }
-            ctx.layout = template;
-            template.context.parent = ctx;
+            ctx.__layout = template;
+            template.__context.parent = ctx;
             callback();
         });
     }
@@ -585,9 +564,9 @@ function compile_partial(inside, ctx, callback) {
             if (err) {
                 return callback(err);
             }
-            ctx.partials.push(template);
-            template.context.parent = ctx;
-            var output = "this.output += this.partials[" + (ctx.partials.length - 1) + "](" + args_1 + ");";
+            ctx.__partials.push(template);
+            template.__context.parent = ctx;
+            var output = "this.output += this.__partials[" + (ctx.__partials.length - 1) + "](" + args_1 + ");";
             callback(null, output);
         });
     }
@@ -622,27 +601,33 @@ exports.output_call_helper = output_call_helper;
 
 /***/ }),
 /* 5 */
-/***/ (function(module, exports) {
-
-module.exports = require("fs");
-
-/***/ }),
-/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var fs = __webpack_require__(5);
 function load_file(path, callback) {
-    fs.readFile(path, 'utf-8', callback);
+    var request = new XMLHttpRequest();
+    request.open('GET', path, true);
+    request.onreadystatechange = function () {
+        if (this.readyState === 4) {
+            if (this.status >= 200 && this.status < 400) {
+                callback(null, this.responseText);
+            }
+            else {
+                callback(new Error('Not able to load template "' + path + '"'));
+            }
+        }
+    };
+    request.send();
+    request = null;
 }
 exports.load_file = load_file;
 ;
 
 
 /***/ }),
-/* 7 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -740,7 +725,7 @@ exports.AtatCompiler = AtatCompiler;
 
 
 /***/ }),
-/* 8 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -805,15 +790,15 @@ function compile_section(inside, ctx, callback) {
         return callback(new Error('Section parsing error'));
     }
     var name = match[1].trim();
-    if (ctx.sections[name]) {
+    if (ctx.__sections[name]) {
         return callback(new Error('Section already exists'));
     }
     atat_1.atat.compile(block, ctx.options, function (err, template) {
         if (err) {
             return callback(err);
         }
-        template.context.parent = ctx;
-        ctx.sections[name] = template;
+        template.__context.parent = ctx;
+        ctx.__sections[name] = template;
         callback(null);
     });
 }
@@ -835,7 +820,7 @@ function compile_while(inside, ctx, callback) {
 
 
 /***/ }),
-/* 9 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -850,44 +835,57 @@ exports.AtatDefaultOpions = {
 
 
 /***/ }),
-/* 10 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var options_1 = __webpack_require__(9);
+var AtatOptions_1 = __webpack_require__(8);
 var helpers_1 = __webpack_require__(1);
 var regexp_1 = __webpack_require__(2);
 var inline_1 = __webpack_require__(4);
-var tags_1 = __webpack_require__(8);
+var tags_1 = __webpack_require__(7);
 var AtatContext = /** @class */ (function () {
     function AtatContext(opts) {
         var _this = this;
-        this.options = helpers_1.merge(options_1.AtatDefaultOpions, opts);
-        this.helpers = helpers_1.merge(helpers_1.helpers, opts.helpers);
-        this.model = null;
+        this.options = helpers_1.merge(AtatOptions_1.AtatDefaultOpions, opts);
         this.output = '';
+        this.model = null;
+        this.helpers = helpers_1.merge(helpers_1.helpers, opts.helpers);
         this.parts = [];
-        this.parent = null;
-        this.arguments = [this.options.modelname, this.options.helpersname, 'body'].join(',');
+        this.arguments = [
+            this.options.modelname,
+            this.options.helpersname,
+            'body'
+        ].join(',');
         this.tags = helpers_1.get_tags(tags_1.tags);
         this.inline = helpers_1.get_tags_inline(inline_1.inline_tags);
+        helpers_1.loop(tags_1.tags, function (compiler, regexp) {
+            _this.tags.compilers.push({
+                compiler: compiler,
+                regexp: new RegExp(regexp, 'g')
+            });
+        });
         helpers_1.loop(inline_1.inline_tags, function (compiler, regexp) {
             _this.tags.compilers.push({
                 compiler: compiler,
                 regexp: new RegExp(regexp, 'g')
             });
         });
-        this.layout = null;
-        this.partials = [];
-        this.sections = {};
+        this.__layout = null;
+        this.__partials = [];
+        this.__sections = {};
+        this.parent = null;
     }
     AtatContext.prototype.section = function (name) {
-        return name ? this.sections[name] || (this.parent && this.parent.section(name)) : null;
+        if (!name) {
+            return null;
+        }
+        return this.__sections[name] || (this.parent && this.parent.section(name));
     };
     AtatContext.prototype.compiler = function (str) {
-        if (str === void 0) { str = ""; }
+        if (str === void 0) { str = ''; }
         for (var i = 0, l = this.tags.compilers.length; i < l; i++) {
             var item = this.tags.compilers[i];
             if (regexp_1.regexp_test(str, item.regexp)) {
@@ -903,3 +901,5 @@ exports.AtatContext = AtatContext;
 
 /***/ })
 /******/ ])["atat"];
+});
+//# sourceMappingURL=bundle.js.map

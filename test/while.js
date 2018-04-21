@@ -12,7 +12,7 @@ describe("While block", function() {
 
 		template = "@{var i = 0;}@@while(i<3){@{i++;}@Hello }@world!";
 
-		Atat.compile(template, function(err, tmpl) {
+		atat.compile(template, function(err, tmpl) {
 
 			expect(tmpl()).to.eql("Hello Hello Hello world!");
 
@@ -24,7 +24,7 @@ describe("While block", function() {
 
 		template = "@{var i = 0, j = 0;}@@while(i<3){@{i++;j=0;}@@while(j<2){@{j++;}@Hello }@}@world!";
 
-		Atat.compile(template, function(err, tmpl) {
+		atat.compile(template, function(err, tmpl) {
 
 			expect(tmpl()).to.eql("Hello Hello Hello Hello Hello Hello world!");
 
