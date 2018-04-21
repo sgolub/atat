@@ -12,7 +12,7 @@ describe("Function block", function() {
 
 		template = "@function hello(){return 'Hello';}@@(hello())@ world!";
 
-		Atat.compile(template, function(err, tmpl) {
+		atat.compile(template, function(err, tmpl) {
 
 			expect(tmpl()).to.eql("Hello world!");
 

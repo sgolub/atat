@@ -8,7 +8,7 @@
 <body>
 	<p>Layout text</p>
 	@!(body)@
-	@partial("./views/partials/footer.html", it)@
+	@partial("./views/partials/footer.atat", it)@
 	<p>Layout footer (:</p>
 	@section(scripts)@
 </body>

@@ -1,5 +1,5 @@
-function fileLoader(path, callback) {
 
+export function load_file(path: string, callback: (err?: any, content?: string) => void) {
 	var request = new XMLHttpRequest();
 	request.open('GET', path, true);
 
@@ -15,4 +15,4 @@ function fileLoader(path, callback) {
 
 	request.send();
 	request = null;
-}
+};

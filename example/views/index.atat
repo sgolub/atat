@@ -1,4 +1,4 @@
-@layout('./views/layout.html')@
+@layout('./views/layout.atat')@
 
 @{
 	var show = true;

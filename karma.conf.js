@@ -3,7 +3,7 @@ module.exports = function(config) {
 		singleRun: true,
 		frameworks: ["mocha"],
 		files: [
-			'dist/atat.js',
+			'dist/bundle.js',
 			'test/browser/*.js',
 			'test/!(setup).js'
 		],

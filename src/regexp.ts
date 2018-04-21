@@ -1,4 +1,6 @@
-function match_recursive(str, left, right) {
+import { VALUE_NAME_OUTSIDE, VALUE_NAME_INSIDE, MuchResult } from "./common";
+
+export function match_recursive(str: string, left: RegExp, right: RegExp): MuchResult[] {
 
 	let global = left.global,
 		sticky = left.sticky,
@@ -120,7 +122,7 @@ function match_recursive(str, left, right) {
 	return output;
 }
 
-function regexp_test(str, regexp, pos = 0) {
+export function regexp_test(str: string, regexp: RegExp, pos = 0) {
 
 	regexp.lastIndex = pos;
 
@@ -134,7 +136,7 @@ function regexp_test(str, regexp, pos = 0) {
 	return test;
 }
 
-function regexp_exec(str, regexp, pos = 0) {
+export function regexp_exec(str: string, regexp: RegExp, pos = 0) {
 
 	regexp.lastIndex = pos;
 
@@ -148,7 +150,7 @@ function regexp_exec(str, regexp, pos = 0) {
 	return match;
 }
 
-function clean_array(array) {
+export function clean_array(array: any[]) {
 	for (let i = 0; i < array.length; i++) {
 		if (typeof array[i] === 'undefined') {
 			array.splice(i, 1);
@@ -157,7 +159,7 @@ function clean_array(array) {
 	}
 }
 
-function match_inline(str, regexp) {
+export function match_inline(str: string, regexp: RegExp) {
 
 	let global = regexp.global,
 		sticky = regexp.sticky,

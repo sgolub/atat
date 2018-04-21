@@ -12,7 +12,7 @@ describe("If block", function() {
 
 		template = "@if ( true ) {Hello}@ world!";
 
-		Atat.compile(template, function(err, tmpl) {
+		atat.compile(template, function(err, tmpl) {
 
 			expect(tmpl()).to.eql("Hello world!");
 
@@ -24,7 +24,7 @@ describe("If block", function() {
 
 		template = "@if ( false ) {Hello}@ world!";
 
-		Atat.compile(template, function(err, tmpl) {
+		atat.compile(template, function(err, tmpl) {
 
 			expect(tmpl()).to.eql(" world!");
 
@@ -36,7 +36,7 @@ describe("If block", function() {
 
 		template = "@if ( it.show ) {Hello}@ world!";
 
-		Atat.compile(template, function(err, tmpl) {
+		atat.compile(template, function(err, tmpl) {
 
 			expect(tmpl({ show: true })).to.eql("Hello world!");
 
@@ -48,7 +48,7 @@ describe("If block", function() {
 
 		template = "@if ( it.show ) {Hello}@ world!";
 
-		Atat.compile(template, function(err, tmpl) {
+		atat.compile(template, function(err, tmpl) {
 
 			expect(tmpl({ show: false })).to.eql(" world!");
 

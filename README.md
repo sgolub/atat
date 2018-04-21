@@ -1,4 +1,4 @@
-# atat β
+# atat<sup>β</sup>
 
 Fast and simple asynchronous JavaScript template engine without dependencies for any environment.
 
@@ -28,21 +28,21 @@ In a browser:
 
 
 ```js
-var Atat = require('atat');
+var atat = require('atat');
 ```
 
 ```js
-Atat.compile(templateString, helpers, function(err, template) {
+atat.compile(templateString, helpers, function(err, template) {
     if (!err) {
         var result = template(model);
     }
 });
 ```
 
-or you can use ```compileUri``` method to read template from file or download it by ajax request
+or you can use ```compileByPath``` method to read template from file or download it by ajax request
 
 ```js
-Atat.compileUri(templateUri, helpers, function(err, template) {
+atat.compileByPath(templateUri, helpers, function(err, template) {
     if (!err) {
         var result = template(model);
     }

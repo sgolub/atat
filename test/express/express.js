@@ -16,7 +16,7 @@ describe("Express only tests", function() {
 
 		simple.mock(fs, "readFile").callback(null, "Hello @(it.name)@!");
 
-		Atat.__express("/path/", { name: 'world' }, function(err, result) {
+		atat.__express("/path/", { name: 'world' }, function(err, result) {
 
 			expect(err).to.eql(null);
 			expect(result).to.eql("Hello world!");
