@@ -1,9 +1,9 @@
 module.exports = function(config) {
 	config.set({
 		singleRun: true,
-		frameworks: ["mocha"],
+		frameworks: ['mocha'],
 		files: [
-			'dist/bundle.js',
+			'dist/atat.js',
 			'test/browser/*.js',
 			'test/!(setup).js'
 		],

@@ -2,16 +2,34 @@
 export = atat;
 
 declare interface atat {
-	compileByPath(path: string, callback?: AtatCallback<AtatTemplate>): void;
-	compileByPath(path: string, opts?: AtatOptions, callback?: AtatCallback<AtatTemplate>): void;
-	compile(template: string, callback?: AtatCallback<AtatTemplate>): void;
-	compile(template: string, opts?: AtatOptions, callback?: AtatCallback<AtatTemplate>): void;
+	config(opts: AtatOptions): void;
+
+	parse(path: string, options: AtatOptions, callback: AtatCallback<AtatTemplate>): void;
+	parse(path: string, callback: AtatCallback<AtatTemplate>): void;
+	parse(path: string, options: AtatOptions): Promise<AtatTemplate>;
+	parse(path: string): Promise<AtatTemplate>;
+
+	loadAndParse(path: string, options: AtatOptions, callback: AtatCallback<AtatTemplate>): void;
+	loadAndParse(path: string, callback: AtatCallback<AtatTemplate>): void;
+	loadAndParse(path: string, options: AtatOptions): Promise<AtatTemplate>;
+	loadAndParse(path: string): Promise<AtatTemplate>;
+
+	render(path: string, model: any, options: AtatOptions, callback: AtatCallback<string>): void;
+	render(path: string, model: any, callback: AtatCallback<string>): void;
+	render(path: string, model: any, options: AtatOptions): Promise<string>;
+	render(path: string, model: any): Promise<string>;
+
+	loadAndRender(path: string, model: any, options: AtatOptions, callback: AtatCallback<string>): void;
+	loadAndRender(path: string, model: any, callback: AtatCallback<string>): void;
+	loadAndRender(path: string, model: any, options: AtatOptions): Promise<string>;
+	loadAndRender(path: string, model: any): Promise<string>;
 }
 
 interface AtatOptions {
-	modelname?: string;
-	helpersname?: string;
-	basePath?: string;
+	it?: string;
+	$?: string;
+	basepath?: string;
+	cache?: boolean;
 	helpers?: {
 		[key: string]: AtatHelper;
 	};

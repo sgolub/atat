@@ -49,7 +49,7 @@ function compile_layout(inside: MuchResult, ctx: AtatContext, callback: AtatCall
 			return callback();
 		}
 
-		atat.compileByPath(escape_quotes(inside.value), ctx.options, (err: any, template: AtatTemplate) => {
+		atat.loadAndParse(escape_quotes(inside.value), ctx.options, (err: any, template: AtatTemplate) => {
 
 			if (err) {
 
@@ -79,7 +79,7 @@ function compile_partial(inside: MuchResult, ctx: AtatContext, callback: AtatCal
 
 		let uri = escape_quotes(args.shift());
 
-		atat.compileByPath(uri, ctx.options, (err: any, template: AtatTemplate) => {
+		atat.loadAndParse(uri, ctx.options, (err: any, template: AtatTemplate) => {
 
 			if (err) {
 

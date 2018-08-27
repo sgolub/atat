@@ -16,7 +16,7 @@ describe("Express section tests", function() {
 
 		simple.mock(fs, "readFile").callback(null, "<html>@!(body)@</html>@section(script)@");
 
-		atat.compile("@layout(./path/layout)@ Body <strong>content</strong>@section script{<script>'foo';</script>}@", function(err, tmpl) {
+		atat.parse("@layout(./path/layout)@ Body <strong>content</strong>@section script{<script>'foo';</script>}@", function(err, tmpl) {
 
 			expect(err).to.eql(null);
 			expect(tmpl()).to.eql("<html> Body <strong>content</strong></html><script>'foo';</script>");
@@ -29,7 +29,7 @@ describe("Express section tests", function() {
 
 		simple.mock(fs, "readFile").callback(null, "<html>@!(body)@@(it.value)@</html>@section(script)@");
 
-		atat.compile("@layout(./path/layout)@ Body <strong>content</strong>@section script{<script>'foo@(it.value)@';</script>}@", function(err, tmpl) {
+		atat.parse("@layout(./path/layout)@ Body <strong>content</strong>@section script{<script>'foo@(it.value)@';</script>}@", function(err, tmpl) {
 
 			expect(err).to.eql(null);
 			expect(tmpl({ value: '111' })).to.eql("<html> Body <strong>content</strong>111</html><script>'foo111';</script>");

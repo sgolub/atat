@@ -20,7 +20,7 @@ describe("Express tests", function() {
 
 	it("Render template", function(done) {
 
-		atat.compileByPath("/path/", function(err, result) {
+		atat.loadAndParse("/path/", function(err, result) {
 
 			expect(err).to.eql(null);
 			expect(result({ name: 'world' })).to.eql("Hello world!");

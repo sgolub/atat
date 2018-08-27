@@ -12,7 +12,7 @@ describe("For block", function() {
 
 		template = "@for (var i = 0; i < 3; i++){Hello }@world!";
 
-		atat.compile(template, function(err, tmpl) {
+		atat.parse(template, function(err, tmpl) {
 
 			expect(tmpl()).to.eql("Hello Hello Hello world!");
 
@@ -24,7 +24,7 @@ describe("For block", function() {
 
 		template = "@for (var i = 0; i < 3; i++){@for(var j = 0; j < 3; j++) {Hello }@}@world!";
 
-		atat.compile(template, function(err, tmpl) {
+		atat.parse(template, function(err, tmpl) {
 
 			expect(tmpl()).to.eql("Hello Hello Hello Hello Hello Hello Hello Hello Hello world!");
 

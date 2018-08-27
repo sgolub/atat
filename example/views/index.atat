@@ -12,7 +12,7 @@
 
 <p>Hello! My name is @(it.name)@!</p>
 
-<p>Date now: @( Date.now() )@</p>
+<p>Date now: @( new Date() )@</p>
 
 <p>Encoded html: @( "<strong>html</strong>" )@</p>
 
@@ -55,7 +55,7 @@
 
 }@
 
-@section scripts{
+@section scripts {
 	<script>
 		(function(){
 			'some js code';

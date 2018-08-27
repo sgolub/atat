@@ -32,7 +32,7 @@ export class AtatContext {
 		this.parts = [];
 		this.parent = null;
 
-		this.arguments = [this.options.modelname, this.options.helpersname, 'body'].join(',');
+		this.arguments = [this.options.it, this.options.$, 'body'].join(',');
 
 		this.tags = get_tags(tags);
 		this.inline = get_tags_inline(inline_tags);

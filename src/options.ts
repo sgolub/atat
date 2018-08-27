@@ -1,17 +1,19 @@
 import { AtatHelper } from "./common";
 
 export interface AtatOptions {
-	modelname?: string;
-	helpersname?: string;
-	basePath?: string;
+	it?: string;
+	$?: string;
+	basepath?: string;
+	cache?: boolean;
 	helpers?: {
 		[key: string]: AtatHelper;
 	};
 }
 
 export const AtatDefaultOpions: AtatOptions = {
-	modelname: "it",
-	helpersname: "$",
-	basePath: "",
+	it: "it",
+	$: "$",
+	basepath: "",
+	cache: true,
 	helpers: {}
 };

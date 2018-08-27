@@ -1,36 +1,36 @@
 import { AtatContext } from "./context";
-import { AtatOptions } from "./options";
+import { AtatOptions, AtatDefaultOpions } from "./options";
 import { AtatCompiler } from "./compiler";
 import { AtatCallback, noop, AtatTemplate } from "./common";
 import { load_file } from "./load_file";
+import { merge } from "./helpers";
 
 export const atat = {
 
-	compileByPath(path: string, opts: AtatOptions | AtatCallback<AtatTemplate> = {}, callback: AtatCallback<AtatTemplate> = noop) {
-
-		if (typeof opts === 'function') {
-			callback = opts;
-			opts = {};
-		}
-
-		load_file(path, (err, content) => {
-
-			if (err) {
-				return callback(err);
+	config(opts: AtatOptions): void {
+		opts = merge(AtatDefaultOpions, opts);
+		for (let x in opts) {
+			if (AtatDefaultOpions.hasOwnProperty(x)) {
+				AtatDefaultOpions[x] = opts[x];
 			}
-
-			atat.compile(content, opts, callback);
-		});
+		}
 	},
 
-	compile(input: string, opts: AtatOptions | AtatCallback<AtatTemplate> = {}, callback: AtatCallback<AtatTemplate> = noop) {
-
-		if (typeof opts === 'function') {
-			callback = opts;
-			opts = {};
+	parse(input: string, options: AtatOptions | AtatCallback<AtatTemplate> = {}, callback: AtatCallback<AtatTemplate> = noop) {
+		if (typeof options === 'function') {
+			callback = options;
+			options = {};
 		}
 
-		const ctx = new AtatContext(opts);
+		if (callback === noop && typeof (Promise) !== 'undefined') {
+			return new Promise((resolve, reject) => {
+				atat.parse(input, options, (err, result) => {
+					err ? reject(err) : resolve(result);
+				});
+			});
+		}
+
+		const ctx = new AtatContext(options);
 
 		const compiler = new AtatCompiler();
 
@@ -68,15 +68,66 @@ export const atat = {
 		});
 	},
 
+	loadAndParse(path: string, options: AtatOptions | AtatCallback<AtatTemplate> = {}, callback: AtatCallback<AtatTemplate> = noop): Promise<AtatTemplate> | void {
+		if (typeof options === 'function') {
+			callback = options;
+			options = {};
+		}
+
+		if (callback === noop && typeof (Promise) !== 'undefined') {
+			return new Promise<AtatTemplate>((resolve, reject) => {
+				atat.loadAndParse(path, options, (err, result) => {
+					err ? reject(err) : resolve(result);
+				});
+			});
+		}
+
+		load_file(path, (err, content) => {
+			err ? callback(err) : atat.parse(content, options, callback);
+		});
+	},
+
+	render(input: string, model: any = {}, options: AtatOptions | AtatCallback<string> = {}, callback: AtatCallback<string> = noop) {
+		if (typeof (options) === 'function') {
+			callback = options;
+			options = {};
+		}
+
+		if (callback === noop && typeof (Promise) !== 'undefined') {
+			return new Promise((resolve, reject) => {
+				atat.render(input, model, options, (err, result) => {
+					err ? reject(err) : resolve(result);
+				});
+			});
+		}
+
+		atat.parse(input, options, function (err, render) {
+			err ? callback(err) : callback(null, render(model));
+		});
+	},
+
+	loadAndRender(path: string, model: any, options: AtatOptions | AtatCallback<string> = {}, callback: AtatCallback<string> = noop) {
+		if (typeof (options) === 'function') {
+			callback = options;
+			options = {};
+		}
+
+		if (callback === noop && typeof (Promise) !== 'undefined') {
+			return new Promise((resolve, reject) => {
+				atat.loadAndRender(path, model, options, (err, result) => {
+					err ? reject(err) : resolve(result);
+				});
+			});
+		}
+
+		atat.loadAndParse(path, options, function (err, render) {
+			err ? callback(err) : callback(null, render(model));
+		});
+	},
+
 	__express(path: string, options: any, callback: (err?: any, res?: string) => any) {
-
-		atat.compileByPath(path, (err: any, template: AtatTemplate) => {
-
-			if (err) {
-				return callback(err.toString());
-			}
-
-			return callback(null, template(options));
+		atat.loadAndParse(path, (err: any, template: AtatTemplate) => {
+			err ? callback(err.toString()) : callback(null, template(options));
 		});
 	}
 };

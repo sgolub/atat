@@ -24,7 +24,7 @@ describe("Express layout tests", function() {
 
 		template = "<html>@!(body)@</html>";
 
-		atat.compile("@layout(./path/layout)@ Body <strong>content</strong>", function(err, tmpl) {
+		atat.parse("@layout(./path/layout)@ Body <strong>content</strong>", function(err, tmpl) {
 
 			expect(err).to.eql(null);
 			expect(tmpl()).to.eql("<html> Body <strong>content</strong></html>");
@@ -37,7 +37,7 @@ describe("Express layout tests", function() {
 
 		template = "<html>@!(body)@@(it.value)@</html>";
 
-		atat.compile("@layout(./path/layout)@ Body @(it.value)@<strong>content</strong>", function(err, tmpl) {
+		atat.parse("@layout(./path/layout)@ Body @(it.value)@<strong>content</strong>", function(err, tmpl) {
 
 			expect(err).to.eql(null);
 			expect(tmpl({ value: "foo" })).to.eql("<html> Body foo<strong>content</strong>foo</html>");

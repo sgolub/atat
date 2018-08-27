@@ -3,9 +3,6 @@ module.exports =
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
 /******/
-/******/ 	// object to store loaded and loading wasm modules
-/******/ 	var installedWasmModules = {};
-/******/
 /******/ 	// The require function
 /******/ 	function __webpack_require__(moduleId) {
 /******/
@@ -40,17 +37,32 @@ module.exports =
 /******/ 	// define getter function for harmony exports
 /******/ 	__webpack_require__.d = function(exports, name, getter) {
 /******/ 		if(!__webpack_require__.o(exports, name)) {
-/******/ 			Object.defineProperty(exports, name, {
-/******/ 				configurable: false,
-/******/ 				enumerable: true,
-/******/ 				get: getter
-/******/ 			});
+/******/ 			Object.defineProperty(exports, name, { enumerable: true, get: getter });
 /******/ 		}
 /******/ 	};
 /******/
 /******/ 	// define __esModule on exports
 /******/ 	__webpack_require__.r = function(exports) {
+/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 		}
 /******/ 		Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 	};
+/******/
+/******/ 	// create a fake namespace object
+/******/ 	// mode & 1: value is a module id, require it
+/******/ 	// mode & 2: merge all properties of value into the ns
+/******/ 	// mode & 4: return value when already ns object
+/******/ 	// mode & 8|1: behave like require
+/******/ 	__webpack_require__.t = function(value, mode) {
+/******/ 		if(mode & 1) value = __webpack_require__(value);
+/******/ 		if(mode & 8) return value;
+/******/ 		if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
+/******/ 		var ns = Object.create(null);
+/******/ 		__webpack_require__.r(ns);
+/******/ 		Object.defineProperty(ns, 'default', { enumerable: true, value: value });
+/******/ 		if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
+/******/ 		return ns;
 /******/ 	};
 /******/
 /******/ 	// getDefaultExport function for compatibility with non-harmony modules
@@ -68,12 +80,9 @@ module.exports =
 /******/ 	// __webpack_public_path__
 /******/ 	__webpack_require__.p = "";
 /******/
-/******/ 	// object with all compiled WebAssembly.Modules
-/******/ 	__webpack_require__.w = {};
-/******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 3);
+/******/ 	return __webpack_require__(__webpack_require__.s = 2);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -83,23 +92,7 @@ module.exports =
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-function noop() { }
-exports.noop = noop;
-exports.VALUE_NAME_OUTSIDE = 'outside';
-exports.VALUE_NAME_INSIDE = 'inside';
-exports.HTML_RULES = { '&': '&#38;', '<': '&#60;', '>': '&#62;', '"': '&#34;', "'": '&#39;', '/': '&#47;' };
-exports.CLEAR_TAGS = /[-[\](){}*+?.,\\^$|#\s]/g;
-exports.MATCH_HTML = /&(?!#?\w+;)|<|>|"|'|\//g;
-
-
-/***/ }),
-/* 1 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var common_1 = __webpack_require__(0);
+var common_1 = __webpack_require__(1);
 exports.helpers = {
     encode: encode_html,
     json: json_stringify,
@@ -261,13 +254,154 @@ exports.resolveUrl = resolveUrl;
 
 
 /***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+function noop() { }
+exports.noop = noop;
+exports.VALUE_NAME_OUTSIDE = 'outside';
+exports.VALUE_NAME_INSIDE = 'inside';
+exports.HTML_RULES = { '&': '&#38;', '<': '&#60;', '>': '&#62;', '"': '&#34;', "'": '&#39;', '/': '&#47;' };
+exports.CLEAR_TAGS = /[-[\](){}*+?.,\\^$|#\s]/g;
+exports.MATCH_HTML = /&(?!#?\w+;)|<|>|"|'|\//g;
+
+
+/***/ }),
 /* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var common_1 = __webpack_require__(0);
+var context_1 = __webpack_require__(6);
+var options_1 = __webpack_require__(4);
+var compiler_1 = __webpack_require__(8);
+var common_1 = __webpack_require__(1);
+var load_file_1 = __webpack_require__(9);
+var helpers_1 = __webpack_require__(0);
+exports.atat = {
+    config: function (opts) {
+        opts = helpers_1.merge(options_1.AtatDefaultOpions, opts);
+        for (var x in opts) {
+            if (options_1.AtatDefaultOpions.hasOwnProperty(x)) {
+                options_1.AtatDefaultOpions[x] = opts[x];
+            }
+        }
+    },
+    parse: function (input, options, callback) {
+        if (options === void 0) { options = {}; }
+        if (callback === void 0) { callback = common_1.noop; }
+        if (typeof options === 'function') {
+            callback = options;
+            options = {};
+        }
+        if (callback === common_1.noop && typeof (Promise) !== 'undefined') {
+            return new Promise(function (resolve, reject) {
+                exports.atat.parse(input, options, function (err, result) {
+                    err ? reject(err) : resolve(result);
+                });
+            });
+        }
+        var ctx = new context_1.AtatContext(options);
+        var compiler = new compiler_1.AtatCompiler();
+        compiler.compile(input, ctx, function (err, output) {
+            if (err) {
+                return callback(err);
+            }
+            var render = new Function(ctx.arguments, output + ';return this.output;');
+            ctx.template = function (model) {
+                try {
+                    ctx.output = '';
+                    ctx.model = model || ctx.model;
+                    var body = render.call(ctx, ctx.model, ctx.helpers, ctx.body);
+                    if (ctx.layout) {
+                        ctx.layout.context.body = body;
+                        body = ctx.layout(ctx.model);
+                    }
+                    return body;
+                }
+                catch (e) {
+                    return e.toString();
+                }
+            };
+            ctx.template.context = ctx;
+            callback(null, ctx.template);
+        });
+    },
+    loadAndParse: function (path, options, callback) {
+        if (options === void 0) { options = {}; }
+        if (callback === void 0) { callback = common_1.noop; }
+        if (typeof options === 'function') {
+            callback = options;
+            options = {};
+        }
+        if (callback === common_1.noop && typeof (Promise) !== 'undefined') {
+            return new Promise(function (resolve, reject) {
+                exports.atat.loadAndParse(path, options, function (err, result) {
+                    err ? reject(err) : resolve(result);
+                });
+            });
+        }
+        load_file_1.load_file(path, function (err, content) {
+            err ? callback(err) : exports.atat.parse(content, options, callback);
+        });
+    },
+    render: function (input, model, options, callback) {
+        if (model === void 0) { model = {}; }
+        if (options === void 0) { options = {}; }
+        if (callback === void 0) { callback = common_1.noop; }
+        if (typeof (options) === 'function') {
+            callback = options;
+            options = {};
+        }
+        if (callback === common_1.noop && typeof (Promise) !== 'undefined') {
+            return new Promise(function (resolve, reject) {
+                exports.atat.render(input, model, options, function (err, result) {
+                    err ? reject(err) : resolve(result);
+                });
+            });
+        }
+        exports.atat.parse(input, options, function (err, render) {
+            err ? callback(err) : callback(null, render(model));
+        });
+    },
+    loadAndRender: function (path, model, options, callback) {
+        if (options === void 0) { options = {}; }
+        if (callback === void 0) { callback = common_1.noop; }
+        if (typeof (options) === 'function') {
+            callback = options;
+            options = {};
+        }
+        if (callback === common_1.noop && typeof (Promise) !== 'undefined') {
+            return new Promise(function (resolve, reject) {
+                exports.atat.loadAndRender(path, model, options, function (err, result) {
+                    err ? reject(err) : resolve(result);
+                });
+            });
+        }
+        exports.atat.loadAndParse(path, options, function (err, render) {
+            err ? callback(err) : callback(null, render(model));
+        });
+    },
+    __express: function (path, options, callback) {
+        exports.atat.loadAndParse(path, function (err, template) {
+            err ? callback(err.toString()) : callback(null, template(options));
+        });
+    }
+};
+
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var common_1 = __webpack_require__(1);
 function match_recursive(str, left, right) {
     var global = left.global, sticky = left.sticky, output = [], openTokens = 0, delimStart = 0, delimEnd = 0, lastOuterEnd = 0, outerStart, innerStart, leftMatch, rightMatch;
     while (true) {
@@ -446,84 +580,30 @@ exports.match_inline = match_inline;
 
 
 /***/ }),
-/* 3 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var context_1 = __webpack_require__(10);
-var compiler_1 = __webpack_require__(7);
-var common_1 = __webpack_require__(0);
-var load_file_1 = __webpack_require__(6);
-exports.atat = {
-    compileByPath: function (path, opts, callback) {
-        if (opts === void 0) { opts = {}; }
-        if (callback === void 0) { callback = common_1.noop; }
-        if (typeof opts === 'function') {
-            callback = opts;
-            opts = {};
-        }
-        load_file_1.load_file(path, function (err, content) {
-            if (err) {
-                return callback(err);
-            }
-            exports.atat.compile(content, opts, callback);
-        });
-    },
-    compile: function (input, opts, callback) {
-        if (opts === void 0) { opts = {}; }
-        if (callback === void 0) { callback = common_1.noop; }
-        if (typeof opts === 'function') {
-            callback = opts;
-            opts = {};
-        }
-        var ctx = new context_1.AtatContext(opts);
-        var compiler = new compiler_1.AtatCompiler();
-        compiler.compile(input, ctx, function (err, output) {
-            if (err) {
-                return callback(err);
-            }
-            var render = new Function(ctx.arguments, output + ';return this.output;');
-            ctx.template = function (model) {
-                try {
-                    ctx.output = '';
-                    ctx.model = model || ctx.model;
-                    var body = render.call(ctx, ctx.model, ctx.helpers, ctx.body);
-                    if (ctx.layout) {
-                        ctx.layout.context.body = body;
-                        body = ctx.layout(ctx.model);
-                    }
-                    return body;
-                }
-                catch (e) {
-                    return e.toString();
-                }
-            };
-            ctx.template.context = ctx;
-            callback(null, ctx.template);
-        });
-    },
-    __express: function (path, options, callback) {
-        exports.atat.compileByPath(path, function (err, template) {
-            if (err) {
-                return callback(err.toString());
-            }
-            return callback(null, template(options));
-        });
-    }
-};
-
-
-/***/ }),
 /* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var helpers_1 = __webpack_require__(1);
-var atat_1 = __webpack_require__(3);
+exports.AtatDefaultOpions = {
+    it: "it",
+    $: "$",
+    basepath: "",
+    cache: true,
+    helpers: {}
+};
+
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var helpers_1 = __webpack_require__(0);
+var atat_1 = __webpack_require__(2);
 exports.inline_tags = {
     '(@section\\()([^]*?)(\\)@)': output_section,
     '(@layout\\()([^]*?)(\\)@)': compile_layout,
@@ -560,7 +640,7 @@ function compile_layout(inside, ctx, callback) {
         if (ctx.layout) {
             return callback();
         }
-        atat_1.atat.compileByPath(helpers_1.escape_quotes(inside.value), ctx.options, function (err, template) {
+        atat_1.atat.loadAndParse(helpers_1.escape_quotes(inside.value), ctx.options, function (err, template) {
             if (err) {
                 return callback(err);
             }
@@ -581,7 +661,7 @@ function compile_partial(inside, ctx, callback) {
         }
         var args_1 = value.split(/\s*,\s*/g);
         var uri = helpers_1.escape_quotes(args_1.shift());
-        atat_1.atat.compileByPath(uri, ctx.options, function (err, template) {
+        atat_1.atat.loadAndParse(uri, ctx.options, function (err, template) {
             if (err) {
                 return callback(err);
             }
@@ -621,24 +701,55 @@ exports.output_call_helper = output_call_helper;
 
 
 /***/ }),
-/* 5 */
-/***/ (function(module, exports) {
-
-module.exports = require("fs");
-
-/***/ }),
 /* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var fs = __webpack_require__(5);
-function load_file(path, callback) {
-    fs.readFile(path, 'utf-8', callback);
-}
-exports.load_file = load_file;
-;
+var options_1 = __webpack_require__(4);
+var helpers_1 = __webpack_require__(0);
+var regexp_1 = __webpack_require__(3);
+var inline_1 = __webpack_require__(5);
+var tags_1 = __webpack_require__(7);
+var AtatContext = /** @class */ (function () {
+    function AtatContext(opts) {
+        var _this = this;
+        this.options = helpers_1.merge(options_1.AtatDefaultOpions, opts);
+        this.helpers = helpers_1.merge(helpers_1.helpers, opts.helpers);
+        this.model = null;
+        this.output = '';
+        this.parts = [];
+        this.parent = null;
+        this.arguments = [this.options.it, this.options.$, 'body'].join(',');
+        this.tags = helpers_1.get_tags(tags_1.tags);
+        this.inline = helpers_1.get_tags_inline(inline_1.inline_tags);
+        helpers_1.loop(inline_1.inline_tags, function (compiler, regexp) {
+            _this.tags.compilers.push({
+                compiler: compiler,
+                regexp: new RegExp(regexp, 'g')
+            });
+        });
+        this.layout = null;
+        this.partials = [];
+        this.sections = {};
+    }
+    AtatContext.prototype.section = function (name) {
+        return name ? this.sections[name] || (this.parent && this.parent.section(name)) : null;
+    };
+    AtatContext.prototype.compiler = function (str) {
+        if (str === void 0) { str = ""; }
+        for (var i = 0, l = this.tags.compilers.length; i < l; i++) {
+            var item = this.tags.compilers[i];
+            if (regexp_1.regexp_test(str, item.regexp)) {
+                return item.compiler;
+            }
+        }
+        return null;
+    };
+    return AtatContext;
+}());
+exports.AtatContext = AtatContext;
 
 
 /***/ }),
@@ -648,108 +759,10 @@ exports.load_file = load_file;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var common_1 = __webpack_require__(0);
-var helpers_1 = __webpack_require__(1);
-var regexp_1 = __webpack_require__(2);
-var inline_1 = __webpack_require__(4);
-var AtatCompiler = /** @class */ (function () {
-    function AtatCompiler() {
-    }
-    AtatCompiler.prototype.compile = function (input, ctx, callback) {
-        var _this = this;
-        try {
-            var blocks = regexp_1.match_recursive(input, ctx.tags.open, ctx.tags.close);
-            helpers_1.loop_async(blocks, function (block, i, array, callback) {
-                try {
-                    if (block.name == common_1.VALUE_NAME_OUTSIDE) {
-                        if (block.value.trim() == '') {
-                            callback(null, '');
-                            return;
-                        }
-                        _this.compile_inline(block.value, ctx, callback);
-                        return;
-                    }
-                    if (block.name == common_1.VALUE_NAME_INSIDE) {
-                        var left = block.left, inside = block, right = block.right;
-                        var compiler = ctx.compiler(left.value);
-                        if (!compiler) {
-                            _this.compile_inline(left.value + inside.value + right.value, ctx, callback);
-                            return;
-                        }
-                        compiler.call(_this, inside, ctx, callback);
-                        return;
-                    }
-                }
-                catch (e) {
-                    callback(e);
-                }
-            }, function (err, results) {
-                if (err) {
-                    return callback(err);
-                }
-                callback(null, results.join(''));
-            });
-        }
-        catch (e) {
-            callback(e);
-        }
-    };
-    AtatCompiler.prototype.compile_inline = function (input, ctx, callback) {
-        var _this = this;
-        try {
-            var blocks = regexp_1.match_inline(input, ctx.inline);
-            helpers_1.loop_async(blocks, function (block, i, array, callback) {
-                try {
-                    if (block.name == common_1.VALUE_NAME_OUTSIDE) {
-                        ctx.parts.push(block.value);
-                        callback(null, 'this.output += this.parts[' + (ctx.parts.length - 1) + '];');
-                        return;
-                    }
-                    if (block.name == common_1.VALUE_NAME_INSIDE) {
-                        var left = block.left, inside = block, right = block.right;
-                        if (inside.value.trim() == '') {
-                            callback(null, '');
-                            return;
-                        }
-                        var compiler = ctx.compiler(left.value + inside.value + right.value);
-                        if (!compiler) {
-                            inline_1.output_call_helper.call(_this, inside, ctx, callback);
-                            return;
-                        }
-                        compiler.call(_this, inside, ctx, callback);
-                        return;
-                    }
-                }
-                catch (e) {
-                    callback(e);
-                }
-            }, function (err, results) {
-                if (err) {
-                    return callback(err);
-                }
-                callback(null, results.join(''));
-            });
-        }
-        catch (e) {
-            callback(e);
-        }
-    };
-    return AtatCompiler;
-}());
-exports.AtatCompiler = AtatCompiler;
-
-
-/***/ }),
-/* 8 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var common_1 = __webpack_require__(0);
-var regexp_1 = __webpack_require__(2);
-var helpers_1 = __webpack_require__(1);
-var atat_1 = __webpack_require__(3);
+var common_1 = __webpack_require__(1);
+var regexp_1 = __webpack_require__(3);
+var helpers_1 = __webpack_require__(0);
+var atat_1 = __webpack_require__(2);
 exports.tags = {
     '@\\{': compile_code,
     '@if\\s*\\(': compile_if,
@@ -808,7 +821,7 @@ function compile_section(inside, ctx, callback) {
     if (ctx.sections[name]) {
         return callback(new Error('Section already exists'));
     }
-    atat_1.atat.compile(block, ctx.options, function (err, template) {
+    atat_1.atat.parse(block, ctx.options, function (err, template) {
         if (err) {
             return callback(err);
         }
@@ -835,71 +848,131 @@ function compile_while(inside, ctx, callback) {
 
 
 /***/ }),
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var common_1 = __webpack_require__(1);
+var helpers_1 = __webpack_require__(0);
+var regexp_1 = __webpack_require__(3);
+var inline_1 = __webpack_require__(5);
+var AtatCompiler = /** @class */ (function () {
+    function AtatCompiler() {
+    }
+    AtatCompiler.prototype.compile = function (input, ctx, callback) {
+        var _this = this;
+        try {
+            if (input.length == 0) {
+                callback(null, '');
+                return;
+            }
+            var blocks = regexp_1.match_recursive(input, ctx.tags.open, ctx.tags.close);
+            helpers_1.loop_async(blocks, function (block, i, array, callback) {
+                try {
+                    if (block.name == common_1.VALUE_NAME_OUTSIDE) {
+                        if (block.value.trim() == '') {
+                            callback(null, '');
+                            return;
+                        }
+                        _this.compile_inline(block.value, ctx, callback);
+                        return;
+                    }
+                    if (block.name == common_1.VALUE_NAME_INSIDE) {
+                        var left = block.left, inside = block, right = block.right;
+                        var compiler = ctx.compiler(left.value);
+                        if (!compiler) {
+                            _this.compile_inline(left.value + inside.value + right.value, ctx, callback);
+                            return;
+                        }
+                        compiler.call(_this, inside, ctx, callback);
+                        return;
+                    }
+                }
+                catch (e) {
+                    callback(e);
+                }
+            }, function (err, results) {
+                if (err) {
+                    return callback(err);
+                }
+                callback(null, results.join(''));
+            });
+        }
+        catch (e) {
+            callback(e);
+        }
+    };
+    AtatCompiler.prototype.compile_inline = function (input, ctx, callback) {
+        var _this = this;
+        try {
+            if (input.length == 0) {
+                callback(null, '');
+                return;
+            }
+            var blocks = regexp_1.match_inline(input, ctx.inline);
+            helpers_1.loop_async(blocks, function (block, i, array, callback) {
+                try {
+                    if (block.name == common_1.VALUE_NAME_OUTSIDE) {
+                        ctx.parts.push(block.value);
+                        callback(null, 'this.output += this.parts[' + (ctx.parts.length - 1) + '];');
+                        return;
+                    }
+                    if (block.name == common_1.VALUE_NAME_INSIDE) {
+                        var left = block.left, inside = block, right = block.right;
+                        if (inside.value.trim() == '') {
+                            callback(null, '');
+                            return;
+                        }
+                        var compiler = ctx.compiler(left.value + inside.value + right.value);
+                        if (!compiler) {
+                            inline_1.output_call_helper.call(_this, inside, ctx, callback);
+                            return;
+                        }
+                        compiler.call(_this, inside, ctx, callback);
+                        return;
+                    }
+                }
+                catch (e) {
+                    callback(e);
+                }
+            }, function (err, results) {
+                if (err) {
+                    return callback(err);
+                }
+                callback(null, results.join(''));
+            });
+        }
+        catch (e) {
+            callback(e);
+        }
+    };
+    return AtatCompiler;
+}());
+exports.AtatCompiler = AtatCompiler;
+
+
+/***/ }),
 /* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.AtatDefaultOpions = {
-    modelname: "it",
-    helpersname: "$",
-    basePath: "",
-    helpers: {}
-};
+var fs = __webpack_require__(10);
+function load_file(path, callback) {
+    fs.readFile(path, 'utf-8', callback);
+}
+exports.load_file = load_file;
+;
 
 
 /***/ }),
 /* 10 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ (function(module, exports) {
 
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var options_1 = __webpack_require__(9);
-var helpers_1 = __webpack_require__(1);
-var regexp_1 = __webpack_require__(2);
-var inline_1 = __webpack_require__(4);
-var tags_1 = __webpack_require__(8);
-var AtatContext = /** @class */ (function () {
-    function AtatContext(opts) {
-        var _this = this;
-        this.options = helpers_1.merge(options_1.AtatDefaultOpions, opts);
-        this.helpers = helpers_1.merge(helpers_1.helpers, opts.helpers);
-        this.model = null;
-        this.output = '';
-        this.parts = [];
-        this.parent = null;
-        this.arguments = [this.options.modelname, this.options.helpersname, 'body'].join(',');
-        this.tags = helpers_1.get_tags(tags_1.tags);
-        this.inline = helpers_1.get_tags_inline(inline_1.inline_tags);
-        helpers_1.loop(inline_1.inline_tags, function (compiler, regexp) {
-            _this.tags.compilers.push({
-                compiler: compiler,
-                regexp: new RegExp(regexp, 'g')
-            });
-        });
-        this.layout = null;
-        this.partials = [];
-        this.sections = {};
-    }
-    AtatContext.prototype.section = function (name) {
-        return name ? this.sections[name] || (this.parent && this.parent.section(name)) : null;
-    };
-    AtatContext.prototype.compiler = function (str) {
-        if (str === void 0) { str = ""; }
-        for (var i = 0, l = this.tags.compilers.length; i < l; i++) {
-            var item = this.tags.compilers[i];
-            if (regexp_1.regexp_test(str, item.regexp)) {
-                return item.compiler;
-            }
-        }
-        return null;
-    };
-    return AtatContext;
-}());
-exports.AtatContext = AtatContext;
-
+module.exports = require("fs");
 
 /***/ })
 /******/ ])["atat"];

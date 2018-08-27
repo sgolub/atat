@@ -89,7 +89,7 @@ function compile_section(inside: MuchResult, ctx: AtatContext, callback: AtatCal
 		return callback(new Error('Section already exists'));
 	}
 
-	atat.compile(block, ctx.options, (err, template) => {
+	atat.parse(block, ctx.options, (err, template) => {
 
 		if (err) {
 
