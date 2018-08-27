@@ -1,0 +1,9 @@
+example
+src
+test
+.gitignore
+.travis.yml
+bower.json
+karma.conf.js
+tsconfig.json
+webpack.config.js
