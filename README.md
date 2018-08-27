@@ -2,7 +2,7 @@
 
 Fast and simple asynchronous JavaScript template engine without dependencies and for any environment (:
 
-[![Build Status](https: //travis-ci.org/sgolub/atat.svg?branch=master)](https://travis-ci.org/sgolub/atat)
+[![Build Status](https://travis-ci.org/sgolub/atat.svg?branch=master)](https://travis-ci.org/sgolub/atat)
 
 ## But why?
 I wanted to create something simple for what you don't need to spend hours to read the documentation, something that you can start to use in a few minutes. The main idea is using pure JavaScript with pure HTML. You don't need to learn new syntax, just do everything like in JavaScript.
