@@ -1,143 +1,142 @@
-import { AtatContext } from "./context";
-import { AtatCallback, VALUE_NAME_OUTSIDE, VALUE_NAME_INSIDE } from "./common";
-import { loop_async } from "./helpers";
-import { match_recursive, match_inline } from "./regexp";
-import { output_call_helper } from "./inline";
+import { AtatCallback, VALUE_NAME_INSIDE, VALUE_NAME_OUTSIDE } from './common';
+import { AtatContext } from './context';
+import { loop_async } from './helpers';
+import { output_call_helper } from './inline';
+import { match_inline, match_recursive } from './regexp';
 
 export class AtatCompiler {
+  public compile(
+    input: string,
+    ctx: AtatContext,
+    callback: AtatCallback<string>,
+  ) {
+    try {
+      if (input.length === 0) {
+        callback(null, '');
+        return;
+      }
 
-	compile(input: string, ctx: AtatContext, callback: AtatCallback<string>) {
+      const blocks = match_recursive(input, ctx.tags.open, ctx.tags.close);
 
-		try {
+      loop_async(
+        blocks,
+        (block, i, array, loopCallback) => {
+          try {
+            if (block.name === VALUE_NAME_OUTSIDE) {
+              if (block.value.trim() === '') {
+                loopCallback(null, '');
 
-			if (input.length == 0) {
-				callback(null, '');
-				return;
-			}
+                return;
+              }
 
-			const blocks = match_recursive(input, ctx.tags.open, ctx.tags.close);
+              this.compile_inline(block.value, ctx, loopCallback);
 
-			loop_async(blocks, (block, i, array, callback) => {
+              return;
+            }
 
-				try {
+            if (block.name === VALUE_NAME_INSIDE) {
+              const left = block.left;
+              const inside = block;
+              const right = block.right;
 
-					if (block.name == VALUE_NAME_OUTSIDE) {
+              const compiler = ctx.compiler(left.value);
 
-						if (block.value.trim() == '') {
+              if (!compiler) {
+                this.compile_inline(
+                  left.value + inside.value + right.value,
+                  ctx,
+                  loopCallback,
+                );
 
-							callback(null, '');
+                return;
+              }
 
-							return;
-						}
+              compiler.call(this, inside, ctx, loopCallback);
 
-						this.compile_inline(block.value, ctx, callback);
+              return;
+            }
+          } catch (e) {
+            loopCallback(e);
+          }
+        },
+        (err, results) => {
+          if (err) {
+            return callback(err);
+          }
 
-						return;
-					}
+          callback(null, results.join(''));
+        },
+      );
+    } catch (e) {
+      callback(e);
+    }
+  }
 
-					if (block.name == VALUE_NAME_INSIDE) {
+  private compile_inline(
+    input: string,
+    ctx: AtatContext,
+    callback: AtatCallback<string>,
+  ) {
+    try {
+      if (input.length === 0) {
+        callback(null, '');
+        return;
+      }
 
-						let left = block.left,
-							inside = block,
-							right = block.right;
+      const blocks = match_inline(input, ctx.inline);
 
-						let compiler = ctx.compiler(left.value);
+      loop_async(
+        blocks,
+        (block, i, array, loopCallback) => {
+          try {
+            if (block.name === VALUE_NAME_OUTSIDE) {
+              ctx.parts.push(block.value);
+              loopCallback(
+                null,
+                `this.output += this.parts[${ctx.parts.length - 1}];`,
+              );
 
-						if (!compiler) {
+              return;
+            }
 
-							this.compile_inline(left.value + inside.value + right.value, ctx, callback);
+            if (block.name === VALUE_NAME_INSIDE) {
+              const left = block.left;
+              const inside = block;
+              const right = block.right;
 
-							return;
-						}
+              if (inside.value.trim() === '') {
+                loopCallback(null, '');
 
-						compiler.call(this, inside, ctx, callback);
+                return;
+              }
 
-						return;
-					}
+              const compiler = ctx.compiler(
+                left.value + inside.value + right.value,
+              );
 
-				} catch (e) {
+              if (!compiler) {
+                output_call_helper.call(this, inside, ctx, loopCallback);
+                return;
+              }
 
-					callback(e);
-				}
+              compiler.call(this, inside, ctx, loopCallback);
 
-			}, (err, results) => {
+              return;
+            }
+          } catch (e) {
+            loopCallback(e);
+          }
+        },
+        (err, results) => {
+          if (err) {
+            return callback(err);
+          }
 
-				if (err) {
-
-					return callback(err);
-				}
-
-				callback(null, results.join(''));
-			});
-
-		} catch (e) {
-			callback(e);
-		}
-	}
-
-	private compile_inline(input: string, ctx: AtatContext, callback: AtatCallback<string>) {
-
-		try {
-
-			if (input.length == 0) {
-				callback(null, '');
-				return;
-			}
-
-			const blocks = match_inline(input, ctx.inline);
-
-			loop_async(blocks, (block, i, array, callback) => {
-
-				try {
-					if (block.name == VALUE_NAME_OUTSIDE) {
-
-						ctx.parts.push(block.value);
-						callback(null, 'this.output += this.parts[' + (ctx.parts.length - 1) + '];');
-
-						return;
-					}
-
-					if (block.name == VALUE_NAME_INSIDE) {
-
-						let left = block.left,
-							inside = block,
-							right = block.right;
-
-						if (inside.value.trim() == '') {
-
-							callback(null, '');
-
-							return;
-						}
-
-						let compiler = ctx.compiler(left.value + inside.value + right.value);
-
-						if (!compiler) {
-							output_call_helper.call(this, inside, ctx, callback);
-							return;
-						}
-
-						compiler.call(this, inside, ctx, callback);
-
-						return;
-					}
-				} catch (e) {
-
-					callback(e);
-				}
-
-			}, (err, results) => {
-
-				if (err) {
-
-					return callback(err);
-				}
-
-				callback(null, results.join(''));
-			});
-
-		} catch (e) {
-			callback(e);
-		}
-	}
+          callback(null, results.join(''));
+        },
+      );
+    } catch (e) {
+      callback(e);
+    }
+  }
 }

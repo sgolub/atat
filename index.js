@@ -92,19 +92,43 @@ module.exports =
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var common_1 = __webpack_require__(1);
+// tslint:disable-next-line: no-empty
+function noop() { }
+exports.noop = noop;
+exports.VALUE_NAME_OUTSIDE = 'outside';
+exports.VALUE_NAME_INSIDE = 'inside';
+exports.HTML_RULES = {
+    '"': '&#34;',
+    '&': '&#38;',
+    "'": '&#39;',
+    '/': '&#47;',
+    '<': '&#60;',
+    '>': '&#62;',
+};
+exports.CLEAR_TAGS = /[-[\](){}*+?.,\\^$|#\s]/g;
+exports.MATCH_HTML = /&(?!#?\w+;)|<|>|"|'|\//g;
+
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var common_1 = __webpack_require__(0);
 exports.helpers = {
     encode: encode_html,
-    json: json_stringify,
     join: join_helper,
+    json: json_stringify,
+    lower: lowercase_helper,
     upper: uppercase_helper,
-    lower: lowercase_helper
 };
 function merge(src, dest) {
     if (dest === void 0) { dest = {}; }
     for (var x in src) {
         if (!dest.hasOwnProperty(x) && src.hasOwnProperty(x)) {
-            if (typeof src[x] == 'object') {
+            if (typeof src[x] === 'object') {
                 dest[x] = merge(src[x]);
             }
             else {
@@ -126,19 +150,19 @@ function get_tags(tags) {
     loop(tags, function (compiler, regexp) {
         compilers.push({
             compiler: compiler,
-            regexp: new RegExp(regexp, 'g')
+            regexp: new RegExp(regexp, 'g'),
         });
     });
     return {
-        open: new RegExp(regexps.join('|'), 'g'),
+        compilers: compilers,
         close: /}@/g,
-        compilers: compilers
+        open: new RegExp(regexps.join('|'), 'g'),
     };
 }
 exports.get_tags = get_tags;
-function get_tags_inline(inline_tags) {
+function get_tags_inline(inlineTags) {
     var regexps = [];
-    loop(inline_tags, function (compiler, regexp) {
+    loop(inlineTags, function (compiler, regexp) {
         regexps.push(regexp);
     });
     regexps.push('(@[A-Za-z0-9$]+\\()([^]*?)(\\)@)');
@@ -147,7 +171,6 @@ function get_tags_inline(inline_tags) {
 exports.get_tags_inline = get_tags_inline;
 function loop(array, fn) {
     if (Object.prototype.toString.call(array) !== '[object Array]') {
-        array = array;
         for (var x in array) {
             if (array.hasOwnProperty(x)) {
                 fn(array[x], x, array);
@@ -155,15 +178,17 @@ function loop(array, fn) {
         }
         return;
     }
-    array = array;
-    for (var i = 0, l = array.length; i < l; i++) {
+    for (var i = 0, l = array.length; i < l; i += 1) {
         fn(array[i], i, array);
     }
 }
 exports.loop = loop;
 function loop_async(array, fn, callback) {
-    var ready = 0, finished = false, results = [], length = array.length;
-    for (var i = 0; i < length; i++) {
+    var ready = 0;
+    var finished = false;
+    var results = [];
+    var length = array.length;
+    for (var i = 0; i < length; i += 1) {
         fn(array[i], i, array, cb(i));
     }
     function cb(index) {
@@ -177,8 +202,8 @@ function loop_async(array, fn, callback) {
                 return;
             }
             results[index] = res;
-            ready++;
-            if (ready == length) {
+            ready += 1;
+            if (ready === length) {
                 finished = true;
                 callback(null, results);
             }
@@ -198,20 +223,23 @@ function trim_string(str) {
     for (var _i = 1; _i < arguments.length; _i++) {
         chars[_i - 1] = arguments[_i];
     }
-    if (chars.length == 0) {
+    if (chars.length === 0) {
         return String.prototype.trim.call(str);
     }
+    var result = str;
     while (chars.indexOf(str.charAt(0)) >= 0) {
-        str = str.substring(1);
+        result = str.substring(1);
     }
     while (chars.indexOf(str.charAt(str.length - 1)) >= 0) {
-        str = str.substring(0, str.length - 1);
+        result = str.substring(0, str.length - 1);
     }
-    return str;
+    return result;
 }
 exports.trim_string = trim_string;
 function escape_quotes(str) {
-    return trim_string(str).replace(/^"(.*)"$/g, '$1').replace(/^'(.*)'$/g, '$1');
+    return trim_string(str)
+        .replace(/^"(.*)"$/g, '$1')
+        .replace(/^'(.*)'$/g, '$1');
 }
 exports.escape_quotes = escape_quotes;
 function json_stringify(obj) {
@@ -235,38 +263,24 @@ function lowercase_helper(str) {
 }
 exports.lowercase_helper = lowercase_helper;
 function resolveUrl(base, relative) {
-    var stack = base.split("/"), parts = relative.split("/");
+    var stack = base.split('/');
+    var parts = relative.split('/');
     stack.pop();
-    for (var i = 0; i < parts.length; i++) {
-        if (parts[i] == ".") {
+    for (var _i = 0, parts_1 = parts; _i < parts_1.length; _i++) {
+        var part = parts_1[_i];
+        if (part === '.') {
             continue;
         }
-        if (parts[i] == "..") {
+        if (part === '..') {
             stack.pop();
         }
         else {
-            stack.push(parts[i]);
+            stack.push(part);
         }
     }
-    return stack.join("/");
+    return stack.join('/');
 }
 exports.resolveUrl = resolveUrl;
-
-
-/***/ }),
-/* 1 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-function noop() { }
-exports.noop = noop;
-exports.VALUE_NAME_OUTSIDE = 'outside';
-exports.VALUE_NAME_INSIDE = 'inside';
-exports.HTML_RULES = { '&': '&#38;', '<': '&#60;', '>': '&#62;', '"': '&#34;', "'": '&#39;', '/': '&#47;' };
-exports.CLEAR_TAGS = /[-[\](){}*+?.,\\^$|#\s]/g;
-exports.MATCH_HTML = /&(?!#?\w+;)|<|>|"|'|\//g;
 
 
 /***/ }),
@@ -276,29 +290,31 @@ exports.MATCH_HTML = /&(?!#?\w+;)|<|>|"|'|\//g;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var context_1 = __webpack_require__(6);
-var options_1 = __webpack_require__(4);
-var compiler_1 = __webpack_require__(8);
-var common_1 = __webpack_require__(1);
+var common_1 = __webpack_require__(0);
+var compiler_1 = __webpack_require__(6);
+var context_1 = __webpack_require__(7);
+var helpers_1 = __webpack_require__(1);
 var load_file_1 = __webpack_require__(9);
-var helpers_1 = __webpack_require__(0);
+var options_1 = __webpack_require__(5);
 exports.atat = {
     config: function (opts) {
-        opts = helpers_1.merge(options_1.AtatDefaultOpions, opts);
-        for (var x in opts) {
-            if (options_1.AtatDefaultOpions.hasOwnProperty(x)) {
-                options_1.AtatDefaultOpions[x] = opts[x];
+        var options = helpers_1.merge(options_1.DEFAULT_OPTIONS, opts);
+        for (var x in options) {
+            if (options_1.DEFAULT_OPTIONS.hasOwnProperty(x)) {
+                options_1.DEFAULT_OPTIONS[x] = options[x];
             }
         }
     },
-    parse: function (input, options, callback) {
-        if (options === void 0) { options = {}; }
-        if (callback === void 0) { callback = common_1.noop; }
+    parse: function (input, optionsArg, callbackArg) {
+        if (optionsArg === void 0) { optionsArg = {}; }
+        if (callbackArg === void 0) { callbackArg = common_1.noop; }
+        var options = optionsArg;
+        var callback = callbackArg;
         if (typeof options === 'function') {
             callback = options;
             options = {};
         }
-        if (callback === common_1.noop && typeof (Promise) !== 'undefined') {
+        if (callback === common_1.noop && typeof Promise !== 'undefined') {
             return new Promise(function (resolve, reject) {
                 exports.atat.parse(input, options, function (err, result) {
                     err ? reject(err) : resolve(result);
@@ -311,7 +327,8 @@ exports.atat = {
             if (err) {
                 return callback(err);
             }
-            var render = new Function(ctx.arguments, output + ';return this.output;');
+            // tslint:disable-next-line: no-function-constructor-with-string-args
+            var render = new Function(ctx.arguments, output + ";return this.output;");
             ctx.template = function (model) {
                 try {
                     ctx.output = '';
@@ -331,14 +348,16 @@ exports.atat = {
             callback(null, ctx.template);
         });
     },
-    loadAndParse: function (path, options, callback) {
-        if (options === void 0) { options = {}; }
-        if (callback === void 0) { callback = common_1.noop; }
+    loadAndParse: function (path, optionsArg, callbackArg) {
+        if (optionsArg === void 0) { optionsArg = {}; }
+        if (callbackArg === void 0) { callbackArg = common_1.noop; }
+        var options = optionsArg;
+        var callback = callbackArg;
         if (typeof options === 'function') {
             callback = options;
             options = {};
         }
-        if (callback === common_1.noop && typeof (Promise) !== 'undefined') {
+        if (callback === common_1.noop && typeof Promise !== 'undefined') {
             return new Promise(function (resolve, reject) {
                 exports.atat.loadAndParse(path, options, function (err, result) {
                     err ? reject(err) : resolve(result);
@@ -349,15 +368,17 @@ exports.atat = {
             err ? callback(err) : exports.atat.parse(content, options, callback);
         });
     },
-    render: function (input, model, options, callback) {
+    render: function (input, model, optionsArg, callbackArg) {
         if (model === void 0) { model = {}; }
-        if (options === void 0) { options = {}; }
-        if (callback === void 0) { callback = common_1.noop; }
-        if (typeof (options) === 'function') {
+        if (optionsArg === void 0) { optionsArg = {}; }
+        if (callbackArg === void 0) { callbackArg = common_1.noop; }
+        var options = optionsArg;
+        var callback = callbackArg;
+        if (typeof options === 'function') {
             callback = options;
             options = {};
         }
-        if (callback === common_1.noop && typeof (Promise) !== 'undefined') {
+        if (callback === common_1.noop && typeof Promise !== 'undefined') {
             return new Promise(function (resolve, reject) {
                 exports.atat.render(input, model, options, function (err, result) {
                     err ? reject(err) : resolve(result);
@@ -368,14 +389,16 @@ exports.atat = {
             err ? callback(err) : callback(null, render(model));
         });
     },
-    loadAndRender: function (path, model, options, callback) {
-        if (options === void 0) { options = {}; }
-        if (callback === void 0) { callback = common_1.noop; }
-        if (typeof (options) === 'function') {
+    loadAndRender: function (path, model, optionsArg, callbackArg) {
+        if (optionsArg === void 0) { optionsArg = {}; }
+        if (callbackArg === void 0) { callbackArg = common_1.noop; }
+        var options = optionsArg;
+        var callback = callbackArg;
+        if (typeof options === 'function') {
             callback = options;
             options = {};
         }
-        if (callback === common_1.noop && typeof (Promise) !== 'undefined') {
+        if (callback === common_1.noop && typeof Promise !== 'undefined') {
             return new Promise(function (resolve, reject) {
                 exports.atat.loadAndRender(path, model, options, function (err, result) {
                     err ? reject(err) : resolve(result);
@@ -386,11 +409,12 @@ exports.atat = {
             err ? callback(err) : callback(null, render(model));
         });
     },
+    // tslint:disable-next-line: function-name
     __express: function (path, options, callback) {
         exports.atat.loadAndParse(path, function (err, template) {
             err ? callback(err.toString()) : callback(null, template(options));
         });
-    }
+    },
 };
 
 
@@ -401,9 +425,19 @@ exports.atat = {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var common_1 = __webpack_require__(1);
+var common_1 = __webpack_require__(0);
 function match_recursive(str, left, right) {
-    var global = left.global, sticky = left.sticky, output = [], openTokens = 0, delimStart = 0, delimEnd = 0, lastOuterEnd = 0, outerStart, innerStart, leftMatch, rightMatch;
+    var global = left.global;
+    var sticky = left.sticky;
+    var output = [];
+    var openTokens = 0;
+    var delimStart = 0;
+    var delimEnd = 0;
+    var lastOuterEnd = 0;
+    var outerStart;
+    var innerStart;
+    var leftMatch;
+    var rightMatch;
     while (true) {
         leftMatch = regexp_exec(str, left, delimEnd);
         rightMatch = regexp_exec(str, right, delimEnd);
@@ -441,16 +475,17 @@ function match_recursive(str, left, right) {
                 outerStart = delimStart;
                 innerStart = delimEnd;
             }
-            ++openTokens;
+            openTokens += 1;
         }
         else if (rightMatch && openTokens) {
-            if (!--openTokens) {
+            openTokens -= 1;
+            if (!openTokens) {
                 if (outerStart > lastOuterEnd) {
                     output.push({
                         name: common_1.VALUE_NAME_OUTSIDE,
                         value: str.slice(lastOuterEnd, outerStart),
                         start: lastOuterEnd,
-                        end: outerStart
+                        end: outerStart,
                     });
                 }
                 output.push({
@@ -461,13 +496,13 @@ function match_recursive(str, left, right) {
                     left: {
                         value: str.slice(outerStart, innerStart),
                         start: outerStart,
-                        end: innerStart
+                        end: innerStart,
                     },
                     right: {
                         value: str.slice(delimStart, delimEnd),
                         start: delimStart,
-                        end: delimEnd
-                    }
+                        end: delimEnd,
+                    },
                 });
                 lastOuterEnd = delimEnd;
                 if (!global) {
@@ -480,15 +515,15 @@ function match_recursive(str, left, right) {
         }
         // If the delimiter matched an empty string, avoid an infinite loop
         if (delimStart === delimEnd) {
-            ++delimEnd;
+            delimEnd += 1;
         }
     }
     if (global && str.length > lastOuterEnd) {
         output.push({
+            end: str.length,
             name: common_1.VALUE_NAME_OUTSIDE,
-            value: str.slice(lastOuterEnd),
             start: lastOuterEnd,
-            end: str.length
+            value: str.slice(lastOuterEnd),
         });
     }
     return output;
@@ -515,19 +550,25 @@ function regexp_exec(str, regexp, pos) {
 }
 exports.regexp_exec = regexp_exec;
 function clean_array(array) {
-    for (var i = 0; i < array.length; i++) {
+    for (var i = 0; i < array.length; i += 1) {
         if (typeof array[i] === 'undefined') {
             array.splice(i, 1);
-            i--;
+            i -= 1;
         }
     }
 }
 exports.clean_array = clean_array;
 function match_inline(str, regexp) {
-    var global = regexp.global, sticky = regexp.sticky, output = [], lastEnd = 0, leftStart = 0, innerStart, innerEnd;
+    var global = regexp.global;
+    var sticky = regexp.sticky;
+    var output = [];
+    var lastEnd = 0;
+    var leftStart = 0;
+    var innerStart;
+    var innerEnd;
     while (true) {
         var match = regexp_exec(str, regexp, lastEnd);
-        if (match == null) {
+        if (match === null) {
             break;
         }
         leftStart = match.index;
@@ -542,7 +583,7 @@ function match_inline(str, regexp) {
                 name: common_1.VALUE_NAME_OUTSIDE,
                 value: str.slice(lastEnd, leftStart),
                 start: lastEnd,
-                end: leftStart
+                end: leftStart,
             });
         }
         output.push({
@@ -553,13 +594,13 @@ function match_inline(str, regexp) {
             left: {
                 value: match[1],
                 start: leftStart,
-                end: innerStart
+                end: innerStart,
             },
             right: {
                 value: match[3],
                 start: innerEnd,
-                end: innerEnd + match[3].length
-            }
+                end: innerEnd + match[3].length,
+            },
         });
         lastEnd = leftStart + match[0].length;
         if (!global) {
@@ -571,7 +612,7 @@ function match_inline(str, regexp) {
             name: common_1.VALUE_NAME_OUTSIDE,
             value: str.slice(lastEnd),
             start: lastEnd,
-            end: str.length
+            end: str.length,
         });
     }
     return output;
@@ -586,30 +627,14 @@ exports.match_inline = match_inline;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.AtatDefaultOpions = {
-    it: "it",
-    $: "$",
-    basepath: "",
-    cache: true,
-    helpers: {}
-};
-
-
-/***/ }),
-/* 5 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var helpers_1 = __webpack_require__(0);
 var atat_1 = __webpack_require__(2);
-exports.inline_tags = {
-    '(@section\\()([^]*?)(\\)@)': output_section,
+var helpers_1 = __webpack_require__(1);
+exports.inlineTags = {
+    '(@!\\()([^]*?)(\\)@)': output_as_html,
+    '(@\\()([^]*?)(\\)@)': output_as_text,
     '(@layout\\()([^]*?)(\\)@)': compile_layout,
     '(@partial\\()([^]*?)(\\)@)': compile_partial,
-    '(@\\()([^]*?)(\\)@)': output_as_text,
-    '(@!\\()([^]*?)(\\)@)': output_as_html
+    '(@section\\()([^]*?)(\\)@)': output_section,
 };
 function output_as_text(inside, ctx, callback) {
     try {
@@ -656,7 +681,7 @@ function compile_layout(inside, ctx, callback) {
 function compile_partial(inside, ctx, callback) {
     try {
         var value = inside.value.trim();
-        if (value == '') {
+        if (value === '') {
             return callback(new Error('Partial parsing error'));
         }
         var args_1 = value.split(/\s*,\s*/g);
@@ -667,7 +692,8 @@ function compile_partial(inside, ctx, callback) {
             }
             ctx.partials.push(template);
             template.context.parent = ctx;
-            var output = "this.output += this.partials[" + (ctx.partials.length - 1) + "](" + args_1 + ");";
+            var output = "this.output += this.partials[" + (ctx.partials.length -
+                1) + "](" + args_1 + ");";
             callback(null, output);
         });
     }
@@ -678,7 +704,8 @@ function compile_partial(inside, ctx, callback) {
 function output_section(inside, ctx, callback) {
     try {
         var name_1 = helpers_1.escape_quotes(inside.value);
-        var output = "this.output += (function(){var s = this.section('" + name_1 + "'); return s?s(" + ctx.arguments + "):\"\";}).call(this);";
+        var output = "this.output += (function(){var s = this.section('" + name_1 + "'); " +
+            ("return s?s(" + ctx.arguments + "):\"\";}).call(this);");
         callback(null, output);
     }
     catch (e) {
@@ -689,7 +716,7 @@ function output_call_helper(inside, ctx, callback) {
     try {
         var name_2 = inside.left.value.substring(1, inside.left.value.length - 1);
         if (typeof ctx.helpers[name_2] !== 'function') {
-            throw "Helper \"" + name_2 + "\" didn't declarated";
+            throw new Error("Helper " + name_2 + " isn't declarated");
         }
         callback(null, "this.output += this.helpers." + name_2 + "(" + inside.value.trim() + ");");
     }
@@ -701,197 +728,68 @@ exports.output_call_helper = output_call_helper;
 
 
 /***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.DEFAULT_OPTIONS = {
+    $: '$',
+    basepath: '',
+    cache: true,
+    helpers: {},
+    it: 'it',
+};
+
+
+/***/ }),
 /* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var options_1 = __webpack_require__(4);
-var helpers_1 = __webpack_require__(0);
+var common_1 = __webpack_require__(0);
+var helpers_1 = __webpack_require__(1);
+var inline_1 = __webpack_require__(4);
 var regexp_1 = __webpack_require__(3);
-var inline_1 = __webpack_require__(5);
-var tags_1 = __webpack_require__(7);
-var AtatContext = /** @class */ (function () {
-    function AtatContext(opts) {
-        var _this = this;
-        this.options = helpers_1.merge(options_1.AtatDefaultOpions, opts);
-        this.helpers = helpers_1.merge(helpers_1.helpers, opts.helpers);
-        this.model = null;
-        this.output = '';
-        this.parts = [];
-        this.parent = null;
-        this.arguments = [this.options.it, this.options.$, 'body'].join(',');
-        this.tags = helpers_1.get_tags(tags_1.tags);
-        this.inline = helpers_1.get_tags_inline(inline_1.inline_tags);
-        helpers_1.loop(inline_1.inline_tags, function (compiler, regexp) {
-            _this.tags.compilers.push({
-                compiler: compiler,
-                regexp: new RegExp(regexp, 'g')
-            });
-        });
-        this.layout = null;
-        this.partials = [];
-        this.sections = {};
-    }
-    AtatContext.prototype.section = function (name) {
-        return name ? this.sections[name] || (this.parent && this.parent.section(name)) : null;
-    };
-    AtatContext.prototype.compiler = function (str) {
-        if (str === void 0) { str = ""; }
-        for (var i = 0, l = this.tags.compilers.length; i < l; i++) {
-            var item = this.tags.compilers[i];
-            if (regexp_1.regexp_test(str, item.regexp)) {
-                return item.compiler;
-            }
-        }
-        return null;
-    };
-    return AtatContext;
-}());
-exports.AtatContext = AtatContext;
-
-
-/***/ }),
-/* 7 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var common_1 = __webpack_require__(1);
-var regexp_1 = __webpack_require__(3);
-var helpers_1 = __webpack_require__(0);
-var atat_1 = __webpack_require__(2);
-exports.tags = {
-    '@\\{': compile_code,
-    '@if\\s*\\(': compile_if,
-    '@while\\s*\\(': compile_while,
-    '@for\\s*\\(': compile_for,
-    '@function\\s+[$A-Za-z0-9]*\\s*\\(': compile_function,
-    '@section\\s+[$A-Za-z0-9]*\\s*\\{': compile_section
-};
-function compile_code(inside, ctx, callback) {
-    callback(null, inside.value.trim());
-}
-function compile_for(inside, ctx, callback) {
-    var code = 'for(' + inside.value + '}';
-    var blocks = regexp_1.match_recursive(code, /\{/g, /\}/g);
-    var out = '';
-    out += blocks[0].value;
-    out += '{';
-    this.compile(blocks[1].value, ctx, function (err, res) {
-        if (err) {
-            return callback(err);
-        }
-        out += res;
-        out += '}';
-        callback(null, out);
-    });
-}
-function compile_function(inside, ctx, callback) {
-    var left = inside.left.value.trim().substring(1);
-    callback(null, left + inside.value.trim() + '}');
-}
-function compile_if(inside, ctx, callback) {
-    var _this = this;
-    var code = 'if(' + inside.value + '}';
-    var blocks = regexp_1.match_recursive(code, /\{/g, /\}/g);
-    helpers_1.loop_async(blocks, function (block, i, array, callback) {
-        if (block.name == common_1.VALUE_NAME_OUTSIDE) {
-            return callback(null, block.value);
-        }
-        _this.compile(block.value, ctx, callback);
-    }, function (err, results) {
-        if (err) {
-            return callback(err);
-        }
-        callback(null, results.join(''));
-    });
-}
-function compile_section(inside, ctx, callback) {
-    var block = inside.value.trim();
-    var value = inside.left.value.trim();
-    var reg_name = /^@section\s+([A-Za-z0-9]+)\s*\{/g;
-    var match = regexp_1.regexp_exec(value, reg_name);
-    if (!match || match.length > 2) {
-        return callback(new Error('Section parsing error'));
-    }
-    var name = match[1].trim();
-    if (ctx.sections[name]) {
-        return callback(new Error('Section already exists'));
-    }
-    atat_1.atat.parse(block, ctx.options, function (err, template) {
-        if (err) {
-            return callback(err);
-        }
-        template.context.parent = ctx;
-        ctx.sections[name] = template;
-        callback(null);
-    });
-}
-function compile_while(inside, ctx, callback) {
-    var code = 'while(' + inside.value + '}';
-    var blocks = regexp_1.match_recursive(code, /\{/g, /\}/g);
-    var out = '';
-    out += blocks[0].value;
-    out += '{';
-    this.compile(blocks[1].value, ctx, function (err, res) {
-        if (err) {
-            return callback(err);
-        }
-        out += res;
-        out += '}';
-        callback(null, out);
-    });
-}
-
-
-/***/ }),
-/* 8 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var common_1 = __webpack_require__(1);
-var helpers_1 = __webpack_require__(0);
-var regexp_1 = __webpack_require__(3);
-var inline_1 = __webpack_require__(5);
 var AtatCompiler = /** @class */ (function () {
     function AtatCompiler() {
     }
     AtatCompiler.prototype.compile = function (input, ctx, callback) {
         var _this = this;
         try {
-            if (input.length == 0) {
+            if (input.length === 0) {
                 callback(null, '');
                 return;
             }
             var blocks = regexp_1.match_recursive(input, ctx.tags.open, ctx.tags.close);
-            helpers_1.loop_async(blocks, function (block, i, array, callback) {
+            helpers_1.loop_async(blocks, function (block, i, array, loopCallback) {
                 try {
-                    if (block.name == common_1.VALUE_NAME_OUTSIDE) {
-                        if (block.value.trim() == '') {
-                            callback(null, '');
+                    if (block.name === common_1.VALUE_NAME_OUTSIDE) {
+                        if (block.value.trim() === '') {
+                            loopCallback(null, '');
                             return;
                         }
-                        _this.compile_inline(block.value, ctx, callback);
+                        _this.compile_inline(block.value, ctx, loopCallback);
                         return;
                     }
-                    if (block.name == common_1.VALUE_NAME_INSIDE) {
-                        var left = block.left, inside = block, right = block.right;
+                    if (block.name === common_1.VALUE_NAME_INSIDE) {
+                        var left = block.left;
+                        var inside = block;
+                        var right = block.right;
                         var compiler = ctx.compiler(left.value);
                         if (!compiler) {
-                            _this.compile_inline(left.value + inside.value + right.value, ctx, callback);
+                            _this.compile_inline(left.value + inside.value + right.value, ctx, loopCallback);
                             return;
                         }
-                        compiler.call(_this, inside, ctx, callback);
+                        compiler.call(_this, inside, ctx, loopCallback);
                         return;
                     }
                 }
                 catch (e) {
-                    callback(e);
+                    loopCallback(e);
                 }
             }, function (err, results) {
                 if (err) {
@@ -907,35 +805,37 @@ var AtatCompiler = /** @class */ (function () {
     AtatCompiler.prototype.compile_inline = function (input, ctx, callback) {
         var _this = this;
         try {
-            if (input.length == 0) {
+            if (input.length === 0) {
                 callback(null, '');
                 return;
             }
             var blocks = regexp_1.match_inline(input, ctx.inline);
-            helpers_1.loop_async(blocks, function (block, i, array, callback) {
+            helpers_1.loop_async(blocks, function (block, i, array, loopCallback) {
                 try {
-                    if (block.name == common_1.VALUE_NAME_OUTSIDE) {
+                    if (block.name === common_1.VALUE_NAME_OUTSIDE) {
                         ctx.parts.push(block.value);
-                        callback(null, 'this.output += this.parts[' + (ctx.parts.length - 1) + '];');
+                        loopCallback(null, "this.output += this.parts[" + (ctx.parts.length - 1) + "];");
                         return;
                     }
-                    if (block.name == common_1.VALUE_NAME_INSIDE) {
-                        var left = block.left, inside = block, right = block.right;
-                        if (inside.value.trim() == '') {
-                            callback(null, '');
+                    if (block.name === common_1.VALUE_NAME_INSIDE) {
+                        var left = block.left;
+                        var inside = block;
+                        var right = block.right;
+                        if (inside.value.trim() === '') {
+                            loopCallback(null, '');
                             return;
                         }
                         var compiler = ctx.compiler(left.value + inside.value + right.value);
                         if (!compiler) {
-                            inline_1.output_call_helper.call(_this, inside, ctx, callback);
+                            inline_1.output_call_helper.call(_this, inside, ctx, loopCallback);
                             return;
                         }
-                        compiler.call(_this, inside, ctx, callback);
+                        compiler.call(_this, inside, ctx, loopCallback);
                         return;
                     }
                 }
                 catch (e) {
-                    callback(e);
+                    loopCallback(e);
                 }
             }, function (err, results) {
                 if (err) {
@@ -954,18 +854,167 @@ exports.AtatCompiler = AtatCompiler;
 
 
 /***/ }),
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var helpers_1 = __webpack_require__(1);
+var inline_1 = __webpack_require__(4);
+var options_1 = __webpack_require__(5);
+var regexp_1 = __webpack_require__(3);
+var tags_1 = __webpack_require__(8);
+var AtatContext = /** @class */ (function () {
+    function AtatContext(opts) {
+        var _this = this;
+        this.options = helpers_1.merge(options_1.DEFAULT_OPTIONS, opts);
+        this.helpers = helpers_1.merge(helpers_1.helpers, opts.helpers);
+        this.model = null;
+        this.output = '';
+        this.parts = [];
+        this.parent = null;
+        this.arguments = [this.options.it, this.options.$, 'body'].join(',');
+        this.tags = helpers_1.get_tags(tags_1.tags);
+        this.inline = helpers_1.get_tags_inline(inline_1.inlineTags);
+        helpers_1.loop(inline_1.inlineTags, function (compiler, regexp) {
+            _this.tags.compilers.push({
+                compiler: compiler,
+                regexp: new RegExp(regexp, 'g'),
+            });
+        });
+        this.layout = null;
+        this.partials = [];
+        this.sections = {};
+    }
+    AtatContext.prototype.section = function (name) {
+        return name
+            ? this.sections[name] || (this.parent && this.parent.section(name))
+            : null;
+    };
+    AtatContext.prototype.compiler = function (str) {
+        if (str === void 0) { str = ''; }
+        for (var i = 0, l = this.tags.compilers.length; i < l; i += 1) {
+            var item = this.tags.compilers[i];
+            if (regexp_1.regexp_test(str, item.regexp)) {
+                return item.compiler;
+            }
+        }
+        return null;
+    };
+    return AtatContext;
+}());
+exports.AtatContext = AtatContext;
+
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var atat_1 = __webpack_require__(2);
+var common_1 = __webpack_require__(0);
+var helpers_1 = __webpack_require__(1);
+var regexp_1 = __webpack_require__(3);
+exports.tags = {
+    '@\\{': compile_code,
+    '@for\\s*\\(': compile_for,
+    '@function\\s+[$A-Za-z0-9]*\\s*\\(': compile_function,
+    '@if\\s*\\(': compile_if,
+    '@section\\s+[$A-Za-z0-9]*\\s*\\{': compile_section,
+    '@while\\s*\\(': compile_while,
+};
+function compile_code(inside, ctx, callback) {
+    callback(null, inside.value.trim());
+}
+function compile_for(inside, ctx, callback) {
+    var code = "for(" + inside.value + "}";
+    var blocks = regexp_1.match_recursive(code, /\{/g, /\}/g);
+    var out = '';
+    out += blocks[0].value;
+    out += '{';
+    this.compile(blocks[1].value, ctx, function (err, res) {
+        if (err) {
+            return callback(err);
+        }
+        out += res;
+        out += '}';
+        callback(null, out);
+    });
+}
+function compile_function(inside, ctx, callback) {
+    var left = inside.left.value.trim().substring(1);
+    callback(null, "" + left + inside.value.trim() + "}");
+}
+function compile_if(inside, ctx, callback) {
+    var _this = this;
+    var code = "if(" + inside.value + "}";
+    var blocks = regexp_1.match_recursive(code, /\{/g, /\}/g);
+    helpers_1.loop_async(blocks, function (block, i, array, loopCallback) {
+        if (block.name === common_1.VALUE_NAME_OUTSIDE) {
+            return loopCallback(null, block.value);
+        }
+        _this.compile(block.value, ctx, loopCallback);
+    }, function (err, results) {
+        if (err) {
+            return callback(err);
+        }
+        callback(null, results.join(''));
+    });
+}
+function compile_section(inside, ctx, callback) {
+    var block = inside.value.trim();
+    var value = inside.left.value.trim();
+    var regName = /^@section\s+([A-Za-z0-9]+)\s*\{/g;
+    var match = regexp_1.regexp_exec(value, regName);
+    if (!match || match.length > 2) {
+        return callback(new Error('Section parsing error'));
+    }
+    var name = match[1].trim();
+    if (ctx.sections[name]) {
+        return callback(new Error('Section already exists'));
+    }
+    atat_1.atat.parse(block, ctx.options, function (err, template) {
+        if (err) {
+            return callback(err);
+        }
+        template.context.parent = ctx;
+        ctx.sections[name] = template;
+        callback(null);
+    });
+}
+function compile_while(inside, ctx, callback) {
+    var code = "while(" + inside.value + "}";
+    var blocks = regexp_1.match_recursive(code, /\{/g, /\}/g);
+    var out = '';
+    out += blocks[0].value;
+    out += '{';
+    this.compile(blocks[1].value, ctx, function (err, res) {
+        if (err) {
+            return callback(err);
+        }
+        out += res;
+        out += '}';
+        callback(null, out);
+    });
+}
+
+
+/***/ }),
 /* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+// tslint:disable-next-line: no-var-requires
 var fs = __webpack_require__(10);
 function load_file(path, callback) {
     fs.readFile(path, 'utf-8', callback);
 }
 exports.load_file = load_file;
-;
 
 
 /***/ }),

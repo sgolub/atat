@@ -1,28 +1,55 @@
-import { AtatContext } from "./context";
+import { AtatContext } from './context';
 
 export type AtatCallback<T> = (err?: any, result?: T) => void;
 
 export type AtatHelper = (...args: any[]) => string;
 
-export type AtatTemplate = { (model: any): string, context?: AtatContext };
+export interface IAtatTemplate {
+  (model: any): string;
+  context?: AtatContext;
+}
 
-export type AtatCompileFunction = (inside: any, ctx: AtatContext, callback: AtatCallback<string>) => void;
+export type AtatCompileFunction = (
+  inside: any,
+  ctx: AtatContext,
+  callback: AtatCallback<string>,
+) => void;
 
-export type AtatTag = { compiler: AtatCompileFunction, regexp: RegExp };
+export interface IAtatTag {
+  compiler: AtatCompileFunction;
+  regexp: RegExp;
+}
 
-export type KeyValuePair<T> = { [key: string]: T };
+export interface IKeyValuePair<T> {
+  [key: string]: T;
+}
 
-export type ArrayOrKeyValuePair<T> = T[] | KeyValuePair<T>;
+export type ArrayOrKeyValuePair<T> = T[] | IKeyValuePair<T>;
 
-export type MuchResult = { name: string, value: string, start: number, end: number, left?: { value: string, start: number, end: number }, right?: { value: string, start: number, end: number } };
+export interface IMuchResult {
+  name: string;
+  value: string;
+  start: number;
+  end: number;
+  left?: { value: string; start: number; end: number };
+  right?: { value: string; start: number; end: number };
+}
 
-export function noop() { }
+// tslint:disable-next-line: no-empty
+export function noop() {}
 
 export const VALUE_NAME_OUTSIDE = 'outside';
 
 export const VALUE_NAME_INSIDE = 'inside';
 
-export const HTML_RULES: KeyValuePair<string> = { '&': '&#38;', '<': '&#60;', '>': '&#62;', '"': '&#34;', "'": '&#39;', '/': '&#47;' };
+export const HTML_RULES: IKeyValuePair<string> = {
+  '"': '&#34;',
+  '&': '&#38;',
+  "'": '&#39;',
+  '/': '&#47;',
+  '<': '&#60;',
+  '>': '&#62;',
+};
 
 export const CLEAR_TAGS = /[-[\](){}*+?.,\\^$|#\s]/g;
 

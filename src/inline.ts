@@ -1,127 +1,158 @@
-import { AtatCallback, AtatTemplate, AtatCompileFunction } from "./common";
-import { AtatContext } from "./context";
-import { MuchResult } from "./common";
-import { escape_quotes } from "./helpers";
-import { atat } from "./atat";
+import { atat } from './atat';
+import {
+  AtatCallback,
+  AtatCompileFunction,
+  IAtatTemplate,
+  IMuchResult,
+} from './common';
+import { AtatContext } from './context';
+import { escape_quotes } from './helpers';
 
-export const inline_tags: { [key: string]: AtatCompileFunction } = {
-	'(@section\\()([^]*?)(\\)@)': output_section,
-	'(@layout\\()([^]*?)(\\)@)': compile_layout,
-	'(@partial\\()([^]*?)(\\)@)': compile_partial,
-	'(@\\()([^]*?)(\\)@)': output_as_text,
-	'(@!\\()([^]*?)(\\)@)': output_as_html
+export const inlineTags: { [key: string]: AtatCompileFunction } = {
+  '(@!\\()([^]*?)(\\)@)': output_as_html,
+  '(@\\()([^]*?)(\\)@)': output_as_text,
+  '(@layout\\()([^]*?)(\\)@)': compile_layout,
+  '(@partial\\()([^]*?)(\\)@)': compile_partial,
+  '(@section\\()([^]*?)(\\)@)': output_section,
 };
 
-function output_as_text(inside: MuchResult, ctx: AtatContext, callback: AtatCallback<string>) {
+function output_as_text(
+  inside: IMuchResult,
+  ctx: AtatContext,
+  callback: AtatCallback<string>,
+) {
+  try {
+    const val = inside.value.trim();
 
-	try {
-		var val = inside.value.trim();
+    if (val === '') {
+      callback();
+    }
 
-		if (val === '') {
-			callback();
-		}
-
-		callback(null, `this.output += this.helpers.encode(${inside.value.trim()});`);
-	} catch (e) {
-		callback(e);
-	}
+    callback(
+      null,
+      `this.output += this.helpers.encode(${inside.value.trim()});`,
+    );
+  } catch (e) {
+    callback(e);
+  }
 }
 
-function output_as_html(inside: MuchResult, ctx: AtatContext, callback: AtatCallback<string>) {
+function output_as_html(
+  inside: IMuchResult,
+  ctx: AtatContext,
+  callback: AtatCallback<string>,
+) {
+  try {
+    const val = inside.value.trim();
 
-	try {
-		var val = inside.value.trim();
+    if (val === '') {
+      callback();
+    }
 
-		if (val === '') {
-			callback();
-		}
-
-		callback(null, `this.output += (${inside.value.trim()});`);
-	} catch (e) {
-		callback(e);
-	}
+    callback(null, `this.output += (${inside.value.trim()});`);
+  } catch (e) {
+    callback(e);
+  }
 }
 
-function compile_layout(inside: MuchResult, ctx: AtatContext, callback: AtatCallback<string>) {
+function compile_layout(
+  inside: IMuchResult,
+  ctx: AtatContext,
+  callback: AtatCallback<string>,
+) {
+  try {
+    if (ctx.layout) {
+      return callback();
+    }
 
-	try {
-		if (ctx.layout) {
-			return callback();
-		}
+    atat.loadAndParse(
+      escape_quotes(inside.value),
+      ctx.options,
+      (err: any, template: IAtatTemplate) => {
+        if (err) {
+          return callback(err);
+        }
 
-		atat.loadAndParse(escape_quotes(inside.value), ctx.options, (err: any, template: AtatTemplate) => {
+        ctx.layout = template;
+        template.context.parent = ctx;
 
-			if (err) {
-
-				return callback(err);
-			}
-
-			ctx.layout = template;
-			template.context.parent = ctx;
-
-			callback();
-		});
-	} catch (e) {
-		callback(e);
-	}
+        callback();
+      },
+    );
+  } catch (e) {
+    callback(e);
+  }
 }
 
-function compile_partial(inside: MuchResult, ctx: AtatContext, callback: AtatCallback<string>) {
+function compile_partial(
+  inside: IMuchResult,
+  ctx: AtatContext,
+  callback: AtatCallback<string>,
+) {
+  try {
+    const value = inside.value.trim();
 
-	try {
-		let value = inside.value.trim();
+    if (value === '') {
+      return callback(new Error('Partial parsing error'));
+    }
 
-		if (value == '') {
-			return callback(new Error('Partial parsing error'));
-		}
+    const args = value.split(/\s*,\s*/g);
 
-		let args = value.split(/\s*,\s*/g);
+    const uri = escape_quotes(args.shift());
 
-		let uri = escape_quotes(args.shift());
+    atat.loadAndParse(uri, ctx.options, (err: any, template: IAtatTemplate) => {
+      if (err) {
+        return callback(err);
+      }
 
-		atat.loadAndParse(uri, ctx.options, (err: any, template: AtatTemplate) => {
+      ctx.partials.push(template);
+      template.context.parent = ctx;
 
-			if (err) {
+      const output = `this.output += this.partials[${ctx.partials.length -
+        1}](${args});`;
 
-				return callback(err);
-			}
-
-			ctx.partials.push(template);
-			template.context.parent = ctx;
-
-			let output = `this.output += this.partials[${ctx.partials.length - 1}](${args});`;
-
-			callback(null, output);
-		});
-	} catch (e) {
-		callback(e);
-	}
+      callback(null, output);
+    });
+  } catch (e) {
+    callback(e);
+  }
 }
 
-function output_section(inside: MuchResult, ctx: AtatContext, callback: AtatCallback<string>) {
+function output_section(
+  inside: IMuchResult,
+  ctx: AtatContext,
+  callback: AtatCallback<string>,
+) {
+  try {
+    const name = escape_quotes(inside.value);
 
-	try {
-		let name = escape_quotes(inside.value);
+    const output =
+      `this.output += (function(){var s = this.section('${name}'); ` +
+      `return s?s(${ctx.arguments}):"";}).call(this);`;
 
-		let output = `this.output += (function(){var s = this.section('${name}'); return s?s(${ctx.arguments}):"";}).call(this);`;
-
-		callback(null, output);
-	} catch (e) {
-		callback(e);
-	}
+    callback(null, output);
+  } catch (e) {
+    callback(e);
+  }
 }
 
-export function output_call_helper(inside: MuchResult, ctx: AtatContext, callback: AtatCallback<string>) {
+export function output_call_helper(
+  inside: IMuchResult,
+  ctx: AtatContext,
+  callback: AtatCallback<string>,
+) {
+  try {
+    const name = inside.left.value.substring(1, inside.left.value.length - 1);
 
-	try {
-		let name = inside.left.value.substring(1, inside.left.value.length - 1);
+    if (typeof ctx.helpers[name] !== 'function') {
+      throw new Error(`Helper ${name} isn't declarated`);
+    }
 
-		if (typeof ctx.helpers[name] !== 'function') {
-			throw `Helper "${name}" didn't declarated`;
-		}
-
-		callback(null, `this.output += this.helpers.${name}(${inside.value.trim()});`);
-	} catch (e) {
-		callback(e);
-	}
+    callback(
+      null,
+      `this.output += this.helpers.${name}(${inside.value.trim()});`,
+    );
+  } catch (e) {
+    callback(e);
+  }
 }

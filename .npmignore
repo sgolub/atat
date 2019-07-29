@@ -1,9 +1,13 @@
+.vscode
 example
 src
 test
+.prettierrc
 .gitignore
 .travis.yml
 bower.json
 karma.conf.js
 tsconfig.json
+tslint.json
 webpack.config.js
+yarn.lock
