@@ -2,7 +2,6 @@ import { AtatCallback, IAtatTemplate, noop } from './common';
 import { AtatCompiler } from './compiler';
 import { AtatContext } from './context';
 import { merge } from './helpers';
-import { load_file } from './load_file';
 import { DEFAULT_OPTIONS, IAtatOptions } from './options';
 
 export const atat = {
@@ -94,7 +93,9 @@ export const atat = {
       });
     }
 
-    load_file(path, (err, content) => {
+    const fileResolver = options.fileResolver || DEFAULT_OPTIONS.fileResolver;
+
+    fileResolver.loadFile(path, (err, content) => {
       err ? callback(err) : atat.parse(content, options, callback);
     });
   },

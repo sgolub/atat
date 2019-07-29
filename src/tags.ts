@@ -6,19 +6,19 @@ import {
   VALUE_NAME_OUTSIDE,
 } from './common';
 import { AtatContext } from './context';
-import { loop_async } from './helpers';
-import { match_recursive, regexp_exec } from './regexp';
+import { loopAsync } from './helpers';
+import { matchRecursive, regexpExec } from './regexp';
 
 export const tags: { [key: string]: AtatCompileFunction } = {
-  '@\\{': compile_code,
-  '@for\\s*\\(': compile_for,
-  '@function\\s+[$A-Za-z0-9]*\\s*\\(': compile_function,
-  '@if\\s*\\(': compile_if,
-  '@section\\s+[$A-Za-z0-9]*\\s*\\{': compile_section,
-  '@while\\s*\\(': compile_while,
+  '@\\{': compileCode,
+  '@for\\s*\\(': compileFor,
+  '@function\\s+[$A-Za-z0-9]*\\s*\\(': compileFunction,
+  '@if\\s*\\(': compileIf,
+  '@section\\s+[$A-Za-z0-9]*\\s*\\{': compileSection,
+  '@while\\s*\\(': compileWhile,
 };
 
-function compile_code(
+function compileCode(
   inside: IMuchResult,
   ctx: AtatContext,
   callback: AtatCallback<string>,
@@ -26,14 +26,14 @@ function compile_code(
   callback(null, inside.value.trim());
 }
 
-function compile_for(
+function compileFor(
   inside: IMuchResult,
   ctx: AtatContext,
   callback: AtatCallback<string>,
 ) {
   const code = `for(${inside.value}}`;
 
-  const blocks = match_recursive(code, /\{/g, /\}/g);
+  const blocks = matchRecursive(code, /\{/g, /\}/g);
 
   let out = '';
 
@@ -52,7 +52,7 @@ function compile_for(
   });
 }
 
-function compile_function(
+function compileFunction(
   inside: IMuchResult,
   ctx: AtatContext,
   callback: AtatCallback<string>,
@@ -62,16 +62,16 @@ function compile_function(
   callback(null, `${left}${inside.value.trim()}}`);
 }
 
-function compile_if(
+function compileIf(
   inside: IMuchResult,
   ctx: AtatContext,
   callback: AtatCallback<string>,
 ) {
   const code = `if(${inside.value}}`;
 
-  const blocks = match_recursive(code, /\{/g, /\}/g);
+  const blocks = matchRecursive(code, /\{/g, /\}/g);
 
-  loop_async(
+  loopAsync(
     blocks,
     (block, i, array, loopCallback) => {
       if (block.name === VALUE_NAME_OUTSIDE) {
@@ -89,7 +89,7 @@ function compile_if(
   );
 }
 
-function compile_section(
+function compileSection(
   inside: IMuchResult,
   ctx: AtatContext,
   callback: AtatCallback<string>,
@@ -98,7 +98,7 @@ function compile_section(
 
   const value = inside.left.value.trim();
   const regName = /^@section\s+([A-Za-z0-9]+)\s*\{/g;
-  const match = regexp_exec(value, regName);
+  const match = regexpExec(value, regName);
 
   if (!match || match.length > 2) {
     return callback(new Error('Section parsing error'));
@@ -122,14 +122,14 @@ function compile_section(
   });
 }
 
-function compile_while(
+function compileWhile(
   inside: IMuchResult,
   ctx: AtatContext,
   callback: AtatCallback<string>,
 ) {
   const code = `while(${inside.value}}`;
 
-  const blocks = match_recursive(code, /\{/g, /\}/g);
+  const blocks = matchRecursive(code, /\{/g, /\}/g);
 
   let out = '';
 

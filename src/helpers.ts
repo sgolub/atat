@@ -10,11 +10,11 @@ import {
 } from './common';
 
 export const helpers: { [key: string]: AtatHelper } = {
-  encode: encode_html,
-  join: join_helper,
-  json: json_stringify,
-  lower: lowercase_helper,
-  upper: uppercase_helper,
+  encode: encodeHtml,
+  join: joinHelper,
+  json: jsonStringify,
+  lower: lowercaseHelper,
+  upper: uppercaseHelper,
 };
 
 export function merge(src: IKeyValuePair<any>, dest: IKeyValuePair<any> = {}) {
@@ -31,7 +31,7 @@ export function merge(src: IKeyValuePair<any>, dest: IKeyValuePair<any> = {}) {
   return dest;
 }
 
-export function get_tags(tags: { [key: string]: AtatCompileFunction }) {
+export function getTags(tags: { [key: string]: AtatCompileFunction }) {
   const regexps: string[] = [];
 
   loop(tags, (compiler: AtatCompileFunction, regexp: string) => {
@@ -56,7 +56,7 @@ export function get_tags(tags: { [key: string]: AtatCompileFunction }) {
   };
 }
 
-export function get_tags_inline(inlineTags: {
+export function getTagsInline(inlineTags: {
   [key: string]: AtatCompileFunction;
 }) {
   const regexps: string[] = [];
@@ -88,7 +88,7 @@ export function loop<T>(
   }
 }
 
-export function loop_async<T>(
+export function loopAsync<T>(
   array: T[],
   fn: (item: T, i: number, array: T[], callback: AtatCallback<string>) => void,
   callback: AtatCallback<string[]>,
@@ -125,13 +125,13 @@ export function loop_async<T>(
   }
 }
 
-export function encode_html(code = '') {
+export function encodeHtml(code = '') {
   return code.toString().replace(MATCH_HTML, m => {
     return HTML_RULES[m] || m;
   });
 }
 
-export function trim_string(str: string, ...chars: string[]) {
+export function trimString(str: string, ...chars: string[]) {
   if (chars.length === 0) {
     return String.prototype.trim.call(str);
   }
@@ -149,25 +149,25 @@ export function trim_string(str: string, ...chars: string[]) {
   return result;
 }
 
-export function escape_quotes(str: string) {
-  return trim_string(str)
+export function escapeQuotes(str: string) {
+  return trimString(str)
     .replace(/^"(.*)"$/g, '$1')
     .replace(/^'(.*)'$/g, '$1');
 }
 
-export function json_stringify(obj: any) {
+export function jsonStringify(obj: any) {
   return JSON.stringify(obj);
 }
 
-export function join_helper(array: string[] = [], separator = '') {
+export function joinHelper(array: string[] = [], separator = '') {
   return Array.prototype.join.call(array, separator);
 }
 
-export function uppercase_helper(str = '') {
+export function uppercaseHelper(str = '') {
   return str.toString().toUpperCase();
 }
 
-export function lowercase_helper(str = '') {
+export function lowercaseHelper(str = '') {
   return str.toString().toLowerCase();
 }
 

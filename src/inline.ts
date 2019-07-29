@@ -6,17 +6,17 @@ import {
   IMuchResult,
 } from './common';
 import { AtatContext } from './context';
-import { escape_quotes } from './helpers';
+import { escapeQuotes } from './helpers';
 
 export const inlineTags: { [key: string]: AtatCompileFunction } = {
-  '(@!\\()([^]*?)(\\)@)': output_as_html,
-  '(@\\()([^]*?)(\\)@)': output_as_text,
-  '(@layout\\()([^]*?)(\\)@)': compile_layout,
-  '(@partial\\()([^]*?)(\\)@)': compile_partial,
-  '(@section\\()([^]*?)(\\)@)': output_section,
+  '(@!\\()([^]*?)(\\)@)': outputAsHtml,
+  '(@\\()([^]*?)(\\)@)': outputAsText,
+  '(@layout\\()([^]*?)(\\)@)': compileLayout,
+  '(@partial\\()([^]*?)(\\)@)': compilePartial,
+  '(@section\\()([^]*?)(\\)@)': outputSection,
 };
 
-function output_as_text(
+function outputAsText(
   inside: IMuchResult,
   ctx: AtatContext,
   callback: AtatCallback<string>,
@@ -37,7 +37,7 @@ function output_as_text(
   }
 }
 
-function output_as_html(
+function outputAsHtml(
   inside: IMuchResult,
   ctx: AtatContext,
   callback: AtatCallback<string>,
@@ -55,7 +55,7 @@ function output_as_html(
   }
 }
 
-function compile_layout(
+function compileLayout(
   inside: IMuchResult,
   ctx: AtatContext,
   callback: AtatCallback<string>,
@@ -66,7 +66,7 @@ function compile_layout(
     }
 
     atat.loadAndParse(
-      escape_quotes(inside.value),
+      escapeQuotes(inside.value),
       ctx.options,
       (err: any, template: IAtatTemplate) => {
         if (err) {
@@ -84,7 +84,7 @@ function compile_layout(
   }
 }
 
-function compile_partial(
+function compilePartial(
   inside: IMuchResult,
   ctx: AtatContext,
   callback: AtatCallback<string>,
@@ -98,7 +98,7 @@ function compile_partial(
 
     const args = value.split(/\s*,\s*/g);
 
-    const uri = escape_quotes(args.shift());
+    const uri = escapeQuotes(args.shift());
 
     atat.loadAndParse(uri, ctx.options, (err: any, template: IAtatTemplate) => {
       if (err) {
@@ -118,13 +118,13 @@ function compile_partial(
   }
 }
 
-function output_section(
+function outputSection(
   inside: IMuchResult,
   ctx: AtatContext,
   callback: AtatCallback<string>,
 ) {
   try {
-    const name = escape_quotes(inside.value);
+    const name = escapeQuotes(inside.value);
 
     const output =
       `this.output += (function(){var s = this.section('${name}'); ` +
@@ -136,7 +136,7 @@ function output_section(
   }
 }
 
-export function output_call_helper(
+export function outputCallHelper(
   inside: IMuchResult,
   ctx: AtatContext,
   callback: AtatCallback<string>,

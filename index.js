@@ -118,11 +118,11 @@ exports.MATCH_HTML = /&(?!#?\w+;)|<|>|"|'|\//g;
 Object.defineProperty(exports, "__esModule", { value: true });
 var common_1 = __webpack_require__(0);
 exports.helpers = {
-    encode: encode_html,
-    join: join_helper,
-    json: json_stringify,
-    lower: lowercase_helper,
-    upper: uppercase_helper,
+    encode: encodeHtml,
+    join: joinHelper,
+    json: jsonStringify,
+    lower: lowercaseHelper,
+    upper: uppercaseHelper,
 };
 function merge(src, dest) {
     if (dest === void 0) { dest = {}; }
@@ -139,7 +139,7 @@ function merge(src, dest) {
     return dest;
 }
 exports.merge = merge;
-function get_tags(tags) {
+function getTags(tags) {
     var regexps = [];
     loop(tags, function (compiler, regexp) {
         if (regexps.indexOf(regexp) === -1) {
@@ -159,8 +159,8 @@ function get_tags(tags) {
         open: new RegExp(regexps.join('|'), 'g'),
     };
 }
-exports.get_tags = get_tags;
-function get_tags_inline(inlineTags) {
+exports.getTags = getTags;
+function getTagsInline(inlineTags) {
     var regexps = [];
     loop(inlineTags, function (compiler, regexp) {
         regexps.push(regexp);
@@ -168,7 +168,7 @@ function get_tags_inline(inlineTags) {
     regexps.push('(@[A-Za-z0-9$]+\\()([^]*?)(\\)@)');
     return new RegExp(regexps.join('|'), 'g');
 }
-exports.get_tags_inline = get_tags_inline;
+exports.getTagsInline = getTagsInline;
 function loop(array, fn) {
     if (Object.prototype.toString.call(array) !== '[object Array]') {
         for (var x in array) {
@@ -183,7 +183,7 @@ function loop(array, fn) {
     }
 }
 exports.loop = loop;
-function loop_async(array, fn, callback) {
+function loopAsync(array, fn, callback) {
     var ready = 0;
     var finished = false;
     var results = [];
@@ -210,15 +210,15 @@ function loop_async(array, fn, callback) {
         };
     }
 }
-exports.loop_async = loop_async;
-function encode_html(code) {
+exports.loopAsync = loopAsync;
+function encodeHtml(code) {
     if (code === void 0) { code = ''; }
     return code.toString().replace(common_1.MATCH_HTML, function (m) {
         return common_1.HTML_RULES[m] || m;
     });
 }
-exports.encode_html = encode_html;
-function trim_string(str) {
+exports.encodeHtml = encodeHtml;
+function trimString(str) {
     var chars = [];
     for (var _i = 1; _i < arguments.length; _i++) {
         chars[_i - 1] = arguments[_i];
@@ -235,33 +235,33 @@ function trim_string(str) {
     }
     return result;
 }
-exports.trim_string = trim_string;
-function escape_quotes(str) {
-    return trim_string(str)
+exports.trimString = trimString;
+function escapeQuotes(str) {
+    return trimString(str)
         .replace(/^"(.*)"$/g, '$1')
         .replace(/^'(.*)'$/g, '$1');
 }
-exports.escape_quotes = escape_quotes;
-function json_stringify(obj) {
+exports.escapeQuotes = escapeQuotes;
+function jsonStringify(obj) {
     return JSON.stringify(obj);
 }
-exports.json_stringify = json_stringify;
-function join_helper(array, separator) {
+exports.jsonStringify = jsonStringify;
+function joinHelper(array, separator) {
     if (array === void 0) { array = []; }
     if (separator === void 0) { separator = ''; }
     return Array.prototype.join.call(array, separator);
 }
-exports.join_helper = join_helper;
-function uppercase_helper(str) {
+exports.joinHelper = joinHelper;
+function uppercaseHelper(str) {
     if (str === void 0) { str = ''; }
     return str.toString().toUpperCase();
 }
-exports.uppercase_helper = uppercase_helper;
-function lowercase_helper(str) {
+exports.uppercaseHelper = uppercaseHelper;
+function lowercaseHelper(str) {
     if (str === void 0) { str = ''; }
     return str.toString().toLowerCase();
 }
-exports.lowercase_helper = lowercase_helper;
+exports.lowercaseHelper = lowercaseHelper;
 function resolveUrl(base, relative) {
     var stack = base.split('/');
     var parts = relative.split('/');
@@ -294,7 +294,6 @@ var common_1 = __webpack_require__(0);
 var compiler_1 = __webpack_require__(6);
 var context_1 = __webpack_require__(7);
 var helpers_1 = __webpack_require__(1);
-var load_file_1 = __webpack_require__(9);
 var options_1 = __webpack_require__(5);
 exports.atat = {
     config: function (opts) {
@@ -364,7 +363,8 @@ exports.atat = {
                 });
             });
         }
-        load_file_1.load_file(path, function (err, content) {
+        var fileResolver = options.fileResolver || options_1.DEFAULT_OPTIONS.fileResolver;
+        fileResolver.loadFile(path, function (err, content) {
             err ? callback(err) : exports.atat.parse(content, options, callback);
         });
     },
@@ -426,7 +426,7 @@ exports.atat = {
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var common_1 = __webpack_require__(0);
-function match_recursive(str, left, right) {
+function matchRecursive(str, left, right) {
     var global = left.global;
     var sticky = left.sticky;
     var output = [];
@@ -439,8 +439,8 @@ function match_recursive(str, left, right) {
     var leftMatch;
     var rightMatch;
     while (true) {
-        leftMatch = regexp_exec(str, left, delimEnd);
-        rightMatch = regexp_exec(str, right, delimEnd);
+        leftMatch = regexpExec(str, left, delimEnd);
+        rightMatch = regexpExec(str, right, delimEnd);
         // Keep the leftmost match only
         if (leftMatch && rightMatch) {
             if (leftMatch.index <= rightMatch.index) {
@@ -528,8 +528,8 @@ function match_recursive(str, left, right) {
     }
     return output;
 }
-exports.match_recursive = match_recursive;
-function regexp_test(str, regexp, pos) {
+exports.matchRecursive = matchRecursive;
+function regexpTest(str, regexp, pos) {
     if (pos === void 0) { pos = 0; }
     regexp.lastIndex = pos;
     var test = regexp.test(str);
@@ -538,8 +538,8 @@ function regexp_test(str, regexp, pos) {
     }
     return test;
 }
-exports.regexp_test = regexp_test;
-function regexp_exec(str, regexp, pos) {
+exports.regexpTest = regexpTest;
+function regexpExec(str, regexp, pos) {
     if (pos === void 0) { pos = 0; }
     regexp.lastIndex = pos;
     var match = regexp.exec(str);
@@ -548,8 +548,8 @@ function regexp_exec(str, regexp, pos) {
     }
     return match;
 }
-exports.regexp_exec = regexp_exec;
-function clean_array(array) {
+exports.regexpExec = regexpExec;
+function cleanArray(array) {
     for (var i = 0; i < array.length; i += 1) {
         if (typeof array[i] === 'undefined') {
             array.splice(i, 1);
@@ -557,8 +557,8 @@ function clean_array(array) {
         }
     }
 }
-exports.clean_array = clean_array;
-function match_inline(str, regexp) {
+exports.cleanArray = cleanArray;
+function matchInline(str, regexp) {
     var global = regexp.global;
     var sticky = regexp.sticky;
     var output = [];
@@ -567,7 +567,7 @@ function match_inline(str, regexp) {
     var innerStart;
     var innerEnd;
     while (true) {
-        var match = regexp_exec(str, regexp, lastEnd);
+        var match = regexpExec(str, regexp, lastEnd);
         if (match === null) {
             break;
         }
@@ -575,7 +575,7 @@ function match_inline(str, regexp) {
         if (sticky && leftStart > lastEnd) {
             break;
         }
-        clean_array(match);
+        cleanArray(match);
         innerStart = leftStart + match[1].length;
         innerEnd = lastEnd + innerStart + match[2].length;
         if (leftStart > lastEnd) {
@@ -617,7 +617,7 @@ function match_inline(str, regexp) {
     }
     return output;
 }
-exports.match_inline = match_inline;
+exports.matchInline = matchInline;
 
 
 /***/ }),
@@ -630,13 +630,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var atat_1 = __webpack_require__(2);
 var helpers_1 = __webpack_require__(1);
 exports.inlineTags = {
-    '(@!\\()([^]*?)(\\)@)': output_as_html,
-    '(@\\()([^]*?)(\\)@)': output_as_text,
-    '(@layout\\()([^]*?)(\\)@)': compile_layout,
-    '(@partial\\()([^]*?)(\\)@)': compile_partial,
-    '(@section\\()([^]*?)(\\)@)': output_section,
+    '(@!\\()([^]*?)(\\)@)': outputAsHtml,
+    '(@\\()([^]*?)(\\)@)': outputAsText,
+    '(@layout\\()([^]*?)(\\)@)': compileLayout,
+    '(@partial\\()([^]*?)(\\)@)': compilePartial,
+    '(@section\\()([^]*?)(\\)@)': outputSection,
 };
-function output_as_text(inside, ctx, callback) {
+function outputAsText(inside, ctx, callback) {
     try {
         var val = inside.value.trim();
         if (val === '') {
@@ -648,7 +648,7 @@ function output_as_text(inside, ctx, callback) {
         callback(e);
     }
 }
-function output_as_html(inside, ctx, callback) {
+function outputAsHtml(inside, ctx, callback) {
     try {
         var val = inside.value.trim();
         if (val === '') {
@@ -660,12 +660,12 @@ function output_as_html(inside, ctx, callback) {
         callback(e);
     }
 }
-function compile_layout(inside, ctx, callback) {
+function compileLayout(inside, ctx, callback) {
     try {
         if (ctx.layout) {
             return callback();
         }
-        atat_1.atat.loadAndParse(helpers_1.escape_quotes(inside.value), ctx.options, function (err, template) {
+        atat_1.atat.loadAndParse(helpers_1.escapeQuotes(inside.value), ctx.options, function (err, template) {
             if (err) {
                 return callback(err);
             }
@@ -678,14 +678,14 @@ function compile_layout(inside, ctx, callback) {
         callback(e);
     }
 }
-function compile_partial(inside, ctx, callback) {
+function compilePartial(inside, ctx, callback) {
     try {
         var value = inside.value.trim();
         if (value === '') {
             return callback(new Error('Partial parsing error'));
         }
         var args_1 = value.split(/\s*,\s*/g);
-        var uri = helpers_1.escape_quotes(args_1.shift());
+        var uri = helpers_1.escapeQuotes(args_1.shift());
         atat_1.atat.loadAndParse(uri, ctx.options, function (err, template) {
             if (err) {
                 return callback(err);
@@ -701,9 +701,9 @@ function compile_partial(inside, ctx, callback) {
         callback(e);
     }
 }
-function output_section(inside, ctx, callback) {
+function outputSection(inside, ctx, callback) {
     try {
-        var name_1 = helpers_1.escape_quotes(inside.value);
+        var name_1 = helpers_1.escapeQuotes(inside.value);
         var output = "this.output += (function(){var s = this.section('" + name_1 + "'); " +
             ("return s?s(" + ctx.arguments + "):\"\";}).call(this);");
         callback(null, output);
@@ -712,7 +712,7 @@ function output_section(inside, ctx, callback) {
         callback(e);
     }
 }
-function output_call_helper(inside, ctx, callback) {
+function outputCallHelper(inside, ctx, callback) {
     try {
         var name_2 = inside.left.value.substring(1, inside.left.value.length - 1);
         if (typeof ctx.helpers[name_2] !== 'function') {
@@ -724,7 +724,7 @@ function output_call_helper(inside, ctx, callback) {
         callback(e);
     }
 }
-exports.output_call_helper = output_call_helper;
+exports.outputCallHelper = outputCallHelper;
 
 
 /***/ }),
@@ -734,12 +734,12 @@ exports.output_call_helper = output_call_helper;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+var fileResolvers_1 = __webpack_require__(8);
 exports.DEFAULT_OPTIONS = {
-    $: '$',
-    basepath: '',
-    cache: true,
-    helpers: {},
     it: 'it',
+    $: '$',
+    helpers: {},
+    fileResolver: new fileResolvers_1.DefaultFileResolver(),
 };
 
 
@@ -764,15 +764,15 @@ var AtatCompiler = /** @class */ (function () {
                 callback(null, '');
                 return;
             }
-            var blocks = regexp_1.match_recursive(input, ctx.tags.open, ctx.tags.close);
-            helpers_1.loop_async(blocks, function (block, i, array, loopCallback) {
+            var blocks = regexp_1.matchRecursive(input, ctx.tags.open, ctx.tags.close);
+            helpers_1.loopAsync(blocks, function (block, i, array, loopCallback) {
                 try {
                     if (block.name === common_1.VALUE_NAME_OUTSIDE) {
                         if (block.value.trim() === '') {
                             loopCallback(null, '');
                             return;
                         }
-                        _this.compile_inline(block.value, ctx, loopCallback);
+                        _this.compileInline(block.value, ctx, loopCallback);
                         return;
                     }
                     if (block.name === common_1.VALUE_NAME_INSIDE) {
@@ -781,7 +781,7 @@ var AtatCompiler = /** @class */ (function () {
                         var right = block.right;
                         var compiler = ctx.compiler(left.value);
                         if (!compiler) {
-                            _this.compile_inline(left.value + inside.value + right.value, ctx, loopCallback);
+                            _this.compileInline(left.value + inside.value + right.value, ctx, loopCallback);
                             return;
                         }
                         compiler.call(_this, inside, ctx, loopCallback);
@@ -802,15 +802,15 @@ var AtatCompiler = /** @class */ (function () {
             callback(e);
         }
     };
-    AtatCompiler.prototype.compile_inline = function (input, ctx, callback) {
+    AtatCompiler.prototype.compileInline = function (input, ctx, callback) {
         var _this = this;
         try {
             if (input.length === 0) {
                 callback(null, '');
                 return;
             }
-            var blocks = regexp_1.match_inline(input, ctx.inline);
-            helpers_1.loop_async(blocks, function (block, i, array, loopCallback) {
+            var blocks = regexp_1.matchInline(input, ctx.inline);
+            helpers_1.loopAsync(blocks, function (block, i, array, loopCallback) {
                 try {
                     if (block.name === common_1.VALUE_NAME_OUTSIDE) {
                         ctx.parts.push(block.value);
@@ -827,7 +827,7 @@ var AtatCompiler = /** @class */ (function () {
                         }
                         var compiler = ctx.compiler(left.value + inside.value + right.value);
                         if (!compiler) {
-                            inline_1.output_call_helper.call(_this, inside, ctx, loopCallback);
+                            inline_1.outputCallHelper.call(_this, inside, ctx, loopCallback);
                             return;
                         }
                         compiler.call(_this, inside, ctx, loopCallback);
@@ -864,7 +864,7 @@ var helpers_1 = __webpack_require__(1);
 var inline_1 = __webpack_require__(4);
 var options_1 = __webpack_require__(5);
 var regexp_1 = __webpack_require__(3);
-var tags_1 = __webpack_require__(8);
+var tags_1 = __webpack_require__(12);
 var AtatContext = /** @class */ (function () {
     function AtatContext(opts) {
         var _this = this;
@@ -875,8 +875,8 @@ var AtatContext = /** @class */ (function () {
         this.parts = [];
         this.parent = null;
         this.arguments = [this.options.it, this.options.$, 'body'].join(',');
-        this.tags = helpers_1.get_tags(tags_1.tags);
-        this.inline = helpers_1.get_tags_inline(inline_1.inlineTags);
+        this.tags = helpers_1.getTags(tags_1.tags);
+        this.inline = helpers_1.getTagsInline(inline_1.inlineTags);
         helpers_1.loop(inline_1.inlineTags, function (compiler, regexp) {
             _this.tags.compilers.push({
                 compiler: compiler,
@@ -896,7 +896,7 @@ var AtatContext = /** @class */ (function () {
         if (str === void 0) { str = ''; }
         for (var i = 0, l = this.tags.compilers.length; i < l; i += 1) {
             var item = this.tags.compilers[i];
-            if (regexp_1.regexp_test(str, item.regexp)) {
+            if (regexp_1.regexpTest(str, item.regexp)) {
                 return item.compiler;
             }
         }
@@ -914,24 +914,142 @@ exports.AtatContext = AtatContext;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+var DefaultFileResolver_1 = __webpack_require__(9);
+exports.DefaultFileResolver = DefaultFileResolver_1.default;
+var FetchFileResolver_1 = __webpack_require__(11);
+exports.FetchFileResolver = FetchFileResolver_1.default;
+
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var DefaultFileResolver = /** @class */ (function () {
+    function DefaultFileResolver() {
+    }
+    DefaultFileResolver.prototype.loadFile = function (path, callback) {
+        try {
+            var fs = __webpack_require__(10);
+            fs.readFile(path, 'utf-8', callback);
+        }
+        catch (err) {
+            callback(err);
+        }
+    };
+    return DefaultFileResolver;
+}());
+exports.default = DefaultFileResolver;
+
+
+/***/ }),
+/* 10 */
+/***/ (function(module, exports) {
+
+module.exports = require("fs");
+
+/***/ }),
+/* 11 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var FetchFileResolver = /** @class */ (function () {
+    function FetchFileResolver() {
+    }
+    FetchFileResolver.prototype.loadFile = function (path, callback) {
+        return __awaiter(this, void 0, void 0, function () {
+            var res, _a, _b, err_1;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        _c.trys.push([0, 3, , 4]);
+                        return [4 /*yield*/, fetch(path)];
+                    case 1:
+                        res = _c.sent();
+                        _a = callback;
+                        _b = [null];
+                        return [4 /*yield*/, res.text()];
+                    case 2:
+                        _a.apply(void 0, _b.concat([_c.sent()]));
+                        return [3 /*break*/, 4];
+                    case 3:
+                        err_1 = _c.sent();
+                        callback(err_1);
+                        return [3 /*break*/, 4];
+                    case 4: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    return FetchFileResolver;
+}());
+exports.default = FetchFileResolver;
+
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
 var atat_1 = __webpack_require__(2);
 var common_1 = __webpack_require__(0);
 var helpers_1 = __webpack_require__(1);
 var regexp_1 = __webpack_require__(3);
 exports.tags = {
-    '@\\{': compile_code,
-    '@for\\s*\\(': compile_for,
-    '@function\\s+[$A-Za-z0-9]*\\s*\\(': compile_function,
-    '@if\\s*\\(': compile_if,
-    '@section\\s+[$A-Za-z0-9]*\\s*\\{': compile_section,
-    '@while\\s*\\(': compile_while,
+    '@\\{': compileCode,
+    '@for\\s*\\(': compileFor,
+    '@function\\s+[$A-Za-z0-9]*\\s*\\(': compileFunction,
+    '@if\\s*\\(': compileIf,
+    '@section\\s+[$A-Za-z0-9]*\\s*\\{': compileSection,
+    '@while\\s*\\(': compileWhile,
 };
-function compile_code(inside, ctx, callback) {
+function compileCode(inside, ctx, callback) {
     callback(null, inside.value.trim());
 }
-function compile_for(inside, ctx, callback) {
+function compileFor(inside, ctx, callback) {
     var code = "for(" + inside.value + "}";
-    var blocks = regexp_1.match_recursive(code, /\{/g, /\}/g);
+    var blocks = regexp_1.matchRecursive(code, /\{/g, /\}/g);
     var out = '';
     out += blocks[0].value;
     out += '{';
@@ -944,15 +1062,15 @@ function compile_for(inside, ctx, callback) {
         callback(null, out);
     });
 }
-function compile_function(inside, ctx, callback) {
+function compileFunction(inside, ctx, callback) {
     var left = inside.left.value.trim().substring(1);
     callback(null, "" + left + inside.value.trim() + "}");
 }
-function compile_if(inside, ctx, callback) {
+function compileIf(inside, ctx, callback) {
     var _this = this;
     var code = "if(" + inside.value + "}";
-    var blocks = regexp_1.match_recursive(code, /\{/g, /\}/g);
-    helpers_1.loop_async(blocks, function (block, i, array, loopCallback) {
+    var blocks = regexp_1.matchRecursive(code, /\{/g, /\}/g);
+    helpers_1.loopAsync(blocks, function (block, i, array, loopCallback) {
         if (block.name === common_1.VALUE_NAME_OUTSIDE) {
             return loopCallback(null, block.value);
         }
@@ -964,11 +1082,11 @@ function compile_if(inside, ctx, callback) {
         callback(null, results.join(''));
     });
 }
-function compile_section(inside, ctx, callback) {
+function compileSection(inside, ctx, callback) {
     var block = inside.value.trim();
     var value = inside.left.value.trim();
     var regName = /^@section\s+([A-Za-z0-9]+)\s*\{/g;
-    var match = regexp_1.regexp_exec(value, regName);
+    var match = regexp_1.regexpExec(value, regName);
     if (!match || match.length > 2) {
         return callback(new Error('Section parsing error'));
     }
@@ -985,9 +1103,9 @@ function compile_section(inside, ctx, callback) {
         callback(null);
     });
 }
-function compile_while(inside, ctx, callback) {
+function compileWhile(inside, ctx, callback) {
     var code = "while(" + inside.value + "}";
-    var blocks = regexp_1.match_recursive(code, /\{/g, /\}/g);
+    var blocks = regexp_1.matchRecursive(code, /\{/g, /\}/g);
     var out = '';
     out += blocks[0].value;
     out += '{';
@@ -1001,27 +1119,6 @@ function compile_while(inside, ctx, callback) {
     });
 }
 
-
-/***/ }),
-/* 9 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-// tslint:disable-next-line: no-var-requires
-var fs = __webpack_require__(10);
-function load_file(path, callback) {
-    fs.readFile(path, 'utf-8', callback);
-}
-exports.load_file = load_file;
-
-
-/***/ }),
-/* 10 */
-/***/ (function(module, exports) {
-
-module.exports = require("fs");
 
 /***/ })
 /******/ ])["atat"];

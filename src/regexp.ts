@@ -1,6 +1,6 @@
 import { IMuchResult, VALUE_NAME_INSIDE, VALUE_NAME_OUTSIDE } from './common';
 
-export function match_recursive(
+export function matchRecursive(
   str: string,
   left: RegExp,
   right: RegExp,
@@ -18,8 +18,8 @@ export function match_recursive(
   let rightMatch;
 
   while (true) {
-    leftMatch = regexp_exec(str, left, delimEnd);
-    rightMatch = regexp_exec(str, right, delimEnd);
+    leftMatch = regexpExec(str, left, delimEnd);
+    rightMatch = regexpExec(str, right, delimEnd);
 
     // Keep the leftmost match only
     if (leftMatch && rightMatch) {
@@ -116,7 +116,7 @@ export function match_recursive(
   return output;
 }
 
-export function regexp_test(str: string, regexp: RegExp, pos = 0) {
+export function regexpTest(str: string, regexp: RegExp, pos = 0) {
   regexp.lastIndex = pos;
 
   const test = regexp.test(str);
@@ -128,7 +128,7 @@ export function regexp_test(str: string, regexp: RegExp, pos = 0) {
   return test;
 }
 
-export function regexp_exec(str: string, regexp: RegExp, pos = 0) {
+export function regexpExec(str: string, regexp: RegExp, pos = 0) {
   regexp.lastIndex = pos;
 
   const match = regexp.exec(str);
@@ -140,7 +140,7 @@ export function regexp_exec(str: string, regexp: RegExp, pos = 0) {
   return match;
 }
 
-export function clean_array(array: any[]) {
+export function cleanArray(array: any[]) {
   for (let i = 0; i < array.length; i += 1) {
     if (typeof array[i] === 'undefined') {
       array.splice(i, 1);
@@ -149,7 +149,7 @@ export function clean_array(array: any[]) {
   }
 }
 
-export function match_inline(str: string, regexp: RegExp) {
+export function matchInline(str: string, regexp: RegExp) {
   const global = regexp.global;
   const sticky = regexp.sticky;
   const output = [];
@@ -159,7 +159,7 @@ export function match_inline(str: string, regexp: RegExp) {
   let innerEnd;
 
   while (true) {
-    const match = regexp_exec(str, regexp, lastEnd);
+    const match = regexpExec(str, regexp, lastEnd);
 
     if (match === null) {
       break;
@@ -171,7 +171,7 @@ export function match_inline(str: string, regexp: RegExp) {
       break;
     }
 
-    clean_array(match);
+    cleanArray(match);
 
     innerStart = leftStart + match[1].length;
     innerEnd = lastEnd + innerStart + match[2].length;

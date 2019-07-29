@@ -1,8 +1,8 @@
 import { AtatCallback, VALUE_NAME_INSIDE, VALUE_NAME_OUTSIDE } from './common';
 import { AtatContext } from './context';
-import { loop_async } from './helpers';
-import { output_call_helper } from './inline';
-import { match_inline, match_recursive } from './regexp';
+import { loopAsync } from './helpers';
+import { outputCallHelper } from './inline';
+import { matchInline, matchRecursive } from './regexp';
 
 export class AtatCompiler {
   public compile(
@@ -16,9 +16,9 @@ export class AtatCompiler {
         return;
       }
 
-      const blocks = match_recursive(input, ctx.tags.open, ctx.tags.close);
+      const blocks = matchRecursive(input, ctx.tags.open, ctx.tags.close);
 
-      loop_async(
+      loopAsync(
         blocks,
         (block, i, array, loopCallback) => {
           try {
@@ -29,7 +29,7 @@ export class AtatCompiler {
                 return;
               }
 
-              this.compile_inline(block.value, ctx, loopCallback);
+              this.compileInline(block.value, ctx, loopCallback);
 
               return;
             }
@@ -42,7 +42,7 @@ export class AtatCompiler {
               const compiler = ctx.compiler(left.value);
 
               if (!compiler) {
-                this.compile_inline(
+                this.compileInline(
                   left.value + inside.value + right.value,
                   ctx,
                   loopCallback,
@@ -72,7 +72,7 @@ export class AtatCompiler {
     }
   }
 
-  private compile_inline(
+  private compileInline(
     input: string,
     ctx: AtatContext,
     callback: AtatCallback<string>,
@@ -83,9 +83,9 @@ export class AtatCompiler {
         return;
       }
 
-      const blocks = match_inline(input, ctx.inline);
+      const blocks = matchInline(input, ctx.inline);
 
-      loop_async(
+      loopAsync(
         blocks,
         (block, i, array, loopCallback) => {
           try {
@@ -115,7 +115,7 @@ export class AtatCompiler {
               );
 
               if (!compiler) {
-                output_call_helper.call(this, inside, ctx, loopCallback);
+                outputCallHelper.call(this, inside, ctx, loopCallback);
                 return;
               }
 

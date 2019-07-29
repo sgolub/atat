@@ -1,8 +1,8 @@
 import { AtatHelper, IAtatTag, IAtatTemplate } from './common';
-import { get_tags, get_tags_inline, helpers, loop, merge } from './helpers';
+import { getTags, getTagsInline, helpers, loop, merge } from './helpers';
 import { inlineTags } from './inline';
 import { DEFAULT_OPTIONS, IAtatOptions } from './options';
-import { regexp_test } from './regexp';
+import { regexpTest } from './regexp';
 import { tags } from './tags';
 
 export class AtatContext {
@@ -32,8 +32,8 @@ export class AtatContext {
 
     this.arguments = [this.options.it, this.options.$, 'body'].join(',');
 
-    this.tags = get_tags(tags);
-    this.inline = get_tags_inline(inlineTags);
+    this.tags = getTags(tags);
+    this.inline = getTagsInline(inlineTags);
 
     loop(inlineTags, (compiler, regexp: string) => {
       this.tags.compilers.push({
@@ -56,7 +56,7 @@ export class AtatContext {
   public compiler(str: string = '') {
     for (let i = 0, l = this.tags.compilers.length; i < l; i += 1) {
       const item = this.tags.compilers[i];
-      if (regexp_test(str, item.regexp)) {
+      if (regexpTest(str, item.regexp)) {
         return item.compiler;
       }
     }
