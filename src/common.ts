@@ -5,7 +5,7 @@ export type AtatCallback<T> = (err?: any, result?: T) => void;
 export type AtatHelper = (...args: any[]) => string;
 
 export interface IAtatTemplate {
-  (model: any): string;
+  (model?: any): string;
   context?: AtatContext;
 }
 

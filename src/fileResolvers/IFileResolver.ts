@@ -1,3 +1,3 @@
 export default interface IFileResolve {
-  loadFile(path: string, callback: (err, content) => void): any;
+  loadFile: (path: string, callback: (err, content) => void) => void;
 }

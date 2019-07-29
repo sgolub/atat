@@ -11,7 +11,7 @@
   "scripts": {
     "build": "webpack",
     "test": "mocha ./test ./test/express & karma start",
-    "mocha": "mocha ./test ./test/express",
+    "mocha": "mocha -r ts-node/register ./test/**/*.ts",
     "lint": "tslint --project tsconfig.json ./src/**/*.ts"
   },
   "author": "Sergey Golub",
