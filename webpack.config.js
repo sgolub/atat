@@ -6,7 +6,7 @@ var path = require('path');
 module.exports = [
   {
     mode: 'production',
-    entry: './src/atat.ts',
+    entry: './src/index.ts',
     resolve: {
       extensions: ['.ts'],
     },

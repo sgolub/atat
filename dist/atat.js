@@ -91,22 +91,22 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 0);
+/******/ 	return __webpack_require__(__webpack_require__.s = 2);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-__webpack_require__.r(__webpack_exports__);
 
-// CONCATENATED MODULE: ./src/common.ts
+Object.defineProperty(exports, "__esModule", { value: true });
 // tslint:disable-next-line: no-empty
 function noop() { }
-var VALUE_NAME_OUTSIDE = 'outside';
-var VALUE_NAME_INSIDE = 'inside';
-var HTML_RULES = {
+exports.noop = noop;
+exports.VALUE_NAME_OUTSIDE = 'outside';
+exports.VALUE_NAME_INSIDE = 'inside';
+exports.HTML_RULES = {
     '"': '&#34;',
     '&': '&#38;',
     "'": '&#39;',
@@ -114,12 +114,19 @@ var HTML_RULES = {
     '<': '&#60;',
     '>': '&#62;',
 };
-var CLEAR_TAGS = /[-[\](){}*+?.,\\^$|#\s]/g;
-var MATCH_HTML = /&(?!#?\w+;)|<|>|"|'|\//g;
+exports.CLEAR_TAGS = /[-[\](){}*+?.,\\^$|#\s]/g;
+exports.MATCH_HTML = /&(?!#?\w+;)|<|>|"|'|\//g;
 
-// CONCATENATED MODULE: ./src/helpers.ts
 
-var helpers = {
+/***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var common_1 = __webpack_require__(0);
+exports.helpers = {
     encode: encodeHtml,
     join: joinHelper,
     json: jsonStringify,
@@ -140,6 +147,7 @@ function merge(src, dest) {
     }
     return dest;
 }
+exports.merge = merge;
 function getTags(tags) {
     var regexps = [];
     loop(tags, function (compiler, regexp) {
@@ -160,6 +168,7 @@ function getTags(tags) {
         open: new RegExp(regexps.join('|'), 'g'),
     };
 }
+exports.getTags = getTags;
 function getTagsInline(inlineTags) {
     var regexps = [];
     loop(inlineTags, function (compiler, regexp) {
@@ -168,6 +177,7 @@ function getTagsInline(inlineTags) {
     regexps.push('(@[A-Za-z0-9$]+\\()([^]*?)(\\)@)');
     return new RegExp(regexps.join('|'), 'g');
 }
+exports.getTagsInline = getTagsInline;
 function loop(array, fn) {
     if (Object.prototype.toString.call(array) !== '[object Array]') {
         for (var x in array) {
@@ -181,6 +191,7 @@ function loop(array, fn) {
         fn(array[i], i, array);
     }
 }
+exports.loop = loop;
 function loopAsync(array, fn, callback) {
     var ready = 0;
     var finished = false;
@@ -208,12 +219,14 @@ function loopAsync(array, fn, callback) {
         };
     }
 }
+exports.loopAsync = loopAsync;
 function encodeHtml(code) {
     if (code === void 0) { code = ''; }
-    return code.toString().replace(MATCH_HTML, function (m) {
-        return HTML_RULES[m] || m;
+    return code.toString().replace(common_1.MATCH_HTML, function (m) {
+        return common_1.HTML_RULES[m] || m;
     });
 }
+exports.encodeHtml = encodeHtml;
 function trimString(str) {
     var chars = [];
     for (var _i = 1; _i < arguments.length; _i++) {
@@ -231,27 +244,33 @@ function trimString(str) {
     }
     return result;
 }
+exports.trimString = trimString;
 function escapeQuotes(str) {
     return trimString(str)
         .replace(/^"(.*)"$/g, '$1')
         .replace(/^'(.*)'$/g, '$1');
 }
+exports.escapeQuotes = escapeQuotes;
 function jsonStringify(obj) {
     return JSON.stringify(obj);
 }
+exports.jsonStringify = jsonStringify;
 function joinHelper(array, separator) {
     if (array === void 0) { array = []; }
     if (separator === void 0) { separator = ''; }
     return Array.prototype.join.call(array, separator);
 }
+exports.joinHelper = joinHelper;
 function uppercaseHelper(str) {
     if (str === void 0) { str = ''; }
     return str.toString().toUpperCase();
 }
+exports.uppercaseHelper = uppercaseHelper;
 function lowercaseHelper(str) {
     if (str === void 0) { str = ''; }
     return str.toString().toLowerCase();
 }
+exports.lowercaseHelper = lowercaseHelper;
 function resolveUrl(base, relative) {
     var stack = base.split('/');
     var parts = relative.split('/');
@@ -270,108 +289,152 @@ function resolveUrl(base, relative) {
     }
     return stack.join('/');
 }
+exports.resolveUrl = resolveUrl;
 
-// CONCATENATED MODULE: ./src/inline.ts
 
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
 
-var inlineTags = {
-    '(@!\\()([^]*?)(\\)@)': outputAsHtml,
-    '(@\\()([^]*?)(\\)@)': outputAsText,
-    '(@layout\\()([^]*?)(\\)@)': compileLayout,
-    '(@partial\\()([^]*?)(\\)@)': compilePartial,
-    '(@section\\()([^]*?)(\\)@)': outputSection,
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var common_1 = __webpack_require__(0);
+var compiler_1 = __webpack_require__(6);
+var context_1 = __webpack_require__(7);
+var helpers_1 = __webpack_require__(1);
+var options_1 = __webpack_require__(5);
+exports.atat = {
+    config: function (opts) {
+        var options = helpers_1.merge(options_1.DEFAULT_OPTIONS, opts);
+        for (var x in options) {
+            if (options_1.DEFAULT_OPTIONS.hasOwnProperty(x)) {
+                options_1.DEFAULT_OPTIONS[x] = options[x];
+            }
+        }
+    },
+    parse: function (input, optionsArg, callbackArg) {
+        if (optionsArg === void 0) { optionsArg = {}; }
+        if (callbackArg === void 0) { callbackArg = common_1.noop; }
+        var options = optionsArg;
+        var callback = callbackArg;
+        if (typeof options === 'function') {
+            callback = options;
+            options = {};
+        }
+        if (callback === common_1.noop && typeof Promise !== 'undefined') {
+            return new Promise(function (resolve, reject) {
+                exports.atat.parse(input, options, function (err, result) {
+                    err ? reject(err) : resolve(result);
+                });
+            });
+        }
+        var ctx = new context_1.AtatContext(options);
+        var compiler = new compiler_1.AtatCompiler();
+        compiler.compile(input, ctx, function (err, output) {
+            if (err) {
+                return callback(err);
+            }
+            // tslint:disable-next-line: no-function-constructor-with-string-args
+            var render = new Function(ctx.arguments, output + ";return this.output;");
+            ctx.template = function (model) {
+                try {
+                    ctx.output = '';
+                    ctx.model = model || ctx.model;
+                    var body = render.call(ctx, ctx.model, ctx.helpers, ctx.body);
+                    if (ctx.layout) {
+                        ctx.layout.context.body = body;
+                        body = ctx.layout(ctx.model);
+                    }
+                    return body;
+                }
+                catch (e) {
+                    return e.toString();
+                }
+            };
+            ctx.template.context = ctx;
+            callback(null, ctx.template);
+        });
+    },
+    loadAndParse: function (path, optionsArg, callbackArg) {
+        if (optionsArg === void 0) { optionsArg = {}; }
+        if (callbackArg === void 0) { callbackArg = common_1.noop; }
+        var options = optionsArg;
+        var callback = callbackArg;
+        if (typeof options === 'function') {
+            callback = options;
+            options = {};
+        }
+        if (callback === common_1.noop && typeof Promise !== 'undefined') {
+            return new Promise(function (resolve, reject) {
+                exports.atat.loadAndParse(path, options, function (err, result) {
+                    err ? reject(err) : resolve(result);
+                });
+            });
+        }
+        var fileResolver = options.fileResolver || options_1.DEFAULT_OPTIONS.fileResolver;
+        fileResolver.loadFile(path, function (err, content) {
+            err ? callback(err) : exports.atat.parse(content, options, callback);
+        });
+    },
+    render: function (input, model, optionsArg, callbackArg) {
+        if (model === void 0) { model = {}; }
+        if (optionsArg === void 0) { optionsArg = {}; }
+        if (callbackArg === void 0) { callbackArg = common_1.noop; }
+        var options = optionsArg;
+        var callback = callbackArg;
+        if (typeof options === 'function') {
+            callback = options;
+            options = {};
+        }
+        if (callback === common_1.noop && typeof Promise !== 'undefined') {
+            return new Promise(function (resolve, reject) {
+                exports.atat.render(input, model, options, function (err, result) {
+                    err ? reject(err) : resolve(result);
+                });
+            });
+        }
+        exports.atat.parse(input, options, function (err, render) {
+            err ? callback(err) : callback(null, render(model));
+        });
+    },
+    loadAndRender: function (path, model, optionsArg, callbackArg) {
+        if (optionsArg === void 0) { optionsArg = {}; }
+        if (callbackArg === void 0) { callbackArg = common_1.noop; }
+        var options = optionsArg;
+        var callback = callbackArg;
+        if (typeof options === 'function') {
+            callback = options;
+            options = {};
+        }
+        if (callback === common_1.noop && typeof Promise !== 'undefined') {
+            return new Promise(function (resolve, reject) {
+                exports.atat.loadAndRender(path, model, options, function (err, result) {
+                    err ? reject(err) : resolve(result);
+                });
+            });
+        }
+        exports.atat.loadAndParse(path, options, function (err, render) {
+            err ? callback(err) : callback(null, render(model));
+        });
+    },
+    // tslint:disable-next-line: function-name
+    __express: function (path, options, callback) {
+        exports.atat.loadAndParse(path, function (err, template) {
+            err ? callback(err.toString()) : callback(null, template(options));
+        });
+    },
 };
-function outputAsText(inside, ctx, callback) {
-    try {
-        var val = inside.value.trim();
-        if (val === '') {
-            callback();
-        }
-        callback(null, "this.output += this.helpers.encode(" + inside.value.trim() + ");");
-    }
-    catch (e) {
-        callback(e);
-    }
-}
-function outputAsHtml(inside, ctx, callback) {
-    try {
-        var val = inside.value.trim();
-        if (val === '') {
-            callback();
-        }
-        callback(null, "this.output += (" + inside.value.trim() + ");");
-    }
-    catch (e) {
-        callback(e);
-    }
-}
-function compileLayout(inside, ctx, callback) {
-    try {
-        if (ctx.layout) {
-            return callback();
-        }
-        atat.loadAndParse(escapeQuotes(inside.value), ctx.options, function (err, template) {
-            if (err) {
-                return callback(err);
-            }
-            ctx.layout = template;
-            template.context.parent = ctx;
-            callback();
-        });
-    }
-    catch (e) {
-        callback(e);
-    }
-}
-function compilePartial(inside, ctx, callback) {
-    try {
-        var value = inside.value.trim();
-        if (value === '') {
-            return callback(new Error('Partial parsing error'));
-        }
-        var args_1 = value.split(/\s*,\s*/g);
-        var uri = escapeQuotes(args_1.shift());
-        atat.loadAndParse(uri, ctx.options, function (err, template) {
-            if (err) {
-                return callback(err);
-            }
-            ctx.partials.push(template);
-            template.context.parent = ctx;
-            var output = "this.output += this.partials[" + (ctx.partials.length -
-                1) + "](" + args_1 + ");";
-            callback(null, output);
-        });
-    }
-    catch (e) {
-        callback(e);
-    }
-}
-function outputSection(inside, ctx, callback) {
-    try {
-        var name_1 = escapeQuotes(inside.value);
-        var output = "this.output += (function(){var s = this.section('" + name_1 + "'); " +
-            ("return s?s(" + ctx.arguments + "):\"\";}).call(this);");
-        callback(null, output);
-    }
-    catch (e) {
-        callback(e);
-    }
-}
-function outputCallHelper(inside, ctx, callback) {
-    try {
-        var name_2 = inside.left.value.substring(1, inside.left.value.length - 1);
-        if (typeof ctx.helpers[name_2] !== 'function') {
-            throw new Error("Helper " + name_2 + " isn't declarated");
-        }
-        callback(null, "this.output += this.helpers." + name_2 + "(" + inside.value.trim() + ");");
-    }
-    catch (e) {
-        callback(e);
-    }
-}
 
-// CONCATENATED MODULE: ./src/regexp.ts
 
+/***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var common_1 = __webpack_require__(0);
 function matchRecursive(str, left, right) {
     var global = left.global;
     var sticky = left.sticky;
@@ -428,14 +491,14 @@ function matchRecursive(str, left, right) {
             if (!openTokens) {
                 if (outerStart > lastOuterEnd) {
                     output.push({
-                        name: VALUE_NAME_OUTSIDE,
+                        name: common_1.VALUE_NAME_OUTSIDE,
                         value: str.slice(lastOuterEnd, outerStart),
                         start: lastOuterEnd,
                         end: outerStart,
                     });
                 }
                 output.push({
-                    name: VALUE_NAME_INSIDE,
+                    name: common_1.VALUE_NAME_INSIDE,
                     value: str.slice(innerStart, delimStart),
                     start: innerStart,
                     end: delimStart,
@@ -467,13 +530,14 @@ function matchRecursive(str, left, right) {
     if (global && str.length > lastOuterEnd) {
         output.push({
             end: str.length,
-            name: VALUE_NAME_OUTSIDE,
+            name: common_1.VALUE_NAME_OUTSIDE,
             start: lastOuterEnd,
             value: str.slice(lastOuterEnd),
         });
     }
     return output;
 }
+exports.matchRecursive = matchRecursive;
 function regexpTest(str, regexp, pos) {
     if (pos === void 0) { pos = 0; }
     regexp.lastIndex = pos;
@@ -483,6 +547,7 @@ function regexpTest(str, regexp, pos) {
     }
     return test;
 }
+exports.regexpTest = regexpTest;
 function regexpExec(str, regexp, pos) {
     if (pos === void 0) { pos = 0; }
     regexp.lastIndex = pos;
@@ -492,6 +557,7 @@ function regexpExec(str, regexp, pos) {
     }
     return match;
 }
+exports.regexpExec = regexpExec;
 function cleanArray(array) {
     for (var i = 0; i < array.length; i += 1) {
         if (typeof array[i] === 'undefined') {
@@ -500,6 +566,7 @@ function cleanArray(array) {
         }
     }
 }
+exports.cleanArray = cleanArray;
 function matchInline(str, regexp) {
     var global = regexp.global;
     var sticky = regexp.sticky;
@@ -522,14 +589,14 @@ function matchInline(str, regexp) {
         innerEnd = lastEnd + innerStart + match[2].length;
         if (leftStart > lastEnd) {
             output.push({
-                name: VALUE_NAME_OUTSIDE,
+                name: common_1.VALUE_NAME_OUTSIDE,
                 value: str.slice(lastEnd, leftStart),
                 start: lastEnd,
                 end: leftStart,
             });
         }
         output.push({
-            name: VALUE_NAME_INSIDE,
+            name: common_1.VALUE_NAME_INSIDE,
             value: match[2],
             start: innerStart,
             end: innerEnd,
@@ -551,7 +618,7 @@ function matchInline(str, regexp) {
     }
     if (global && str.length > lastEnd) {
         output.push({
-            name: VALUE_NAME_OUTSIDE,
+            name: common_1.VALUE_NAME_OUTSIDE,
             value: str.slice(lastEnd),
             start: lastEnd,
             end: str.length,
@@ -559,13 +626,144 @@ function matchInline(str, regexp) {
     }
     return output;
 }
-
-// CONCATENATED MODULE: ./src/compiler.ts
-
+exports.matchInline = matchInline;
 
 
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
 
-var compiler_AtatCompiler = /** @class */ (function () {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var atat_1 = __webpack_require__(2);
+var helpers_1 = __webpack_require__(1);
+exports.inlineTags = {
+    '(@!\\()([^]*?)(\\)@)': outputAsHtml,
+    '(@\\()([^]*?)(\\)@)': outputAsText,
+    '(@layout\\()([^]*?)(\\)@)': compileLayout,
+    '(@partial\\()([^]*?)(\\)@)': compilePartial,
+    '(@section\\()([^]*?)(\\)@)': outputSection,
+};
+function outputAsText(inside, ctx, callback) {
+    try {
+        var val = inside.value.trim();
+        if (val === '') {
+            callback();
+        }
+        callback(null, "this.output += this.helpers.encode(" + inside.value.trim() + ");");
+    }
+    catch (e) {
+        callback(e);
+    }
+}
+function outputAsHtml(inside, ctx, callback) {
+    try {
+        var val = inside.value.trim();
+        if (val === '') {
+            callback();
+        }
+        callback(null, "this.output += (" + inside.value.trim() + ");");
+    }
+    catch (e) {
+        callback(e);
+    }
+}
+function compileLayout(inside, ctx, callback) {
+    try {
+        if (ctx.layout) {
+            return callback();
+        }
+        atat_1.atat.loadAndParse(helpers_1.escapeQuotes(inside.value), ctx.options, function (err, template) {
+            if (err) {
+                return callback(err);
+            }
+            ctx.layout = template;
+            template.context.parent = ctx;
+            callback();
+        });
+    }
+    catch (e) {
+        callback(e);
+    }
+}
+function compilePartial(inside, ctx, callback) {
+    try {
+        var value = inside.value.trim();
+        if (value === '') {
+            return callback(new Error('Partial parsing error'));
+        }
+        var args_1 = value.split(/\s*,\s*/g);
+        var uri = helpers_1.escapeQuotes(args_1.shift());
+        atat_1.atat.loadAndParse(uri, ctx.options, function (err, template) {
+            if (err) {
+                return callback(err);
+            }
+            ctx.partials.push(template);
+            template.context.parent = ctx;
+            var output = "this.output += this.partials[" + (ctx.partials.length -
+                1) + "](" + args_1 + ");";
+            callback(null, output);
+        });
+    }
+    catch (e) {
+        callback(e);
+    }
+}
+function outputSection(inside, ctx, callback) {
+    try {
+        var name_1 = helpers_1.escapeQuotes(inside.value);
+        var output = "this.output += (function(){var s = this.section('" + name_1 + "'); " +
+            ("return s?s(" + ctx.arguments + "):\"\";}).call(this);");
+        callback(null, output);
+    }
+    catch (e) {
+        callback(e);
+    }
+}
+function outputCallHelper(inside, ctx, callback) {
+    try {
+        var name_2 = inside.left.value.substring(1, inside.left.value.length - 1);
+        if (typeof ctx.helpers[name_2] !== 'function') {
+            throw new Error("Helper " + name_2 + " isn't declarated");
+        }
+        callback(null, "this.output += this.helpers." + name_2 + "(" + inside.value.trim() + ");");
+    }
+    catch (e) {
+        callback(e);
+    }
+}
+exports.outputCallHelper = outputCallHelper;
+
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var fileResolvers_1 = __webpack_require__(8);
+exports.DEFAULT_OPTIONS = {
+    it: 'it',
+    $: '$',
+    helpers: {},
+    fileResolver: new fileResolvers_1.DefaultFileResolver(),
+};
+
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var common_1 = __webpack_require__(0);
+var helpers_1 = __webpack_require__(1);
+var inline_1 = __webpack_require__(4);
+var regexp_1 = __webpack_require__(3);
+var AtatCompiler = /** @class */ (function () {
     function AtatCompiler() {
     }
     AtatCompiler.prototype.compile = function (input, ctx, callback) {
@@ -575,10 +773,10 @@ var compiler_AtatCompiler = /** @class */ (function () {
                 callback(null, '');
                 return;
             }
-            var blocks = matchRecursive(input, ctx.tags.open, ctx.tags.close);
-            loopAsync(blocks, function (block, i, array, loopCallback) {
+            var blocks = regexp_1.matchRecursive(input, ctx.tags.open, ctx.tags.close);
+            helpers_1.loopAsync(blocks, function (block, i, array, loopCallback) {
                 try {
-                    if (block.name === VALUE_NAME_OUTSIDE) {
+                    if (block.name === common_1.VALUE_NAME_OUTSIDE) {
                         if (block.value.trim() === '') {
                             loopCallback(null, '');
                             return;
@@ -586,7 +784,7 @@ var compiler_AtatCompiler = /** @class */ (function () {
                         _this.compileInline(block.value, ctx, loopCallback);
                         return;
                     }
-                    if (block.name === VALUE_NAME_INSIDE) {
+                    if (block.name === common_1.VALUE_NAME_INSIDE) {
                         var left = block.left;
                         var inside = block;
                         var right = block.right;
@@ -620,15 +818,15 @@ var compiler_AtatCompiler = /** @class */ (function () {
                 callback(null, '');
                 return;
             }
-            var blocks = matchInline(input, ctx.inline);
-            loopAsync(blocks, function (block, i, array, loopCallback) {
+            var blocks = regexp_1.matchInline(input, ctx.inline);
+            helpers_1.loopAsync(blocks, function (block, i, array, loopCallback) {
                 try {
-                    if (block.name === VALUE_NAME_OUTSIDE) {
+                    if (block.name === common_1.VALUE_NAME_OUTSIDE) {
                         ctx.parts.push(block.value);
                         loopCallback(null, "this.output += this.parts[" + (ctx.parts.length - 1) + "];");
                         return;
                     }
-                    if (block.name === VALUE_NAME_INSIDE) {
+                    if (block.name === common_1.VALUE_NAME_INSIDE) {
                         var left = block.left;
                         var inside = block;
                         var right = block.right;
@@ -638,7 +836,7 @@ var compiler_AtatCompiler = /** @class */ (function () {
                         }
                         var compiler = ctx.compiler(left.value + inside.value + right.value);
                         if (!compiler) {
-                            outputCallHelper.call(_this, inside, ctx, loopCallback);
+                            inline_1.outputCallHelper.call(_this, inside, ctx, loopCallback);
                             return;
                         }
                         compiler.call(_this, inside, ctx, loopCallback);
@@ -661,9 +859,86 @@ var compiler_AtatCompiler = /** @class */ (function () {
     };
     return AtatCompiler;
 }());
+exports.AtatCompiler = AtatCompiler;
 
 
-// CONCATENATED MODULE: ./src/fileResolvers/DefaultFileResolver.ts
+/***/ }),
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var helpers_1 = __webpack_require__(1);
+var inline_1 = __webpack_require__(4);
+var options_1 = __webpack_require__(5);
+var regexp_1 = __webpack_require__(3);
+var tags_1 = __webpack_require__(11);
+var AtatContext = /** @class */ (function () {
+    function AtatContext(opts) {
+        var _this = this;
+        this.options = helpers_1.merge(options_1.DEFAULT_OPTIONS, opts);
+        this.helpers = helpers_1.merge(helpers_1.helpers, opts.helpers);
+        this.model = null;
+        this.output = '';
+        this.parts = [];
+        this.parent = null;
+        this.arguments = [this.options.it, this.options.$, 'body'].join(',');
+        this.tags = helpers_1.getTags(tags_1.tags);
+        this.inline = helpers_1.getTagsInline(inline_1.inlineTags);
+        helpers_1.loop(inline_1.inlineTags, function (compiler, regexp) {
+            _this.tags.compilers.push({
+                compiler: compiler,
+                regexp: new RegExp(regexp, 'g'),
+            });
+        });
+        this.layout = null;
+        this.partials = [];
+        this.sections = {};
+    }
+    AtatContext.prototype.section = function (name) {
+        return name
+            ? this.sections[name] || (this.parent && this.parent.section(name))
+            : null;
+    };
+    AtatContext.prototype.compiler = function (str) {
+        if (str === void 0) { str = ''; }
+        for (var i = 0, l = this.tags.compilers.length; i < l; i += 1) {
+            var item = this.tags.compilers[i];
+            if (regexp_1.regexpTest(str, item.regexp)) {
+                return item.compiler;
+            }
+        }
+        return null;
+    };
+    return AtatContext;
+}());
+exports.AtatContext = AtatContext;
+
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var DefaultFileResolver_1 = __importDefault(__webpack_require__(9));
+exports.DefaultFileResolver = DefaultFileResolver_1.default;
+var FetchFileResolver_1 = __importDefault(__webpack_require__(10));
+exports.FetchFileResolver = FetchFileResolver_1.default;
+
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
 var DefaultFileResolver = /** @class */ (function () {
     function DefaultFileResolver() {
         this.loadFile = function (path, callback) {
@@ -678,10 +953,16 @@ var DefaultFileResolver = /** @class */ (function () {
     }
     return DefaultFileResolver;
 }());
-/* harmony default export */ var fileResolvers_DefaultFileResolver = (DefaultFileResolver);
+exports.default = DefaultFileResolver;
 
-// CONCATENATED MODULE: ./src/fileResolvers/FetchFileResolver.ts
-var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+
+/***/ }),
+/* 10 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
@@ -689,7 +970,7 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __generator = (undefined && undefined.__generator) || function (thisArg, body) {
+var __generator = (this && this.__generator) || function (thisArg, body) {
     var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
     return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
     function verb(n) { return function (v) { return step([n, v]); }; }
@@ -716,6 +997,7 @@ var __generator = (undefined && undefined.__generator) || function (thisArg, bod
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+Object.defineProperty(exports, "__esModule", { value: true });
 var FetchFileResolver = /** @class */ (function () {
     function FetchFileResolver() {
         var _this = this;
@@ -745,28 +1027,21 @@ var FetchFileResolver = /** @class */ (function () {
     }
     return FetchFileResolver;
 }());
-/* harmony default export */ var fileResolvers_FetchFileResolver = (FetchFileResolver);
-
-// CONCATENATED MODULE: ./src/fileResolvers/index.ts
+exports.default = FetchFileResolver;
 
 
+/***/ }),
+/* 11 */
+/***/ (function(module, exports, __webpack_require__) {
 
+"use strict";
 
-// CONCATENATED MODULE: ./src/options.ts
-
-var DEFAULT_OPTIONS = {
-    it: 'it',
-    $: '$',
-    helpers: {},
-    fileResolver: new fileResolvers_DefaultFileResolver(),
-};
-
-// CONCATENATED MODULE: ./src/tags.ts
-
-
-
-
-var tags = {
+Object.defineProperty(exports, "__esModule", { value: true });
+var atat_1 = __webpack_require__(2);
+var common_1 = __webpack_require__(0);
+var helpers_1 = __webpack_require__(1);
+var regexp_1 = __webpack_require__(3);
+exports.tags = {
     '@\\{': compileCode,
     '@for\\s*\\(': compileFor,
     '@function\\s+[$A-Za-z0-9]*\\s*\\(': compileFunction,
@@ -779,7 +1054,7 @@ function compileCode(inside, ctx, callback) {
 }
 function compileFor(inside, ctx, callback) {
     var code = "for(" + inside.value + "}";
-    var blocks = matchRecursive(code, /\{/g, /\}/g);
+    var blocks = regexp_1.matchRecursive(code, /\{/g, /\}/g);
     var out = '';
     out += blocks[0].value;
     out += '{';
@@ -799,9 +1074,9 @@ function compileFunction(inside, ctx, callback) {
 function compileIf(inside, ctx, callback) {
     var _this = this;
     var code = "if(" + inside.value + "}";
-    var blocks = matchRecursive(code, /\{/g, /\}/g);
-    loopAsync(blocks, function (block, i, array, loopCallback) {
-        if (block.name === VALUE_NAME_OUTSIDE) {
+    var blocks = regexp_1.matchRecursive(code, /\{/g, /\}/g);
+    helpers_1.loopAsync(blocks, function (block, i, array, loopCallback) {
+        if (block.name === common_1.VALUE_NAME_OUTSIDE) {
             return loopCallback(null, block.value);
         }
         _this.compile(block.value, ctx, loopCallback);
@@ -816,7 +1091,7 @@ function compileSection(inside, ctx, callback) {
     var block = inside.value.trim();
     var value = inside.left.value.trim();
     var regName = /^@section\s+([A-Za-z0-9]+)\s*\{/g;
-    var match = regexpExec(value, regName);
+    var match = regexp_1.regexpExec(value, regName);
     if (!match || match.length > 2) {
         return callback(new Error('Section parsing error'));
     }
@@ -824,7 +1099,7 @@ function compileSection(inside, ctx, callback) {
     if (ctx.sections[name]) {
         return callback(new Error('Section already exists'));
     }
-    atat.parse(block, ctx.options, function (err, template) {
+    atat_1.atat.parse(block, ctx.options, function (err, template) {
         if (err) {
             return callback(err);
         }
@@ -835,7 +1110,7 @@ function compileSection(inside, ctx, callback) {
 }
 function compileWhile(inside, ctx, callback) {
     var code = "while(" + inside.value + "}";
-    var blocks = matchRecursive(code, /\{/g, /\}/g);
+    var blocks = regexp_1.matchRecursive(code, /\{/g, /\}/g);
     var out = '';
     out += blocks[0].value;
     out += '{';
@@ -848,182 +1123,6 @@ function compileWhile(inside, ctx, callback) {
         callback(null, out);
     });
 }
-
-// CONCATENATED MODULE: ./src/context.ts
-
-
-
-
-
-var context_AtatContext = /** @class */ (function () {
-    function AtatContext(opts) {
-        var _this = this;
-        this.options = merge(DEFAULT_OPTIONS, opts);
-        this.helpers = merge(helpers, opts.helpers);
-        this.model = null;
-        this.output = '';
-        this.parts = [];
-        this.parent = null;
-        this.arguments = [this.options.it, this.options.$, 'body'].join(',');
-        this.tags = getTags(tags);
-        this.inline = getTagsInline(inlineTags);
-        loop(inlineTags, function (compiler, regexp) {
-            _this.tags.compilers.push({
-                compiler: compiler,
-                regexp: new RegExp(regexp, 'g'),
-            });
-        });
-        this.layout = null;
-        this.partials = [];
-        this.sections = {};
-    }
-    AtatContext.prototype.section = function (name) {
-        return name
-            ? this.sections[name] || (this.parent && this.parent.section(name))
-            : null;
-    };
-    AtatContext.prototype.compiler = function (str) {
-        if (str === void 0) { str = ''; }
-        for (var i = 0, l = this.tags.compilers.length; i < l; i += 1) {
-            var item = this.tags.compilers[i];
-            if (regexpTest(str, item.regexp)) {
-                return item.compiler;
-            }
-        }
-        return null;
-    };
-    return AtatContext;
-}());
-
-
-// CONCATENATED MODULE: ./src/atat.ts
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "atat", function() { return atat; });
-
-
-
-
-
-var atat = {
-    config: function (opts) {
-        var options = merge(DEFAULT_OPTIONS, opts);
-        for (var x in options) {
-            if (DEFAULT_OPTIONS.hasOwnProperty(x)) {
-                DEFAULT_OPTIONS[x] = options[x];
-            }
-        }
-    },
-    parse: function (input, optionsArg, callbackArg) {
-        if (optionsArg === void 0) { optionsArg = {}; }
-        if (callbackArg === void 0) { callbackArg = noop; }
-        var options = optionsArg;
-        var callback = callbackArg;
-        if (typeof options === 'function') {
-            callback = options;
-            options = {};
-        }
-        if (callback === noop && typeof Promise !== 'undefined') {
-            return new Promise(function (resolve, reject) {
-                atat.parse(input, options, function (err, result) {
-                    err ? reject(err) : resolve(result);
-                });
-            });
-        }
-        var ctx = new context_AtatContext(options);
-        var compiler = new compiler_AtatCompiler();
-        compiler.compile(input, ctx, function (err, output) {
-            if (err) {
-                return callback(err);
-            }
-            // tslint:disable-next-line: no-function-constructor-with-string-args
-            var render = new Function(ctx.arguments, output + ";return this.output;");
-            ctx.template = function (model) {
-                try {
-                    ctx.output = '';
-                    ctx.model = model || ctx.model;
-                    var body = render.call(ctx, ctx.model, ctx.helpers, ctx.body);
-                    if (ctx.layout) {
-                        ctx.layout.context.body = body;
-                        body = ctx.layout(ctx.model);
-                    }
-                    return body;
-                }
-                catch (e) {
-                    return e.toString();
-                }
-            };
-            ctx.template.context = ctx;
-            callback(null, ctx.template);
-        });
-    },
-    loadAndParse: function (path, optionsArg, callbackArg) {
-        if (optionsArg === void 0) { optionsArg = {}; }
-        if (callbackArg === void 0) { callbackArg = noop; }
-        var options = optionsArg;
-        var callback = callbackArg;
-        if (typeof options === 'function') {
-            callback = options;
-            options = {};
-        }
-        if (callback === noop && typeof Promise !== 'undefined') {
-            return new Promise(function (resolve, reject) {
-                atat.loadAndParse(path, options, function (err, result) {
-                    err ? reject(err) : resolve(result);
-                });
-            });
-        }
-        var fileResolver = options.fileResolver || DEFAULT_OPTIONS.fileResolver;
-        fileResolver.loadFile(path, function (err, content) {
-            err ? callback(err) : atat.parse(content, options, callback);
-        });
-    },
-    render: function (input, model, optionsArg, callbackArg) {
-        if (model === void 0) { model = {}; }
-        if (optionsArg === void 0) { optionsArg = {}; }
-        if (callbackArg === void 0) { callbackArg = noop; }
-        var options = optionsArg;
-        var callback = callbackArg;
-        if (typeof options === 'function') {
-            callback = options;
-            options = {};
-        }
-        if (callback === noop && typeof Promise !== 'undefined') {
-            return new Promise(function (resolve, reject) {
-                atat.render(input, model, options, function (err, result) {
-                    err ? reject(err) : resolve(result);
-                });
-            });
-        }
-        atat.parse(input, options, function (err, render) {
-            err ? callback(err) : callback(null, render(model));
-        });
-    },
-    loadAndRender: function (path, model, optionsArg, callbackArg) {
-        if (optionsArg === void 0) { optionsArg = {}; }
-        if (callbackArg === void 0) { callbackArg = noop; }
-        var options = optionsArg;
-        var callback = callbackArg;
-        if (typeof options === 'function') {
-            callback = options;
-            options = {};
-        }
-        if (callback === noop && typeof Promise !== 'undefined') {
-            return new Promise(function (resolve, reject) {
-                atat.loadAndRender(path, model, options, function (err, result) {
-                    err ? reject(err) : resolve(result);
-                });
-            });
-        }
-        atat.loadAndParse(path, options, function (err, render) {
-            err ? callback(err) : callback(null, render(model));
-        });
-    },
-    // tslint:disable-next-line: function-name
-    __express: function (path, options, callback) {
-        atat.loadAndParse(path, function (err, template) {
-            err ? callback(err.toString()) : callback(null, template(options));
-        });
-    },
-};
 
 
 /***/ })

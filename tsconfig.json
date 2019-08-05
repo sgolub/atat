@@ -4,7 +4,8 @@
     "lib": ["es2015", "dom"],
     "plugins": [{ "name": "typescript-tslint-plugin" }],
     "esModuleInterop": true,
+    "module": "commonjs",
     "declaration": true,
-    "declarationDir": "./@types"
+    "declarationDir": "@types"
   }
 }
