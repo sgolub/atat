@@ -1,11 +1,11 @@
 {
   "compilerOptions": {
     "target": "es5",
-    "lib": ["es2015", "dom"],
-    "plugins": [{ "name": "typescript-tslint-plugin" }],
-    "esModuleInterop": true,
     "module": "commonjs",
     "declaration": true,
-    "declarationDir": "@types"
-  }
+    "outDir": "./lib",
+    "plugins": [{ "name": "typescript-tslint-plugin" }]
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "test"]
 }
