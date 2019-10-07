@@ -1,15 +1,16 @@
 import { atat } from './atat';
 import {
-  AtatCallback,
-  AtatCompileFunction,
-  IMuchResult,
-  VALUE_NAME_OUTSIDE,
+  IAtatCompileFunction,
+  IMuchResultInside,
+  MuchResult,
+  MuchResultTypes,
 } from './common';
+import { AtatCompiler } from './compiler';
 import { AtatContext } from './context';
 import { loopAsync } from './helpers';
 import { matchRecursive, regexpExec } from './regexp';
 
-export const tags: { [key: string]: AtatCompileFunction } = {
+export const tags: { [key: string]: IAtatCompileFunction } = {
   '@\\{': compileCode,
   '@for\\s*\\(': compileFor,
   '@function\\s+[$A-Za-z0-9]*\\s*\\(': compileFunction,
@@ -18,82 +19,64 @@ export const tags: { [key: string]: AtatCompileFunction } = {
   '@while\\s*\\(': compileWhile,
 };
 
-function compileCode(
-  inside: IMuchResult,
+async function compileCode(
+  inside: MuchResult,
   ctx: AtatContext,
-  callback: AtatCallback<string>,
-) {
-  callback(null, inside.value.trim());
+): Promise<string> {
+  return inside.value.trim();
 }
 
-function compileFor(
-  inside: IMuchResult,
+async function compileFor(
+  this: AtatCompiler,
+  inside: MuchResult,
   ctx: AtatContext,
-  callback: AtatCallback<string>,
-) {
+): Promise<string> {
   const code = `for(${inside.value}}`;
-
-  const blocks = matchRecursive(code, /\{/g, /\}/g);
-
-  let out = '';
-
-  out += blocks[0].value;
+  const [{ value: value1 }, { value: value2 }] = matchRecursive(
+    code,
+    /\{/g,
+    /\}/g,
+  );
+  let out = value1;
   out += '{';
-
-  this.compile(blocks[1].value, ctx, (err: any, res: string) => {
-    if (err) {
-      return callback(err);
-    }
-
-    out += res;
-    out += '}';
-
-    callback(null, out);
-  });
+  out += await this.compile(value2, ctx);
+  out += '}';
+  return out;
 }
 
-function compileFunction(
-  inside: IMuchResult,
+async function compileFunction(
+  inside: IMuchResultInside,
   ctx: AtatContext,
-  callback: AtatCallback<string>,
-) {
+): Promise<string> {
   const left = inside.left.value.trim().substring(1);
-
-  callback(null, `${left}${inside.value.trim()}}`);
+  return `${left}${inside.value.trim()}}`;
 }
 
-function compileIf(
-  inside: IMuchResult,
+async function compileIf(
+  this: AtatCompiler,
+  inside: MuchResult,
   ctx: AtatContext,
-  callback: AtatCallback<string>,
-) {
+): Promise<string> {
   const code = `if(${inside.value}}`;
 
   const blocks = matchRecursive(code, /\{/g, /\}/g);
 
-  loopAsync(
-    blocks,
-    (block, i, array, loopCallback) => {
-      if (block.name === VALUE_NAME_OUTSIDE) {
-        return loopCallback(null, block.value);
-      }
+  const results = await loopAsync(blocks, async (block, i, array) => {
+    if (block.name === MuchResultTypes.OUTSIDE) {
+      return block.value;
+    }
 
-      this.compile(block.value, ctx, loopCallback);
-    },
-    (err, results) => {
-      if (err) {
-        return callback(err);
-      }
-      callback(null, results.join(''));
-    },
-  );
+    const result = await this.compile(block.value, ctx);
+    return result;
+  });
+
+  return results.join('');
 }
 
-function compileSection(
-  inside: IMuchResult,
+async function compileSection(
+  inside: IMuchResultInside,
   ctx: AtatContext,
-  callback: AtatCallback<string>,
-) {
+): Promise<string | void> {
   const block = inside.value.trim();
 
   const value = inside.left.value.trim();
@@ -101,49 +84,41 @@ function compileSection(
   const match = regexpExec(value, regName);
 
   if (!match || match.length > 2) {
-    return callback(new Error('Section parsing error'));
+    throw new Error('Section parsing error');
   }
 
   const name = match[1].trim();
 
   if (ctx.sections[name]) {
-    return callback(new Error('Section already exists'));
+    throw new Error('Section already exists');
   }
 
-  atat.parse(block, ctx.options, (err, template) => {
-    if (err) {
-      return callback(err);
-    }
+  const template = await atat.parse(block, ctx.options);
 
+  if (template.context) {
     template.context.parent = ctx;
-    ctx.sections[name] = template;
+  }
 
-    callback(null);
-  });
+  ctx.sections[name] = template;
 }
 
-function compileWhile(
-  inside: IMuchResult,
+async function compileWhile(
+  this: AtatCompiler,
+  inside: MuchResult,
   ctx: AtatContext,
-  callback: AtatCallback<string>,
-) {
+): Promise<string | void> {
   const code = `while(${inside.value}}`;
 
-  const blocks = matchRecursive(code, /\{/g, /\}/g);
+  const [{ value: value1 }, { value: value2 }] = matchRecursive(
+    code,
+    /\{/g,
+    /\}/g,
+  );
 
-  let out = '';
-
-  out += blocks[0].value;
+  let out = value1;
   out += '{';
+  out += await this.compile(value2, ctx);
+  out += '}';
 
-  this.compile(blocks[1].value, ctx, (err: any, res: string) => {
-    if (err) {
-      return callback(err);
-    }
-
-    out += res;
-    out += '}';
-
-    callback(null, out);
-  });
+  return out;
 }

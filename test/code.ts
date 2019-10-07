@@ -7,23 +7,21 @@ describe('Code block', () => {
     template = '';
   });
 
-  it('Empty code block', done => {
+  it('Empty code block', async () => {
     template = '@{    }@Hello world!';
 
-    atat.parse(template, (err, tmpl) => {
-      expect(tmpl()).to.eql('Hello world!');
+    const tmpl = await atat.parse(template);
 
-      done();
-    });
+    expect(tmpl).to.be.ok();
+    expect(tmpl()).to.eql('Hello world!');
   });
 
-  it('New variable inside of code block', done => {
+  it('New variable inside of code block', async () => {
     template = "@{ var name = 'world'; }@Hello @(name)@!";
 
-    atat.parse(template, (err, tmpl) => {
-      expect(tmpl()).to.eql('Hello world!');
+    const tmpl = await atat.parse(template);
 
-      done();
-    });
+    expect(tmpl).to.be.ok();
+    expect(tmpl()).to.eql('Hello world!');
   });
 });

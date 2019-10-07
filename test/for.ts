@@ -7,26 +7,20 @@ describe('For block', () => {
     template = '';
   });
 
-  it('Simple loop', done => {
+  it('Simple loop', async () => {
     template = '@for (var i = 0; i < 3; i++){Hello }@world!';
 
-    atat.parse(template, (err, tmpl) => {
-      expect(tmpl()).to.eql('Hello Hello Hello world!');
-
-      done();
-    });
+    const tmpl = await atat.parse(template);
+    expect(tmpl()).to.eql('Hello Hello Hello world!');
   });
 
-  it('Loop inside of loop', done => {
+  it('Loop inside of loop', async () => {
     template =
       '@for (var i = 0; i < 3; i++){@for(var j = 0; j < 3; j++) {Hello }@}@world!';
 
-    atat.parse(template, (err, tmpl) => {
-      expect(tmpl()).to.eql(
-        'Hello Hello Hello Hello Hello Hello Hello Hello Hello world!',
-      );
-
-      done();
-    });
+    const tmpl = await atat.parse(template);
+    expect(tmpl()).to.eql(
+      'Hello Hello Hello Hello Hello Hello Hello Hello Hello world!',
+    );
   });
 });

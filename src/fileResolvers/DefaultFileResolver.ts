@@ -1,15 +1,12 @@
-import IFileResolver from './IFileResolver';
-
-export default class DefaultFileResolver implements IFileResolver {
-  public loadFile = (
-    path: string,
-    callback: (err: any, content?: any) => void,
-  ): void => {
+export default (path: string): Promise<string> => {
+  return new Promise((resolve, reject) => {
     try {
       const fs = require('fs');
-      fs.readFile(path, 'utf-8', callback);
+      fs.readFile(path, 'utf-8', (err: Error, data: string) =>
+        err ? reject(err) : resolve(data),
+      );
     } catch (err) {
-      callback(err);
+      reject(err);
     }
-  }
-}
+  });
+};

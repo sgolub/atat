@@ -1,6 +1,7 @@
-import { AtatCallback, IAtatTemplate, noop } from './common';
+import { IAtatTemplate } from './common';
 import { AtatCompiler } from './compiler';
 import { AtatContext } from './context';
+import { DefaultFileResolver } from './fileResolvers';
 import { merge } from './helpers';
 import { DEFAULT_OPTIONS, IAtatOptions } from './options';
 
@@ -14,152 +15,91 @@ export const atat = {
     }
   },
 
-  parse(
+  async parse(
     input: string,
-    optionsArg: IAtatOptions | AtatCallback<IAtatTemplate> = {},
-    callbackArg: AtatCallback<IAtatTemplate> = noop,
-  ) {
-    let options = optionsArg;
-    let callback = callbackArg;
-    if (typeof options === 'function') {
-      callback = options;
-      options = {};
-    }
-
-    if (callback === noop && typeof Promise !== 'undefined') {
-      return new Promise((resolve, reject) => {
-        atat.parse(input, options, (err, result) => {
-          err ? reject(err) : resolve(result);
-        });
-      });
-    }
-
+    options: IAtatOptions = {},
+  ): Promise<IAtatTemplate> {
     const ctx = new AtatContext(options);
 
     const compiler = new AtatCompiler();
 
-    compiler.compile(input, ctx, (err: any, output: string) => {
-      if (err) {
-        return callback(err);
-      }
+    const output = await compiler.compile(input, ctx);
 
-      // tslint:disable-next-line: no-function-constructor-with-string-args
-      const render = new Function(
-        ctx.arguments,
-        `${output};return this.output;`,
-      );
+    // tslint:disable-next-line: no-function-constructor-with-string-args
+    const render = new Function(ctx.arguments, `${output};return this.output;`);
 
-      ctx.template = (model: any) => {
-        try {
-          ctx.output = '';
-          ctx.model = model || ctx.model;
+    ctx.template = (model: any) => {
+      try {
+        ctx.output = '';
+        ctx.model = model || ctx.model;
 
-          let body = render.call(ctx, ctx.model, ctx.helpers, ctx.body);
+        let body = render.call(ctx, ctx.model, ctx.helpers, ctx.body);
 
-          if (ctx.layout) {
-            ctx.layout.context.body = body;
-            body = ctx.layout(ctx.model);
-          }
-
-          return body;
-        } catch (e) {
-          return e.toString();
+        if (ctx.layout && ctx.layout.context) {
+          ctx.layout.context.body = body;
+          body = ctx.layout(ctx.model);
         }
-      };
 
-      ctx.template.context = ctx;
+        return body;
+      } catch (e) {
+        return e.toString();
+      }
+    };
 
-      callback(null, ctx.template);
-    });
+    ctx.template.context = ctx;
+
+    return ctx.template;
   },
 
-  loadAndParse(
+  async loadAndParse(
     path: string,
-    optionsArg: IAtatOptions | AtatCallback<IAtatTemplate> = {},
-    callbackArg: AtatCallback<IAtatTemplate> = noop,
-  ): Promise<IAtatTemplate> | void {
-    let options = optionsArg;
-    let callback = callbackArg;
-    if (typeof options === 'function') {
-      callback = options;
-      options = {};
+    options: IAtatOptions = {},
+  ): Promise<IAtatTemplate> {
+    let fileResolver = options.fileResolver || DEFAULT_OPTIONS.fileResolver;
+
+    if (!fileResolver) {
+      fileResolver = DefaultFileResolver;
+      options.fileResolver = fileResolver;
+      DEFAULT_OPTIONS.fileResolver = fileResolver;
     }
 
-    if (callback === noop && typeof Promise !== 'undefined') {
-      return new Promise<IAtatTemplate>((resolve, reject) => {
-        atat.loadAndParse(path, options, (err, result) => {
-          err ? reject(err) : resolve(result);
-        });
-      });
-    }
+    const content = await fileResolver(path);
+    const template = await atat.parse(content, options);
 
-    const fileResolver = options.fileResolver || DEFAULT_OPTIONS.fileResolver;
-
-    fileResolver.loadFile(path, (err, content) => {
-      err ? callback(err) : atat.parse(content, options, callback);
-    });
+    return template;
   },
 
-  render(
+  async render(
     input: string,
     model: any = {},
-    optionsArg: IAtatOptions | AtatCallback<string> = {},
-    callbackArg: AtatCallback<string> = noop,
-  ) {
-    let options = optionsArg;
-    let callback = callbackArg;
-    if (typeof options === 'function') {
-      callback = options;
-      options = {};
-    }
-
-    if (callback === noop && typeof Promise !== 'undefined') {
-      return new Promise((resolve, reject) => {
-        atat.render(input, model, options, (err, result) => {
-          err ? reject(err) : resolve(result);
-        });
-      });
-    }
-
-    atat.parse(input, options, (err, render) => {
-      err ? callback(err) : callback(null, render(model));
-    });
+    options: IAtatOptions = {},
+  ): Promise<string> {
+    const template = await atat.parse(input, options);
+    return template(model);
   },
 
-  loadAndRender(
+  async loadAndRender(
     path: string,
     model: any,
-    optionsArg: IAtatOptions | AtatCallback<string> = {},
-    callbackArg: AtatCallback<string> = noop,
-  ) {
-    let options = optionsArg;
-    let callback = callbackArg;
-    if (typeof options === 'function') {
-      callback = options;
-      options = {};
-    }
-
-    if (callback === noop && typeof Promise !== 'undefined') {
-      return new Promise((resolve, reject) => {
-        atat.loadAndRender(path, model, options, (err, result) => {
-          err ? reject(err) : resolve(result);
-        });
-      });
-    }
-
-    atat.loadAndParse(path, options, (err, render) => {
-      err ? callback(err) : callback(null, render(model));
-    });
+    options: IAtatOptions = {},
+  ): Promise<string> {
+    const template = await atat.loadAndParse(path, options);
+    return template(model);
   },
 
   // tslint:disable-next-line: function-name
   __express(
     path: string,
-    options: any,
+    model: any,
     callback: (err?: any, res?: string) => any,
   ) {
-    atat.loadAndParse(path, (err: any, template: IAtatTemplate) => {
-      err ? callback(err.toString()) : callback(null, template(options));
-    });
+    (async () => {
+      try {
+        const result = await atat.loadAndRender(path, model);
+        callback(null, result);
+      } catch (err) {
+        callback(err);
+      }
+    })();
   },
 };

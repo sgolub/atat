@@ -6,20 +6,20 @@ import { regexpTest } from './regexp';
 import { tags } from './tags';
 
 export class AtatContext {
-  public parent: AtatContext;
+  public parent: AtatContext | null;
   public inline: RegExp;
   public tags: { open: RegExp; close: RegExp; compilers: IAtatTag[] };
   public parts: string[];
   public options: IAtatOptions;
-  public body: string;
+  public body: string | null = null;
   public helpers: { [key: string]: AtatHelper };
   public output: string;
-  public template: IAtatTemplate;
+  public template: IAtatTemplate | null = null;
   public model: any;
   public arguments: string;
   public sections: { [key: string]: IAtatTemplate };
   public partials: IAtatTemplate[];
-  public layout: IAtatTemplate;
+  public layout: IAtatTemplate | null;
 
   constructor(opts: IAtatOptions) {
     this.options = merge(DEFAULT_OPTIONS, opts);
@@ -35,10 +35,10 @@ export class AtatContext {
     this.tags = getTags(tags);
     this.inline = getTagsInline(inlineTags);
 
-    loop(inlineTags, (compiler, regexp: string) => {
+    loop(inlineTags, (compiler, regexp: string | number) => {
       this.tags.compilers.push({
         compiler,
-        regexp: new RegExp(regexp, 'g'),
+        regexp: new RegExp(regexp as string, 'g'),
       });
     });
 
@@ -47,7 +47,7 @@ export class AtatContext {
     this.sections = {};
   }
 
-  public section(name: string): IAtatTemplate {
+  public section(name: string): IAtatTemplate | null {
     return name
       ? this.sections[name] || (this.parent && this.parent.section(name))
       : null;

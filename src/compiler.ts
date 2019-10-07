@@ -1,142 +1,83 @@
-import { AtatCallback, VALUE_NAME_INSIDE, VALUE_NAME_OUTSIDE } from './common';
+import { MuchResultTypes } from './common';
 import { AtatContext } from './context';
 import { loopAsync } from './helpers';
 import { outputCallHelper } from './inline';
 import { matchInline, matchRecursive } from './regexp';
 
 export class AtatCompiler {
-  public compile(
-    input: string,
-    ctx: AtatContext,
-    callback: AtatCallback<string>,
-  ) {
-    try {
-      if (input.length === 0) {
-        callback(null, '');
-        return;
+  public async compile(input: string, ctx: AtatContext): Promise<string> {
+    if (input.length === 0) {
+      return '';
+    }
+
+    const blocks = matchRecursive(input, ctx.tags.open, ctx.tags.close);
+
+    const results = await loopAsync(blocks, async (block, i, array) => {
+      if (block.name === MuchResultTypes.OUTSIDE) {
+        if (block.value.trim() === '') {
+          return '';
+        }
+        return await this.compileInline(block.value, ctx);
       }
 
-      const blocks = matchRecursive(input, ctx.tags.open, ctx.tags.close);
+      if (block.name === MuchResultTypes.INSIDE) {
+        const { left, right } = block;
 
-      loopAsync(
-        blocks,
-        (block, i, array, loopCallback) => {
-          try {
-            if (block.name === VALUE_NAME_OUTSIDE) {
-              if (block.value.trim() === '') {
-                loopCallback(null, '');
+        const compiler = ctx.compiler(left.value);
 
-                return;
-              }
+        if (compiler === null) {
+          return await this.compileInline(
+            left.value + block.value + right.value,
+            ctx,
+          );
+        }
 
-              this.compileInline(block.value, ctx, loopCallback);
+        const result = await compiler.call(this, block, ctx);
+        return result || '';
+      }
 
-              return;
-            }
+      return '';
+    });
 
-            if (block.name === VALUE_NAME_INSIDE) {
-              const left = block.left;
-              const inside = block;
-              const right = block.right;
-
-              const compiler = ctx.compiler(left.value);
-
-              if (!compiler) {
-                this.compileInline(
-                  left.value + inside.value + right.value,
-                  ctx,
-                  loopCallback,
-                );
-
-                return;
-              }
-
-              compiler.call(this, inside, ctx, loopCallback);
-
-              return;
-            }
-          } catch (e) {
-            loopCallback(e);
-          }
-        },
-        (err, results) => {
-          if (err) {
-            return callback(err);
-          }
-
-          callback(null, results.join(''));
-        },
-      );
-    } catch (e) {
-      callback(e);
-    }
+    return results.join('');
   }
 
-  private compileInline(
+  private async compileInline(
     input: string,
     ctx: AtatContext,
-    callback: AtatCallback<string>,
-  ) {
-    try {
-      if (input.length === 0) {
-        callback(null, '');
-        return;
+  ): Promise<string> {
+    if (input.length === 0) {
+      return '';
+    }
+
+    const blocks = matchInline(input, ctx.inline);
+
+    const results = await loopAsync(blocks, async (block, i, array) => {
+      if (block.name === MuchResultTypes.OUTSIDE) {
+        ctx.parts.push(block.value);
+        return `this.output += this.parts[${ctx.parts.length - 1}];`;
       }
 
-      const blocks = matchInline(input, ctx.inline);
+      if (block.name === MuchResultTypes.INSIDE) {
+        const { left, right } = block;
 
-      loopAsync(
-        blocks,
-        (block, i, array, loopCallback) => {
-          try {
-            if (block.name === VALUE_NAME_OUTSIDE) {
-              ctx.parts.push(block.value);
-              loopCallback(
-                null,
-                `this.output += this.parts[${ctx.parts.length - 1}];`,
-              );
+        if (block.value.trim() === '') {
+          return '';
+        }
 
-              return;
-            }
+        const compiler = ctx.compiler(left.value + block.value + right.value);
 
-            if (block.name === VALUE_NAME_INSIDE) {
-              const left = block.left;
-              const inside = block;
-              const right = block.right;
+        if (compiler === null) {
+          return await outputCallHelper.call(this, block, ctx);
+        }
 
-              if (inside.value.trim() === '') {
-                loopCallback(null, '');
+        const result = await compiler.call(this, block, ctx);
+        return result || '';
+      }
 
-                return;
-              }
+      return '';
+    });
 
-              const compiler = ctx.compiler(
-                left.value + inside.value + right.value,
-              );
-
-              if (!compiler) {
-                outputCallHelper.call(this, inside, ctx, loopCallback);
-                return;
-              }
-
-              compiler.call(this, inside, ctx, loopCallback);
-
-              return;
-            }
-          } catch (e) {
-            loopCallback(e);
-          }
-        },
-        (err, results) => {
-          if (err) {
-            return callback(err);
-          }
-
-          callback(null, results.join(''));
-        },
-      );
-    } catch (e) {
-      callback(e);
-    }
+    return results.join('');
   }
 }

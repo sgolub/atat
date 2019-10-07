@@ -1,21 +1,21 @@
-import { IMuchResult, VALUE_NAME_INSIDE, VALUE_NAME_OUTSIDE } from './common';
+import { MuchResult, MuchResultTypes } from './common';
 
 export function matchRecursive(
   str: string,
   left: RegExp,
   right: RegExp,
-): IMuchResult[] {
+): MuchResult[] {
   const global = left.global;
   const sticky = left.sticky;
-  const output = [];
+  const output: MuchResult[] = [];
   let openTokens = 0;
   let delimStart = 0;
   let delimEnd = 0;
   let lastOuterEnd = 0;
-  let outerStart;
-  let innerStart;
-  let leftMatch;
-  let rightMatch;
+  let outerStart: number = 0;
+  let innerStart: number = 0;
+  let leftMatch: RegExpExecArray | null;
+  let rightMatch: RegExpExecArray | null;
 
   while (true) {
     leftMatch = regexpExec(str, left, delimEnd);
@@ -41,9 +41,14 @@ export function matchRecursive(
     // The paths above don't include the sticky mode special case. The loop ends after the
     // first completed match if not `global`.
     if (leftMatch || rightMatch) {
-      delimStart = (leftMatch || rightMatch).index;
+      delimStart = (
+        (leftMatch as RegExpExecArray) || (rightMatch as RegExpExecArray)
+      ).index;
 
-      delimEnd = delimStart + (leftMatch || rightMatch)[0].length;
+      delimEnd =
+        delimStart +
+        ((leftMatch as RegExpExecArray) || (rightMatch as RegExpExecArray))[0]
+          .length;
     } else if (!openTokens) {
       break;
     }
@@ -64,7 +69,7 @@ export function matchRecursive(
       if (!openTokens) {
         if (outerStart > lastOuterEnd) {
           output.push({
-            name: VALUE_NAME_OUTSIDE,
+            name: MuchResultTypes.OUTSIDE,
             value: str.slice(lastOuterEnd, outerStart),
             start: lastOuterEnd,
             end: outerStart,
@@ -72,7 +77,7 @@ export function matchRecursive(
         }
 
         output.push({
-          name: VALUE_NAME_INSIDE,
+          name: MuchResultTypes.INSIDE,
           value: str.slice(innerStart, delimStart),
           start: innerStart,
           end: delimStart,
@@ -106,10 +111,10 @@ export function matchRecursive(
 
   if (global && str.length > lastOuterEnd) {
     output.push({
-      end: str.length,
-      name: VALUE_NAME_OUTSIDE,
-      start: lastOuterEnd,
+      name: MuchResultTypes.OUTSIDE,
       value: str.slice(lastOuterEnd),
+      start: lastOuterEnd,
+      end: str.length,
     });
   }
 
@@ -149,10 +154,10 @@ export function cleanArray(array: any[]) {
   }
 }
 
-export function matchInline(str: string, regexp: RegExp) {
+export function matchInline(str: string, regexp: RegExp): MuchResult[] {
   const global = regexp.global;
   const sticky = regexp.sticky;
-  const output = [];
+  const output: MuchResult[] = [];
   let lastEnd = 0;
   let leftStart = 0;
   let innerStart;
@@ -178,7 +183,7 @@ export function matchInline(str: string, regexp: RegExp) {
 
     if (leftStart > lastEnd) {
       output.push({
-        name: VALUE_NAME_OUTSIDE,
+        name: MuchResultTypes.OUTSIDE,
         value: str.slice(lastEnd, leftStart),
         start: lastEnd,
         end: leftStart,
@@ -186,7 +191,7 @@ export function matchInline(str: string, regexp: RegExp) {
     }
 
     output.push({
-      name: VALUE_NAME_INSIDE,
+      name: MuchResultTypes.INSIDE,
       value: match[2],
       start: innerStart,
       end: innerEnd,
@@ -211,7 +216,7 @@ export function matchInline(str: string, regexp: RegExp) {
 
   if (global && str.length > lastEnd) {
     output.push({
-      name: VALUE_NAME_OUTSIDE,
+      name: MuchResultTypes.OUTSIDE,
       value: str.slice(lastEnd),
       start: lastEnd,
       end: str.length,

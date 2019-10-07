@@ -7,77 +7,53 @@ describe('Simple templates', () => {
     template = '';
   });
 
-  it('Empty template', done => {
+  it('Empty template', async () => {
     template = '';
 
-    atat.parse(template, (err, tmpl) => {
-      expect(err).to.be(null);
-      expect(tmpl()).to.eql('');
-
-      done();
-    });
+    const tmpl = await atat.parse(template);
+    expect(tmpl()).to.eql('');
   });
 
-  it('Inline value', done => {
+  it('Inline value', async () => {
     template = 'Hello @(it.name)@!';
 
-    atat.parse(template, (err, tmpl) => {
-      expect(err).to.be(null);
-      expect(tmpl({ name: 'world' })).to.eql('Hello world!');
-
-      done();
-    });
+    const tmpl = await atat.parse(template);
+    expect(tmpl({ name: 'world' })).to.eql('Hello world!');
   });
 
-  it('Inline raw html', done => {
+  it('Inline raw html', async () => {
     template = 'Hello @!(it.name)@!';
 
-    atat.parse(template, (err, tmpl) => {
-      expect(err).to.be(null);
-      expect(tmpl({ name: '<strong>world</strong>' })).to.eql(
-        'Hello <strong>world</strong>!',
-      );
-
-      done();
-    });
+    const tmpl = await atat.parse(template);
+    expect(tmpl({ name: '<strong>world</strong>' })).to.eql(
+      'Hello <strong>world</strong>!',
+    );
   });
 
-  it('Inline encode html', done => {
+  it('Inline encode html', async () => {
     template = 'Hello @(it.name)@!';
 
-    atat.parse(template, (err, tmpl) => {
-      expect(err).to.be(null);
-      expect(tmpl({ name: '<strong>world</strong>' })).to.eql(
-        'Hello &#60;strong&#62;world&#60;&#47;strong&#62;!',
-      );
-
-      done();
-    });
+    const tmpl = await atat.parse(template);
+    expect(tmpl({ name: '<strong>world</strong>' })).to.eql(
+      'Hello &#60;strong&#62;world&#60;&#47;strong&#62;!',
+    );
   });
 
-  it('Inline encode html with custom helpers name', done => {
+  it('Inline encode html with custom helpers name', async () => {
     template = 'Hello @(it.name)@!';
 
-    atat.parse(template, (err, tmpl) => {
-      expect(err).to.be(null);
-      expect(tmpl({ name: '<strong>world</strong>' })).to.eql(
-        'Hello &#60;strong&#62;world&#60;&#47;strong&#62;!',
-      );
-
-      done();
-    });
+    const tmpl = await atat.parse(template);
+    expect(tmpl({ name: '<strong>world</strong>' })).to.eql(
+      'Hello &#60;strong&#62;world&#60;&#47;strong&#62;!',
+    );
   });
 
-  it('Inline encode helper', done => {
+  it('Inline encode helper', async () => {
     template = 'Hello @encode(it.name)@!';
 
-    atat.parse(template, (err, tmpl) => {
-      expect(err).to.be(null);
-      expect(tmpl({ name: '<strong>world</strong>' })).to.eql(
-        'Hello &#60;strong&#62;world&#60;&#47;strong&#62;!',
-      );
-
-      done();
-    });
+    const tmpl = await atat.parse(template);
+    expect(tmpl({ name: '<strong>world</strong>' })).to.eql(
+      'Hello &#60;strong&#62;world&#60;&#47;strong&#62;!',
+    );
   });
 });

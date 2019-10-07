@@ -8,11 +8,12 @@ export interface IAtatOptions {
     [key: string]: AtatHelper;
   };
   fileResolver?: IFileResolver;
+  [key: string]: any;
 }
 
 export const DEFAULT_OPTIONS: IAtatOptions = {
   it: 'it',
   $: '$',
   helpers: {},
-  fileResolver: new DefaultFileResolver(),
+  fileResolver: DefaultFileResolver,
 };

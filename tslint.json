@@ -8,7 +8,8 @@
   "rules": {
     "semicolon": true,
     "object-literal-sort-keys": false,
-    "ter-arrow-parens": [true, "as-needed"]
+    "ter-arrow-parens": [true, "as-needed"],
+    "prefer-array-literal": false
   },
   "rulesDirectory": []
 }

@@ -7,13 +7,10 @@ describe('Function block', () => {
     template = '';
   });
 
-  it('Simple function', done => {
+  it('Simple function', async () => {
     template = "@function hello(){return 'Hello';}@@(hello())@ world!";
 
-    atat.parse(template, (err, tmpl) => {
-      expect(tmpl()).to.eql('Hello world!');
-
-      done();
-    });
+    const tmpl = await atat.parse(template);
+    expect(tmpl()).to.eql('Hello world!');
   });
 });

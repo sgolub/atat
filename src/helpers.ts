@@ -1,9 +1,8 @@
 import {
   ArrayOrKeyValuePair,
-  AtatCallback,
-  AtatCompileFunction,
   AtatHelper,
   HTML_RULES,
+  IAtatCompileFunction,
   IAtatTag,
   IKeyValuePair,
   MATCH_HTML,
@@ -31,21 +30,21 @@ export function merge(src: IKeyValuePair<any>, dest: IKeyValuePair<any> = {}) {
   return dest;
 }
 
-export function getTags(tags: { [key: string]: AtatCompileFunction }) {
+export function getTags(tags: { [key: string]: IAtatCompileFunction }) {
   const regexps: string[] = [];
 
-  loop(tags, (compiler: AtatCompileFunction, regexp: string) => {
-    if (regexps.indexOf(regexp) === -1) {
-      regexps.push(regexp);
+  loop(tags, (compiler: IAtatCompileFunction, regexp: string | number) => {
+    if (regexps.indexOf(regexp as string) === -1) {
+      regexps.push(regexp as string);
     }
   });
 
   const compilers: IAtatTag[] = [];
 
-  loop(tags, (compiler, regexp: string) => {
+  loop(tags, (compiler, regexp: string | number) => {
     compilers.push({
       compiler,
-      regexp: new RegExp(regexp, 'g'),
+      regexp: new RegExp(regexp as string, 'g'),
     });
   });
 
@@ -57,13 +56,16 @@ export function getTags(tags: { [key: string]: AtatCompileFunction }) {
 }
 
 export function getTagsInline(inlineTags: {
-  [key: string]: AtatCompileFunction;
+  [key: string]: IAtatCompileFunction;
 }) {
   const regexps: string[] = [];
 
-  loop(inlineTags, (compiler: AtatCompileFunction, regexp: string) => {
-    regexps.push(regexp);
-  });
+  loop(
+    inlineTags,
+    (compiler: IAtatCompileFunction, regexp: string | number) => {
+      regexps.push(regexp as string);
+    },
+  );
 
   regexps.push('(@[A-Za-z0-9$]+\\()([^]*?)(\\)@)');
 
@@ -74,7 +76,7 @@ export function loop<T>(
   array: ArrayOrKeyValuePair<T>,
   fn: (item: T, index: string | number, array: ArrayOrKeyValuePair<T>) => void,
 ) {
-  if (Object.prototype.toString.call(array) !== '[object Array]') {
+  if (!Array.isArray(array)) {
     for (const x in array as IKeyValuePair<T>) {
       if (array.hasOwnProperty(x)) {
         fn(array[x], x, array);
@@ -88,41 +90,18 @@ export function loop<T>(
   }
 }
 
-export function loopAsync<T>(
+export async function loopAsync<T>(
   array: T[],
-  fn: (item: T, i: number, array: T[], callback: AtatCallback<string>) => void,
-  callback: AtatCallback<string[]>,
-) {
-  let ready = 0;
-  let finished = false;
-  const results: string[] = [];
-  const length = array.length;
+  fn: (item: T, i: number, array: T[]) => Promise<string>,
+): Promise<string[]> {
+  const promises: Array<Promise<string>> = [];
 
-  for (let i = 0; i < length; i += 1) {
-    fn(array[i], i, array, cb(i));
+  for (let i = 0, l = array.length; i < l; i += 1) {
+    promises.push(fn(array[i], i, array));
   }
+  const results = await Promise.all(promises);
 
-  function cb(index: number) {
-    return (err: any, res: string) => {
-      if (finished) {
-        return;
-      }
-
-      if (err) {
-        finished = true;
-        callback(err);
-        return;
-      }
-
-      results[index] = res;
-      ready += 1;
-
-      if (ready === length) {
-        finished = true;
-        callback(null, results);
-      }
-    };
-  }
+  return results;
 }
 
 export function encodeHtml(code = '') {
