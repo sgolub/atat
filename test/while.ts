@@ -1,4 +1,4 @@
-import { atat } from '../src/atat';
+import * as atat from '../src';
 
 describe('While block', () => {
   let template = '';

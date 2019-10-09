@@ -18,6 +18,7 @@
   ],
   "scripts": {
     "build": "tsc",
+    "watch": "tsc -w",
     "test": "nyc mocha ./test/**/*.ts",
     "lint": "tslint --project tsconfig.json ./src/**/*.ts"
   },
@@ -41,7 +42,7 @@
   "devDependencies": {
     "@types/expect.js": "^0.3.29",
     "@types/mocha": "^5.2.7",
-    "@types/node": "^12.6.8",
+    "@types/node": "^12.7.12",
     "@types/simple-mock": "^0.8.1",
     "expect.js": "^0.3.1",
     "jshint": "^2.10.2",

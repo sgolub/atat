@@ -5,101 +5,83 @@ import { DefaultFileResolver } from './fileResolvers';
 import { merge } from './helpers';
 import { DEFAULT_OPTIONS, IAtatOptions } from './options';
 
-export const atat = {
-  config(opts: IAtatOptions): void {
-    const options = merge(DEFAULT_OPTIONS, opts);
-    for (const x in options) {
-      if (DEFAULT_OPTIONS.hasOwnProperty(x)) {
-        DEFAULT_OPTIONS[x] = options[x];
-      }
+export function config(opts: IAtatOptions): void {
+  const options = merge(DEFAULT_OPTIONS, opts);
+  for (const x in options) {
+    if (DEFAULT_OPTIONS.hasOwnProperty(x)) {
+      DEFAULT_OPTIONS[x] = options[x];
     }
-  },
+  }
+}
 
-  async parse(
-    input: string,
-    options: IAtatOptions = {},
-  ): Promise<IAtatTemplate> {
-    const ctx = new AtatContext(options);
+export async function parse(
+  input: string,
+  options: IAtatOptions = {},
+): Promise<IAtatTemplate> {
+  const ctx = new AtatContext(options);
 
-    const compiler = new AtatCompiler();
+  const compiler = new AtatCompiler();
 
-    const output = await compiler.compile(input, ctx);
+  const output = await compiler.compile(input, ctx);
 
-    // tslint:disable-next-line: no-function-constructor-with-string-args
-    const render = new Function(ctx.arguments, `${output};return this.output;`);
+  // tslint:disable-next-line: no-function-constructor-with-string-args
+  const result = new Function(ctx.arguments, `${output};return this.output;`);
 
-    ctx.template = (model: any) => {
-      try {
-        ctx.output = '';
-        ctx.model = model || ctx.model;
+  ctx.template = (model: any) => {
+    try {
+      ctx.output = '';
+      ctx.model = model || ctx.model;
 
-        let body = render.call(ctx, ctx.model, ctx.helpers, ctx.body);
+      let body = result.call(ctx, ctx.model, ctx.helpers, ctx.body);
 
-        if (ctx.layout && ctx.layout.context) {
-          ctx.layout.context.body = body;
-          body = ctx.layout(ctx.model);
-        }
-
-        return body;
-      } catch (e) {
-        return e.toString();
+      if (ctx.layout && ctx.layout.context) {
+        ctx.layout.context.body = body;
+        body = ctx.layout(ctx.model);
       }
-    };
 
-    ctx.template.context = ctx;
-
-    return ctx.template;
-  },
-
-  async loadAndParse(
-    path: string,
-    options: IAtatOptions = {},
-  ): Promise<IAtatTemplate> {
-    let fileResolver = options.fileResolver || DEFAULT_OPTIONS.fileResolver;
-
-    if (!fileResolver) {
-      fileResolver = DefaultFileResolver;
-      options.fileResolver = fileResolver;
-      DEFAULT_OPTIONS.fileResolver = fileResolver;
+      return body;
+    } catch (e) {
+      return e.toString();
     }
+  };
 
-    const content = await fileResolver(path);
-    const template = await atat.parse(content, options);
+  ctx.template.context = ctx;
 
-    return template;
-  },
+  return ctx.template;
+}
 
-  async render(
-    input: string,
-    model: any = {},
-    options: IAtatOptions = {},
-  ): Promise<string> {
-    const template = await atat.parse(input, options);
-    return template(model);
-  },
+export async function loadAndParse(
+  path: string,
+  options: IAtatOptions = {},
+): Promise<IAtatTemplate> {
+  let fileResolver = options.fileResolver || DEFAULT_OPTIONS.fileResolver;
 
-  async loadAndRender(
-    path: string,
-    model: any,
-    options: IAtatOptions = {},
-  ): Promise<string> {
-    const template = await atat.loadAndParse(path, options);
-    return template(model);
-  },
+  if (!fileResolver) {
+    fileResolver = DefaultFileResolver;
+    options.fileResolver = fileResolver;
+    // DEFAULT_OPTIONS.fileResolver = fileResolver;
+  }
 
-  // tslint:disable-next-line: function-name
-  __express(
-    path: string,
-    model: any,
-    callback: (err?: any, res?: string) => any,
-  ) {
-    (async () => {
-      try {
-        const result = await atat.loadAndRender(path, model);
-        callback(null, result);
-      } catch (err) {
-        callback(err);
-      }
-    })();
-  },
-};
+  const content = await fileResolver(path);
+  const template = await parse(content, options);
+
+  return template;
+}
+
+export async function render(
+  input: string,
+  model: any = {},
+  options: IAtatOptions = {},
+): Promise<string> {
+  const template = await parse(input, options);
+  return template(model);
+}
+
+export async function loadAndRender(
+  path: string,
+  model: any,
+  options: IAtatOptions = {},
+): Promise<string> {
+  const template = await loadAndParse(path, options);
+  return template(model);
+}

@@ -1,5 +1,5 @@
 import { mock, restore } from 'simple-mock';
-import { atat } from '../src/atat';
+import * as atat from '../src';
 
 describe('Express section tests', () => {
   let fs: any;

@@ -1,4 +1,4 @@
-import { atat } from './atat';
+import { loadAndParse } from './atat';
 import { IAtatCompileFunction, IMuchResultInside, MuchResult } from './common';
 import { AtatContext } from './context';
 import { escapeQuotes } from './helpers';
@@ -45,10 +45,7 @@ async function compileLayout(
     return;
   }
 
-  const template = await atat.loadAndParse(
-    escapeQuotes(inside.value),
-    ctx.options,
-  );
+  const template = await loadAndParse(escapeQuotes(inside.value), ctx.options);
 
   ctx.layout = template;
   if (template.context) {
@@ -70,7 +67,7 @@ async function compilePartial(
 
   const uri = escapeQuotes(args.shift() || '');
 
-  const template = await atat.loadAndParse(uri, ctx.options);
+  const template = await loadAndParse(uri, ctx.options);
 
   ctx.partials.push(template);
   if (template.context) {

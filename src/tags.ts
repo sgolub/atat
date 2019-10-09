@@ -1,4 +1,4 @@
-import { atat } from './atat';
+import { parse } from './atat';
 import {
   IAtatCompileFunction,
   IMuchResultInside,
@@ -93,7 +93,7 @@ async function compileSection(
     throw new Error('Section already exists');
   }
 
-  const template = await atat.parse(block, ctx.options);
+  const template = await parse(block, ctx.options);
 
   if (template.context) {
     template.context.parent = ctx;

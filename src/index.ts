@@ -1,9 +1,30 @@
-import { atat } from './atat';
+import { config, loadAndParse, loadAndRender, parse, render } from './atat';
+import { __express } from './express';
 import {
   DefaultFileResolver,
   FetchFileResolver,
   IFileResolver,
 } from './fileResolvers';
 
-export { FetchFileResolver, DefaultFileResolver, IFileResolver };
-export default atat;
+export {
+  config,
+  loadAndParse,
+  loadAndRender,
+  parse,
+  render,
+  FetchFileResolver,
+  DefaultFileResolver,
+  __express,
+  IFileResolver,
+};
+
+export default {
+  config,
+  loadAndParse,
+  loadAndRender,
+  parse,
+  render,
+  FetchFileResolver,
+  DefaultFileResolver,
+  __express,
+};
