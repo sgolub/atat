@@ -59,7 +59,6 @@ export async function loadAndParse(
   if (!fileResolver) {
     fileResolver = DefaultFileResolver;
     options.fileResolver = fileResolver;
-    // DEFAULT_OPTIONS.fileResolver = fileResolver;
   }
 
   const content = await fileResolver(path);

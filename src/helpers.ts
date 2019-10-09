@@ -149,24 +149,3 @@ export function uppercaseHelper(str = '') {
 export function lowercaseHelper(str = '') {
   return str.toString().toLowerCase();
 }
-
-export function resolveUrl(base: string, relative: string) {
-  const stack = base.split('/');
-  const parts = relative.split('/');
-
-  stack.pop();
-
-  for (const part of parts) {
-    if (part === '.') {
-      continue;
-    }
-
-    if (part === '..') {
-      stack.pop();
-    } else {
-      stack.push(part);
-    }
-  }
-
-  return stack.join('/');
-}
