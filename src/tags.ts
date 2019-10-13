@@ -78,27 +78,18 @@ async function compileSection(
   ctx: AtatContext,
 ): Promise<string | void> {
   const block = inside.value.trim();
-
   const value = inside.left.value.trim();
-  const regName = /^@section\s+([A-Za-z0-9]+)\s*\{/g;
+  const regName = /^@section\s+([A-Za-z0-9_]+)\s*\{/g;
   const match = regexpExec(value, regName);
-
   if (!match || match.length > 2) {
-    throw new Error('Section parsing error');
+    throw new Error('Section name is not specified');
   }
-
   const name = match[1].trim();
-
-  if (ctx.sections[name]) {
-    throw new Error('Section already exists');
-  }
-
   const template = await parse(block, ctx.options);
-
-  if (template.context) {
-    template.context.parent = ctx;
+  if (ctx.sections[name]) {
+    throw new Error(`The section "${name}" is already specified`);
   }
-
+  template.context.parent = ctx;
   ctx.sections[name] = template;
 }
 

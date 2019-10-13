@@ -27,14 +27,14 @@ export async function parse(
   // tslint:disable-next-line: no-function-constructor-with-string-args
   const result = new Function(ctx.arguments, `${output};return this.output;`);
 
-  ctx.template = (model: any) => {
+  const template = (model: any) => {
     try {
       ctx.output = '';
       ctx.model = model || ctx.model;
 
       let body = result.call(ctx, ctx.model, ctx.helpers, ctx.body);
 
-      if (ctx.layout && ctx.layout.context) {
+      if (ctx.layout) {
         ctx.layout.context.body = body;
         body = ctx.layout(ctx.model);
       }
@@ -45,7 +45,9 @@ export async function parse(
     }
   };
 
-  ctx.template.context = ctx;
+  template.context = ctx;
+
+  ctx.template = template;
 
   return ctx.template;
 }

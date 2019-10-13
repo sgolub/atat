@@ -1,4 +1,4 @@
-import { MuchResultTypes } from './common';
+import { IAtatCompileFunction, MuchResultTypes } from './common';
 import { AtatContext } from './context';
 import { loopAsync } from './helpers';
 import { outputCallHelper } from './inline';
@@ -20,23 +20,13 @@ export class AtatCompiler {
         return await this.compileInline(block.value, ctx);
       }
 
-      if (block.name === MuchResultTypes.INSIDE) {
-        const { left, right } = block;
+      // block.name === MuchResultTypes.INSIDE
+      const { left, right } = block;
 
-        const compiler = ctx.compiler(left.value);
+      const compiler = ctx.compiler(left.value) as IAtatCompileFunction;
 
-        if (compiler === null) {
-          return await this.compileInline(
-            left.value + block.value + right.value,
-            ctx,
-          );
-        }
-
-        const result = await compiler.call(this, block, ctx);
-        return result || '';
-      }
-
-      return '';
+      const result = await compiler.call(this, block, ctx);
+      return result || '';
     });
 
     return results.join('');
@@ -46,10 +36,6 @@ export class AtatCompiler {
     input: string,
     ctx: AtatContext,
   ): Promise<string> {
-    if (input.length === 0) {
-      return '';
-    }
-
     const blocks = matchInline(input, ctx.inline);
 
     const results = await loopAsync(blocks, async (block, i, array) => {
@@ -58,24 +44,21 @@ export class AtatCompiler {
         return `this.output += this.parts[${ctx.parts.length - 1}];`;
       }
 
-      if (block.name === MuchResultTypes.INSIDE) {
-        const { left, right } = block;
+      // block.name === MuchResultTypes.INSIDE
+      const { left, right } = block;
 
-        if (block.value.trim() === '') {
-          return '';
-        }
-
-        const compiler = ctx.compiler(left.value + block.value + right.value);
-
-        if (compiler === null) {
-          return await outputCallHelper.call(this, block, ctx);
-        }
-
-        const result = await compiler.call(this, block, ctx);
-        return result || '';
+      if (block.value.trim() === '') {
+        return '';
       }
 
-      return '';
+      const compiler = ctx.compiler(left.value + block.value + right.value);
+
+      if (compiler === null) {
+        return await outputCallHelper.call(this, block, ctx);
+      }
+
+      const result = await compiler.call(this, block, ctx);
+      return result || '';
     });
 
     return results.join('');

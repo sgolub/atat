@@ -1,8 +1,0 @@
-{
-  "editor.formatOnSave": true,
-  "files.exclude": {
-    "**/.git": true
-    // "**/*.d.ts": true
-  },
-  "prettier.tslintIntegration": true
-}

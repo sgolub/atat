@@ -4,7 +4,7 @@ export type AtatHelper = (...args: any[]) => string;
 
 export interface IAtatTemplate {
   (model?: any): string;
-  context?: AtatContext;
+  context: AtatContext;
 }
 
 export type IAtatCompileFunction = (

@@ -100,7 +100,17 @@ export function matchRecursive(
         }
       }
     } else {
-      throw new Error('Unbalanced delimiter found in string');
+      if (rightMatch !== null) {
+        throw new SyntaxError(
+          `Unbalanced delimiter "${rightMatch}" was found in the template\n${str}\n${' '.repeat(
+            rightMatch.index,
+          )}${'^'.repeat(rightMatch.toString().length)}`,
+        );
+      } else {
+        throw new SyntaxError(
+          `Unbalanced delimiter found in the template\n${str}`,
+        );
+      }
     }
 
     // If the delimiter matched an empty string, avoid an infinite loop
