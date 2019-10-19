@@ -1,4 +1,4 @@
-import { config, IFileResolver, render } from '../src';
+import { config, FetchFileResolver, IFileResolver, render } from '../src';
 
 describe('Simple tests', () => {
   it('should render empty string', async () => {
@@ -11,7 +11,7 @@ describe('Simple tests', () => {
       await render('@(it.value}@@');
     } catch (err) {
       expect(err.toString()).toBe(
-        'SyntaxError: Unbalanced delimiter "}@" was found in the template\n@(it.value}@@\n          ^^',
+        'SyntaxError: Unbalanced delimiter "}@" was found in the template\n@(it.value}@@\n          ^^'
       );
     }
   });
@@ -33,7 +33,7 @@ describe('Simple tests', () => {
 
   it('should cause an error if helper is not declarated', async () => {
     try {
-      const result = await render('@foo(it.value)@');
+      await render('@foo(it.value)@');
     } catch (err) {
       expect(err.toString()).toBe('Error: Helper "foo" is not declarated');
     }
@@ -52,7 +52,7 @@ describe('Simple tests', () => {
       config({
         it: 'that',
         fileResolver: jest.fn((path: string) =>
-          Promise.resolve('<p>partial</p>'),
+          Promise.resolve('<p>partial</p>')
         ),
         extraProp: 'bar', // will be ignored
       });
@@ -68,15 +68,15 @@ describe('Simple tests', () => {
         (
           path: string,
           encoding: string,
-          callback: (err: Error | null, text: string) => void,
-        ) => callback(null, '<p>partial</p>'),
+          callback: (err: Error | null, text: string) => void
+        ) => callback(null, '<p>partial</p>')
       );
 
       config({ fileResolver: (null as never) as IFileResolver });
       const result = await render(
         '@partial(/foo)@',
         { foo: 'bar' },
-        { fileResolver: (null as never) as IFileResolver },
+        { fileResolver: (null as never) as IFileResolver }
       );
       expect(result).toBe('<p>partial</p>');
       expect(fs.readFile).toHaveBeenCalledTimes(1);
@@ -90,6 +90,28 @@ describe('Simple tests', () => {
       });
       const result = await render('@plusOne(1)@');
       expect(result).toBe('2');
+    });
+  });
+
+  describe('fetch', () => {
+    afterEach(() => {
+      (global as any).fetch.mockClear();
+      delete (global as any).fetch;
+    });
+
+    it('should render partial', async () => {
+      (global as any).fetch = jest.fn().mockResolvedValue({
+        text: () => Promise.resolve('<p>partial @(it)@</p>'),
+      });
+      const result = await render(
+        '@partial("path",it.foo)@',
+        { foo: 'bar' },
+        {
+          it: 'it',
+          fileResolver: FetchFileResolver,
+        }
+      );
+      expect(result).toBe('<p>partial bar</p>');
     });
   });
 });
