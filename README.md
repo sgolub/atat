@@ -22,60 +22,45 @@ I wanted to create something simple for what you don't need to spend hours to re
 Using npm or bower:
 
 ```bash
+$ yarn add atat
 $ npm install --save atat
-$ bower install --save atat
-```
-
-In a browser:
-
-```html
-<script type="text/javascript" src="path_to/dist/atat.min.js"></script>
 ```
 
 ## Usage
 
 ```js
-import atat from 'atat';
+import { config, parse, loadAndRender, render, loadAndParse } from 'atat';
 
 var atat = require('atat');
 ```
 
 `atat` object has the following methods
 
-- `config` global configuration for all templates
-- `parse` parse a template, returns a render function
-- `loadAndParse` the same with `parse` but allows a path to template as the first argument
-- `render` parse and render a templare, returns the result string
-- `loadAndRender` the same with `render` but allows a path to template as the first argument
+- `config` to setup global configuration for all templates
+- `parse` to parse a template, returns a render function
+- `loadAndParse` the same with `parse` but allows a path to a template as the first argument
+- `render` to parse and render a template, returns the result string
+- `loadAndRender` the same with `render` but allows a path to a template as the first argument
 
 ```js
-const render = await atat.parse(templateString, options);
+import { parse, loadAndRender, render, loadAndParse } from 'atat';
+
+const render = await parse(templateString, options);
 container.innerHTML = render(model);
 
-container.innerHTML = await atat.render(templateString, model, options);
+container.innerHTML = await render(templateString, model, options);
 
-const render = await atat.loadAndParse(pathToTemplate, options);
+const render = await loadAndParse(pathToTemplate, options);
 container.innerHTML = render(model);
 
-container.innerHTML = await atat.loadAndRender(pathToTemplate, model, options);
+container.innerHTML = await loadAndRender(pathToTemplate, model, options);
 ```
 
 If your environment doesn't support `async/await` sytax, use `Promise`
 
 ```js
-atat.render(templateString, options).then((err, result) => {
+render(templateString, options).then((err, result) => {
   container.innerHTML = result;
-});
-```
-
-either your environment doesn't support `Promise`, all methods support the classic callback style
-
-```js
-atat.parse(templateString, options, function(err, render) {
-  if (!err) {
-    const result = render(model);
-    container.innerHTML = result;
-  }
 });
 ```
 
@@ -83,26 +68,26 @@ atat.parse(templateString, options, function(err, render) {
 
 - `it` models variable name, default `"it"`
 - `$` helpers variable name, default `"$"`
-- `basepath` base path
 - `helpers` extra helpers
+- `fileResolver` templates provider
 
 ```js
+import { parse, render } from 'atat';
 const options = {
-    it: "it", // the name of the model variable
+    it: "it",
     $: "$",
-    basepath: "./views",
-    cache: true, // will be available soon
     helpers: {
         l10n: (lang, key) => l10n.resources[lang][key]; // @l10n(it.lang, "title")@
-    }
+    },
+    fileResolver: (name) => Promise.resolve(templates[name])
 };
 
 // global config will be applied to all templates
-atat.config(options);
+config(options);
 
 // also you can pass options into the parse or render methods
-atat.parse(templateString, options);
-atat.render(templateString, { lang: "en" }, options);
+await parse(templateString, options);
+await render(templateString, { lang: "en" }, options);
 ```
 
 ### Syntax
@@ -112,29 +97,57 @@ Encoded output
 ```html
 <p>@(it.user.firstName)@</p>
 <p>@encode(it.user.firstName)@</p>
+
+<!-- 
+  Model: { user: { firstName: 'William' } }
+  Output:
+  <p>William</p>
+ -->
 ```
 
 Raw html output
 
 ```html
 <p>@!(it.rawHTML)@</p>
+
+<!-- 
+  Model: { rawHTML: '<i>Hello!</i>' }
+  Output:
+  <p><i>Hello!</i></p>
+ -->
 ```
 
 Embedded JavaScript code
 
 ```html
-@{ // Any JavaScript code is acceptable in this block const now = new Date(); }@
+@{
+  // Any JavaScript code is acceptable in this block
+  const { firstName, secondName } = it.user;
+}@
 
-<p>@(now)@</p>
+<p>@(firstName)@ @(secondName)@</p>
+
+<!-- 
+  Model: { user: { firstName: 'William', secondName: 'Smith' } }
+  Output:
+  <p>William Smith</p>
+ -->
 ```
 
 **@if**
 
 ```html
-@if(it.user != null){
+@if (it.user != null) {
 <p>@(it.user.firstName)@</p>
 <p>@(it.user.secondName)@</p>
 }@
+
+<!-- 
+  Model: { user: { firstName: 'William', secondName: 'Smith' } }
+  Output:
+  <p>William</p>
+  <p>Smith</p>
+ -->
 ```
 
 **@if...else if...else**
@@ -148,26 +161,52 @@ Embedded JavaScript code
 } else {
 <p>User is not defined</p>
 }@
+
+<!-- 
+  Model: { user: { firstName: 'William', secondName: '' } }
+  Output:
+  <p>William</p>
+ -->
 ```
 
 **@for**
 
 ```html
 <ul>
-  @for(var i = 0, l = it.users.length; i < l; i++>){
+  @for(var i = 0, l = it.users.length; i < l; i++){
   <li>@(it.users[i].firstName)@ @(it.users[i].secondName)@</li>
   }@
 </ul>
+
+<!-- 
+  Model: { users: [{ firstName: 'William', secondName: 'Smith' }] }
+  Output:
+  <ul>
+    <li>William Smith</li>
+  </ul>
+ -->
 ```
 
 **@while**
 
 ```html
 <ul>
-  @{ var i = 0; j = 10; }@ @while(i < j){
+  @{ var i = 0; j = 5; }@
+  @while (i < j) {
   <li>@(i++)@</li>
   }@
 </ul>
+
+<!-- 
+  Output:
+  <ul>
+    <li>1</li>
+    <li>2</li>
+    <li>3</li>
+    <li>4</li>
+    <li>5</li>
+  </ul>
+ -->
 ```
 
 ### Helpers
@@ -190,12 +229,13 @@ const result = await atat.render(template, model, options);
 
 ```html
 <title>@l10n(it.lang, "title")@</title>
+<title>@('My Website - ' + $.l10n(it.lang, "title"))@</title>
 ```
 
 #### Default helpers
 
 - `@json(<object>)@` returns a result of JSON stringify
-- `@encode(<string>)@` the same with `@(<string>)@`
+- `@encode(<string>)@` the same as `@(<string>)@`
 - `@join(<array>, <separator>)@` joins the array with the separator
 - `@upper(<string>)@` simple uppercase
 - `@lower(<string>)@` simple lowercase
@@ -210,7 +250,7 @@ const result = await atat.render(template, model, options);
 
 ```html
 @layout('/views/_layout.atat')@
-<div>
+<div class="page-container">
   Home page!
 </div>
 ```
@@ -235,7 +275,7 @@ Output:
   <head></head>
   <body>
     <main>
-      <div>
+      <div class="page-container">
         Home page!
       </div>
     </main>
@@ -309,17 +349,17 @@ Output:
 
 Section allows you to pass HTML markup from a view to a layout level
 
-Use followed syntax to specify a new section
+Use the following syntax to specify a new section
 
-```
-@section <name> {
+```html
+@section name {
   <html>
 }@
 ```
 
 and another one to output the result anywhere
 
-`@section(<name>)@`
+`@section(name)@`
 
 - `name` sections name
 
@@ -327,7 +367,7 @@ and another one to output the result anywhere
 
 ```html
 @layout('/views/_layout.atat')@
-<div>
+<div class="page-container">
   Home page!
 </div>
 @section script {
@@ -360,7 +400,7 @@ Output:
   <head></head>
   <body>
     <main>
-      <div>
+      <div class="page-container">
         Home page!
       </div>
     </main>
