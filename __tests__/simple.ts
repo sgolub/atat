@@ -1,4 +1,4 @@
-import { config, FetchFileResolver, IFileResolver, render } from '../src';
+import { config, FETCH_LOADER, ILoader, render } from '../src';
 
 describe('Simple tests', () => {
   it('should render empty string', async () => {
@@ -11,7 +11,7 @@ describe('Simple tests', () => {
       await render('@(it.value}@@');
     } catch (err) {
       expect(err.toString()).toBe(
-        'SyntaxError: Unbalanced delimiter "}@" was found in the template\n@(it.value}@@\n          ^^'
+        'SyntaxError: Unbalanced delimiter "}@" was found in the template\n@(it.value}@@\n          ^^',
       );
     }
   });
@@ -54,10 +54,7 @@ describe('Simple tests', () => {
     it('should apply global config', async () => {
       config({
         it: 'that',
-        fileResolver: jest.fn((path: string) =>
-          Promise.resolve('<p>partial</p>')
-        ),
-        extraProp: 'bar', // will be ignored
+        loader: jest.fn((path: string) => Promise.resolve('<p>partial</p>')),
       });
       const result = await render('@(that.foo)@@partial(/foo)@', {
         foo: 'bar',
@@ -71,15 +68,15 @@ describe('Simple tests', () => {
         (
           path: string,
           encoding: string,
-          callback: (err: Error | null, text: string) => void
-        ) => callback(null, '<p>partial</p>')
+          callback: (err: Error | null, text: string) => void,
+        ) => callback(null, '<p>partial</p>'),
       );
 
-      config({ fileResolver: (null as never) as IFileResolver });
+      config({ loader: (null as never) as ILoader });
       const result = await render(
         '@partial(/foo)@',
         { foo: 'bar' },
-        { fileResolver: (null as never) as IFileResolver }
+        { loader: (null as never) as ILoader },
       );
       expect(result).toBe('<p>partial</p>');
       expect(fs.readFile).toHaveBeenCalledTimes(1);
@@ -111,8 +108,8 @@ describe('Simple tests', () => {
         { foo: 'bar' },
         {
           it: 'it',
-          fileResolver: FetchFileResolver,
-        }
+          loader: FETCH_LOADER,
+        },
       );
       expect(result).toBe('<p>partial bar</p>');
     });

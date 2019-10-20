@@ -1,20 +1,16 @@
-import { AtatHelper, IAtatTag, IAtatTemplate } from './common';
-import {
-  getTags,
-  getTagsInline,
-  helpers,
-  loopByObject,
-  merge,
-} from './helpers';
-import { inlineTags } from './inline';
+import { helpers, tags } from './compiler';
 import { DEFAULT_OPTIONS, IAtatOptions } from './options';
-import { regexpTest } from './regexp';
-import { tags } from './tags';
+import { AtatHelper, IAtatTag, IAtatTemplate } from './types';
+import { merge, regexpTest } from './utils';
 
 export class AtatContext {
   public parent: AtatContext | null;
-  public inline: RegExp;
-  public tags: { open: RegExp; close: RegExp; compilers: IAtatTag[] };
+  public tags: {
+    open: RegExp;
+    close: RegExp;
+    inline: RegExp;
+    compilers: IAtatTag[];
+  };
   public parts: string[];
   public options: IAtatOptions;
   public body: string | null = null;
@@ -38,28 +34,20 @@ export class AtatContext {
 
     this.arguments = [this.options.it, this.options.$, 'body'].join(',');
 
-    this.tags = getTags(tags);
-    this.inline = getTagsInline(inlineTags);
-
-    loopByObject(inlineTags, (compiler, regexp: string) => {
-      this.tags.compilers.push({
-        compiler,
-        regexp: new RegExp(regexp, 'g'),
-      });
-    });
+    this.tags = tags;
 
     this.layout = null;
     this.partials = [];
     this.sections = {};
   }
 
-  public section(name: string): IAtatTemplate | null {
+  public getSection(name: string): IAtatTemplate | null {
     return name
-      ? this.sections[name] || (this.parent && this.parent.section(name))
+      ? this.sections[name] || (this.parent && this.parent.getSection(name))
       : null;
   }
 
-  public compiler(str: string) {
+  public getCompiler(str: string) {
     for (let i = 0, l = this.tags.compilers.length; i < l; i += 1) {
       const item = this.tags.compilers[i];
       if (regexpTest(str, item.regexp)) {

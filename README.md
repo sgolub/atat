@@ -78,7 +78,7 @@ render(templateString, options).then((err, result) => {
 - `it` models variable name, default `"it"`
 - `$` helpers variable name, default `"$"`
 - `helpers` extra helpers
-- `fileResolver` templates provider
+- `loader` templates provider
 
 ```js
 import { parse, render } from 'atat';
@@ -88,7 +88,7 @@ const options = {
     helpers: {
         l10n: (lang, key) => l10n.resources[lang][key]; // @l10n(it.lang, "title")@
     },
-    fileResolver: (name) => Promise.resolve(templates[name])
+    loader: (name) => Promise.resolve(templates[name])
 };
 
 // global config will be applied to all templates
@@ -220,6 +220,8 @@ Embedded JavaScript code
 
 ### Helpers
 
+#### Custom helper
+
 `@<name>(<args...>)@`
 
 - `name` the valid name
@@ -239,6 +241,13 @@ const result = await atat.render(template, model, options);
 ```html
 <title>@l10n(it.lang, "title")@</title>
 <title>@('My Website - ' + $.l10n(it.lang, "title"))@</title>
+
+<!-- 
+  Model: { lang: 'en' }
+  Output:
+  <title>Main page</title>
+  <title>My Website - Main page</title>
+ -->
 ```
 
 #### Default helpers
@@ -361,14 +370,18 @@ Section allows you to pass HTML markup from a view to a layout level
 Use the following syntax to specify a new section
 
 ```html
-@section name {
-  <html>
+@section script {
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // your code is here
+  });
+</script>
 }@
 ```
 
 and another one to output the result anywhere
 
-`@section(name)@`
+`@section(<name>)@`
 
 - `name` sections name
 

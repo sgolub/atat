@@ -1,10 +1,6 @@
 import { config, loadAndParse, loadAndRender, parse, render } from './atat';
 import { __express } from './express';
-import {
-  DefaultFileResolver,
-  FetchFileResolver,
-  IFileResolver,
-} from './fileResolvers';
+import { AtatLoader, DEFAULT_LOADER, FETCH_LOADER } from './loaders';
 
 export {
   config,
@@ -12,10 +8,10 @@ export {
   loadAndRender,
   parse,
   render,
-  FetchFileResolver,
-  DefaultFileResolver,
+  FETCH_LOADER,
+  DEFAULT_LOADER,
   __express,
-  IFileResolver,
+  AtatLoader,
 };
 
 export default {
@@ -24,7 +20,6 @@ export default {
   loadAndRender,
   parse,
   render,
-  FetchFileResolver,
-  DefaultFileResolver,
-  __express,
+  FETCH_LOADER,
+  DEFAULT_LOADER,
 };

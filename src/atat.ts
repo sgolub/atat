@@ -1,17 +1,11 @@
-import { IAtatTemplate } from './common';
-import { AtatCompiler } from './compiler';
+import { compile } from './compiler';
 import { AtatContext } from './context';
-import { DefaultFileResolver } from './fileResolvers';
-import { merge } from './helpers';
+import { DEFAULT_LOADER } from './loaders';
 import { DEFAULT_OPTIONS, IAtatOptions } from './options';
+import { IAtatTemplate } from './types';
 
 export function config(opts: IAtatOptions): void {
-  const options = merge(DEFAULT_OPTIONS, opts);
-  for (const x in options) {
-    if (DEFAULT_OPTIONS.hasOwnProperty(x)) {
-      DEFAULT_OPTIONS[x] = options[x];
-    }
-  }
+  Object.assign(DEFAULT_OPTIONS, opts);
 }
 
 export async function parse(
@@ -20,9 +14,7 @@ export async function parse(
 ): Promise<IAtatTemplate> {
   const ctx = new AtatContext(options);
 
-  const compiler = new AtatCompiler();
-
-  const output = await compiler.compile(input, ctx);
+  const output = await compile(input, ctx);
 
   // tslint:disable-next-line: no-function-constructor-with-string-args
   const result = new Function(ctx.arguments, `${output};return this.output;`);
@@ -52,14 +44,14 @@ export async function loadAndParse(
   path: string,
   options: IAtatOptions = {},
 ): Promise<IAtatTemplate> {
-  let fileResolver = options.fileResolver || DEFAULT_OPTIONS.fileResolver;
+  let loader = options.loader || DEFAULT_OPTIONS.loader;
 
-  if (!fileResolver) {
-    fileResolver = DefaultFileResolver;
-    options.fileResolver = fileResolver;
+  if (!loader) {
+    loader = DEFAULT_LOADER;
+    options.loader = loader;
   }
 
-  const content = await fileResolver(path);
+  const content = await loader(path);
   const template = await parse(content, options);
 
   return template;
