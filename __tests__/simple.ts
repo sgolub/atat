@@ -1,4 +1,4 @@
-import { config, FETCH_LOADER, ILoader, render } from '../src';
+import { AtatLoader, config, FETCH_LOADER, render } from '../src';
 
 describe('Simple tests', () => {
   it('should render empty string', async () => {
@@ -72,11 +72,11 @@ describe('Simple tests', () => {
         ) => callback(null, '<p>partial</p>'),
       );
 
-      config({ loader: (null as never) as ILoader });
+      config({ loader: (null as never) as AtatLoader });
       const result = await render(
         '@partial(/foo)@',
         { foo: 'bar' },
-        { loader: (null as never) as ILoader },
+        { loader: (null as never) as AtatLoader },
       );
       expect(result).toBe('<p>partial</p>');
       expect(fs.readFile).toHaveBeenCalledTimes(1);
