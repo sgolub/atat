@@ -19,11 +19,20 @@ I wanted to create something simple for what you don't need to spend hours to re
 
 ## Installation
 
-Using npm or bower:
+Using yarn or npm:
 
 ```bash
 $ yarn add atat
 $ npm install --save atat
+```
+
+## Tests
+
+Using npm or bower:
+
+```bash
+$ yarn test
+$ npm test
 ```
 
 ## Usage

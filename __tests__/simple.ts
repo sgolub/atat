@@ -17,8 +17,11 @@ describe('Simple tests', () => {
   });
 
   it('should cause a JS error', async () => {
-    const result = await render('@{ it.foo(); }@');
-    expect(result).toBe('TypeError: it.foo is not a function');
+    try {
+      await render('@{ it.foo(); }@');
+    } catch (err) {
+      expect(err.toString()).toBe('TypeError: it.foo is not a function');
+    }
   });
 
   it('should ignore empty blocks', async () => {

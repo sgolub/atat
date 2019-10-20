@@ -62,7 +62,7 @@ export function getTagsInline(inlineTags: {
     regexps.push(regexp);
   });
 
-  regexps.push('(@[A-Za-z0-9$]+\\()([^]*?)(\\)@)');
+  regexps.push('(@[a-zA-Z_$]{1}[a-zA-Z_$0-9]*\\()([^]*?)(\\)@)');
 
   return new RegExp(regexps.join('|'), 'g');
 }

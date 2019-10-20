@@ -13,13 +13,14 @@ import { matchRecursive, regexpExec } from './regexp';
 export const tags: { [key: string]: IAtatCompileFunction } = {
   '@\\{': compileCode,
   '@for\\s*\\(': compileFor,
-  '@function\\s+[$A-Za-z0-9]*\\s*\\(': compileFunction,
+  '@function\\s+([a-zA-Z_$]{1}[a-zA-Z_$0-9]*)*\\s*\\(': compileFunction,
   '@if\\s*\\(': compileIf,
-  '@section\\s+[$A-Za-z0-9]*\\s*\\{': compileSection,
+  '@section\\s+([a-zA-Z_$]{1}[a-zA-Z_$0-9]*)*\\s*\\{': compileSection,
   '@while\\s*\\(': compileWhile,
 };
 
 async function compileCode(
+  this: AtatCompiler,
   inside: MuchResult,
   ctx: AtatContext,
 ): Promise<string> {
@@ -45,6 +46,7 @@ async function compileFor(
 }
 
 async function compileFunction(
+  this: AtatCompiler,
   inside: IMuchResultInside,
   ctx: AtatContext,
 ): Promise<string> {
@@ -74,12 +76,13 @@ async function compileIf(
 }
 
 async function compileSection(
+  this: AtatCompiler,
   inside: IMuchResultInside,
   ctx: AtatContext,
 ): Promise<string | void> {
   const block = inside.value.trim();
   const value = inside.left.value.trim();
-  const regName = /^@section\s+([A-Za-z0-9_]+)\s*\{/g;
+  const regName = /^@section\s+([a-zA-Z_$]{1}[a-zA-Z_$0-9]*)+\s*\{/g;
   const match = regexpExec(value, regName);
   if (!match || match.length > 2) {
     throw new Error('Section name is not specified');
