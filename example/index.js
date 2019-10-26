@@ -1,10 +1,8 @@
 var express = require('express');
-var atat = require('../lib/index');
+var path = require('path');
 var app = express();
 
-app.engine('atat', atat.__express);
-
-app.set('views', __dirname + '/views');
+app.set('views', path.resolve(__dirname, './views'));
 app.set('view engine', 'atat');
 
 app.get('/', function(req, res, next) {
