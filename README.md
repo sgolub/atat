@@ -14,8 +14,9 @@ I wanted to create something simple for what you don't need to spend hours to re
 - Browser support
 - Complies with Express
 - Layouts, partials and sections
-- No dependencies and very small size, less than 15KB
-- Easy to use, you won't believe how simple it is
+- No dependencies and very small size
+- TypeScript support
+- Easy to use
 
 ## Installation
 
@@ -81,22 +82,51 @@ render(templateString, options).then((err, result) => {
 - `loader` templates provider
 
 ```js
-import { parse, render } from 'atat';
+import { parse, render, config, DEFAULT_LOADER } from 'atat';
 const options = {
     it: "it",
     $: "$",
-    helpers: {
-        l10n: (lang, key) => l10n.resources[lang][key]; // @l10n(it.lang, "title")@
-    },
-    loader: (name) => Promise.resolve(templates[name])
+    helpers: { },
+    loader: DEFAULT_LOADER
 };
 
 // global config will be applied to all templates
 config(options);
 
-// also you can pass options into the parse or render methods
-await parse(templateString, options);
-await render(templateString, { lang: "en" }, options);
+// also you can pass options to the parse and render methods
+const tmpl = await parse(templateString, options);
+const html = await render(templateString, { lang: "en" }, options);
+```
+
+### Loaders
+
+Loaders allow you to load templates asynchronously. There are two default loaders available right from the library:
+- `DEFAULT_LOADER` - for Node.js, default loader, uses `fs` module
+- `FETCH_LOADER` - for Browser, loads templates through `fetch` method
+
+```js
+import { loadAndRender, loadAndParse, config, FETCH_LOADER, DEFAULT_LOADER } from 'atat';
+
+const html = await loadAndRender(
+  path.resolve(__dirname, './views/main.html'),
+  { /* model */ },
+  { loader: DEFAULT_LOADER },
+);
+
+// in a browser you must specify loader, at least FETCH_LOADER
+const html = await loadAndRender(
+  'http://localhost:3000/views/main.html',
+  { /* model */ },
+  { loader: FETCH_LOADER },
+);
+
+// custom loader
+config({
+  loader: async (path) => {
+    const template = await loadTemplate(path);
+    return template;
+  }
+});
 ```
 
 ### Syntax
@@ -254,7 +284,7 @@ const result = await atat.render(template, model, options);
 
 - `@json(<object>)@` returns a result of JSON stringify
 - `@encode(<string>)@` the same as `@(<string>)@`
-- `@join(<array>, <separator>)@` joins the array with the separator
+- `@join(<array>, <separator>)@` joins the array with the separator (optional)
 - `@upper(<string>)@` simple uppercase
 - `@lower(<string>)@` simple lowercase
 
@@ -447,8 +477,11 @@ const app = express();
 app.set('views', './views');
 app.set('view engine', 'atat');
 ```
+Example available [here](https://github.com/sgolub/atat/tree/master/example)
 
 ### Demo
+
+Coming soon...
 
 ## License
 
