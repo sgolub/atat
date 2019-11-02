@@ -1,4 +1,4 @@
-name: build-atat
+name: build
 on: [push]
 
 jobs:
