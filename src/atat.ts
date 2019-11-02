@@ -16,7 +16,6 @@ export async function parse(
 
   const output = await compile(input, ctx);
 
-  // tslint:disable-next-line: no-function-constructor-with-string-args
   const result = new Function(ctx.arguments, `${output};return this.output;`);
 
   const template = (model: any) => {

@@ -22,7 +22,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "lint": "tslint --project tsconfig.json ./src/**/*.ts"
+    "lint": "eslint ./src/**/*.ts"
   },
   "husky": {
     "hooks": {
@@ -54,15 +54,17 @@
   "devDependencies": {
     "@types/jest": "^24.0.20",
     "@types/node": "^12.11.7",
+    "@typescript-eslint/eslint-plugin": "^2.6.0",
+    "@typescript-eslint/parser": "^2.6.0",
+    "eslint": "^6.6.0",
+    "eslint-config-prettier": "^6.5.0",
+    "eslint-plugin-prettier": "^3.1.1",
     "husky": "^3.0.9",
     "jest": "^24.9.0",
     "jshint": "^2.10.2",
     "prettier": "^1.18.2",
     "ts-jest": "^24.1.0",
     "ts-node": "^8.3.0",
-    "tslint": "^5.18.0",
-    "tslint-config-airbnb": "^5.11.1",
-    "tslint-config-prettier": "^1.18.0",
     "typescript": "^3.6.4"
   }
 }

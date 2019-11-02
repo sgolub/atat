@@ -1,6 +1,5 @@
 import { loadAndRender } from './atat';
 
-// tslint:disable-next-line: function-name
 export function __express(
   path: string,
   model: any,

@@ -86,6 +86,7 @@ export function matchRecursive(
   let leftMatch: RegExpExecArray | null;
   let rightMatch: RegExpExecArray | null;
 
+  /* eslint-disable-next-line */
   while (true) {
     leftMatch = regexpExec(str, left, delimEnd);
     rightMatch = regexpExec(str, right, delimEnd);
@@ -242,6 +243,7 @@ export function matchInline(str: string, regexp: RegExp): MuchResult[] {
   let innerStart;
   let innerEnd;
 
+  /* eslint-disable-next-line */
   while (true) {
     const match = regexpExec(str, regexp, lastEnd);
 

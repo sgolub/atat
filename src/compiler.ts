@@ -73,7 +73,7 @@ export async function compile(
 
   const blocks = matchRecursive(input, ctx.tags.open, ctx.tags.close);
 
-  const results = await loopAsync(blocks, async (block, i, array) => {
+  const results = await loopAsync(blocks, async block => {
     if (block.name === MuchResultTypes.OUTSIDE) {
       if (block.value.trim() === '') {
         return '';
@@ -82,7 +82,7 @@ export async function compile(
     }
 
     // block.name === MuchResultTypes.INSIDE
-    const { left, value, right } = block;
+    const { left } = block;
 
     const compiler = ctx.getCompiler(left.value) as IAtatCompileFunction;
 
@@ -99,7 +99,7 @@ export async function compileInline(
 ): Promise<string> {
   const blocks = matchInline(input, ctx.tags.inline);
 
-  const results = await loopAsync(blocks, async (block, i, array) => {
+  const results = await loopAsync(blocks, async block => {
     if (block.name === MuchResultTypes.OUTSIDE) {
       ctx.parts.push(block.value);
       return `this.output += this.parts[${ctx.parts.length - 1}];`;
@@ -160,7 +160,7 @@ export async function compileIf(
 
   const blocks = matchRecursive(code, /\{/g, /\}/g);
 
-  const results = await loopAsync(blocks, async (block, i, array) => {
+  const results = await loopAsync(blocks, async block => {
     if (block.name === MuchResultTypes.OUTSIDE) {
       return block.value;
     }
@@ -213,17 +213,11 @@ export async function compileWhile(
 }
 
 // inline
-export async function outputAsText(
-  inside: MuchResult,
-  ctx: AtatContext,
-): Promise<string | void> {
+export async function outputAsText(inside: MuchResult): Promise<string | void> {
   return `this.output += this.helpers.encode(${inside.value.trim()});`;
 }
 
-export async function outputAsHtml(
-  inside: MuchResult,
-  ctx: AtatContext,
-): Promise<string | void> {
+export async function outputAsHtml(inside: MuchResult): Promise<string | void> {
   return `this.output += (${inside.value.trim()});`;
 }
 
