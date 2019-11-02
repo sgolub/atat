@@ -2,7 +2,7 @@
 
 Fast and simple asynchronous JavaScript template engine without dependencies and for any environment (:
 
-[![Build Status](https://travis-ci.org/sgolub/atat.svg?branch=master)](https://travis-ci.org/sgolub/atat)
+[![Build Status](https://github.com/sgolub/atat/workflows/build-atat/badge.svg)](https://github.com/sgolub/atat/actions)
 
 ## But why?
 
