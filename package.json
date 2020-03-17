@@ -6,14 +6,17 @@
   "author": "Sergey Golub <sergeyglb@outlook.com>",
   "license": "MIT",
   "scripts": {
-    "dev": "parcel src/index.html",
-    "build": "parcel build src/index.html"
+    "dev": "parcel src/index.html --open",
+    "build": "parcel build src/index.html -d ./ --no-source-maps"
   },
   "devDependencies": {
     "parcel-bundler": "^1.12.4",
+    "sass": "^1.26.3",
     "typescript": "^3.8.3"
   },
   "dependencies": {
-    "atat": "^1.2.3"
+    "atat": "^1.2.3",
+    "lodash": "^4.17.15",
+    "normalize.css": "^8.0.1"
   }
 }

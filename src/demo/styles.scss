@@ -1,0 +1,55 @@
+@function rem($size) {
+  @return $size / 16px * 1rem;
+}
+
+main {
+  font-size: 16px;
+  width: 100%;
+  margin: 0 auto;
+  max-width: rem(768px);
+}
+
+textarea {
+  font-size: 1rem;
+}
+
+section.demo {
+  display: flex;
+  flex-wrap: nowrap;
+  .col {
+    width: 33.333333%;
+    overflow: auto;
+  }
+  .error {
+    color: red;
+  }
+  .template,
+  .data {
+    border: solid 1px #aaa;
+    border-right: none;
+    textarea {
+      font-family: monospace;
+      padding: 0.5rem;
+      height: 16rem;
+      width: 100%;
+      resize: none;
+      border: none;
+    }
+  }
+  .template {
+    border-top-left-radius: 0.25rem;
+    border-bottom-left-radius: 0.25rem;
+  }
+  .result {
+    border: solid 1px #aaa;
+    border-top-right-radius: 0.25rem;
+    border-bottom-right-radius: 0.25rem;
+    max-height: 15rem;
+    overflow: auto;
+    padding: 0.5rem;
+    pre {
+      margin: 0;
+      line-height: 1rem;
+    }
+  }
+}
