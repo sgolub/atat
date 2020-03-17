@@ -1,5 +1,4 @@
+.cache
 .npm
 .vscode
-coverage
 node_modules
-lib

@@ -1,70 +1,19 @@
 {
-  "name": "atat",
-  "version": "1.2.2",
-  "author": "Sergey Golub",
+  "name": "atat-gh-pages",
+  "version": "1.0.0",
+  "main": "dist/index.html",
+  "repository": "https://github.com/sgolub/atat.git",
+  "author": "Sergey Golub <sergeyglb@outlook.com>",
   "license": "MIT",
-  "description": "Fast and simple template engine",
-  "keywords": [
-    "fast",
-    "simple",
-    "template",
-    "atat",
-    "templating"
-  ],
-  "repository": "https://github.com/sgolub/atat",
-  "main": "lib/index.js",
-  "files": [
-    "lib/**/*"
-  ],
   "scripts": {
-    "build": "tsc",
-    "watch": "tsc -w",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage",
-    "lint": "eslint ./src/**/*.ts"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "yarn lint && yarn test:coverage"
-    }
-  },
-  "jest": {
-    "preset": "ts-jest",
-    "testEnvironment": "node",
-    "collectCoverageFrom": [
-      "src/**/*.ts",
-      "!**/node_modules/**"
-    ],
-    "coverageReporters": [
-      "text"
-    ],
-    "coverageThreshold": {
-      "global": {
-        "branches": 85,
-        "functions": 90,
-        "lines": 90,
-        "statements": 90
-      }
-    }
-  },
-  "engines": {
-    "node": ">=8.6.0"
+    "dev": "parcel src/index.html",
+    "build": "parcel build src/index.html"
   },
   "devDependencies": {
-    "@types/jest": "^24.0.20",
-    "@types/node": "^12.11.7",
-    "@typescript-eslint/eslint-plugin": "^2.6.0",
-    "@typescript-eslint/parser": "^2.6.0",
-    "eslint": "^6.6.0",
-    "eslint-config-prettier": "^6.5.0",
-    "eslint-plugin-prettier": "^3.1.1",
-    "husky": "^3.0.9",
-    "jest": "^24.9.0",
-    "jshint": "^2.10.2",
-    "prettier": "^1.18.2",
-    "ts-jest": "^24.1.0",
-    "ts-node": "^8.3.0",
-    "typescript": "^3.6.4"
+    "parcel-bundler": "^1.12.4",
+    "typescript": "^3.8.3"
+  },
+  "dependencies": {
+    "atat": "^1.2.3"
   }
 }
