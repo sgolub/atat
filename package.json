@@ -10,12 +10,15 @@
     "build": "parcel build src/index.html -d ./ --no-source-maps --public-url /atat/"
   },
   "devDependencies": {
+    "@types/codemirror": "^0.0.88",
     "parcel-bundler": "^1.12.4",
     "sass": "^1.26.3",
     "typescript": "^3.8.3"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.13.0",
     "atat": "^1.2.3",
+    "codemirror": "^5.52.2",
     "lodash": "^4.17.15",
     "normalize.css": "^8.0.1"
   }

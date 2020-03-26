@@ -1,16 +1,58 @@
+@import '@fortawesome/fontawesome-free/css/fontawesome.css';
+@import '@fortawesome/fontawesome-free/css/solid.css';
+
+$backgroud-light: #ddd;
+$font-color-light: #555;
+
+$linkedin-color: #0077b5;
+$facebook-color: #3b5998;
+$twitter-color: #1da1f2;
+$github-color: #333333;
+
+$backgroud-dark: #333;
+$font-color-dark: #ddd;
+$github-color-dark: #666;
+
 @function rem($size) {
   @return $size / 16px * 1rem;
 }
 
-main {
+html {
+  background-color: $backgroud-dark;
+  color: $font-color-dark;
+  transition: 0.2s;
   font-size: 16px;
-  width: 100%;
-  margin: 0 auto;
-  max-width: rem(768px);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-textarea {
-  font-size: 1rem;
+main {
+  position: relative;
+  width: 100%;
+  margin: 0 auto;
+  max-width: rem(1024px);
+}
+
+button.light-theme,
+button.dark-theme {
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.67rem;
+  margin: 0;
+  background: transparent;
+  border: none;
+  outline: none;
+}
+
+button.light-theme {
+  color: $font-color-dark;
+}
+
+button.dark-theme {
+  display: none;
+  color: $font-color-light;
 }
 
 section.demo {
@@ -21,20 +63,15 @@ section.demo {
     overflow: auto;
   }
   .error {
+    font-family: monospace;
     color: red;
+    padding: 0.5rem;
+    display: none;
   }
   .template,
   .data {
     border: solid 1px #aaa;
     border-right: none;
-    textarea {
-      font-family: monospace;
-      padding: 0.5rem;
-      height: 16rem;
-      width: 100%;
-      resize: none;
-      border: none;
-    }
   }
   .template {
     border-top-left-radius: 0.25rem;
@@ -44,12 +81,34 @@ section.demo {
     border: solid 1px #aaa;
     border-top-right-radius: 0.25rem;
     border-bottom-right-radius: 0.25rem;
-    max-height: 15rem;
-    overflow: auto;
-    padding: 0.5rem;
+    background: #1e1e1e;
     pre {
       margin: 0;
       line-height: 1rem;
     }
+  }
+}
+
+@mixin ligth-theme {
+  background-color: $backgroud-light;
+  color: $font-color-light;
+  button.dark-theme {
+    display: unset;
+  }
+  button.light-theme {
+    display: none;
+  }
+  section.demo .result {
+    background: #F3F5F6;
+  }
+}
+
+html.light {
+  @include ligth-theme();
+}
+
+@media (prefers-color-scheme: light) {
+  html {
+    @include ligth-theme();
   }
 }

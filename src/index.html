@@ -1,18 +1,41 @@
-<title>αtαt - Fast and simple asynchronous JavaScript template engine</title>
-<main>
-  <h1>αtαt</h1>
-  <nav></nav>
-  <section class="demo">
-    <div class="col template">
-      <textarea id="template" placeholder="Put tamplate here..."></textarea>
-    </div>
-    <div class="col data">
-      <textarea id="data" placeholder="Put JSON data here..."></textarea>
-    </div>
-    <div class="col result">
-      <span id="error" class="error"></span>
-      <pre id="result"></pre>
-    </div>
-  </section>
-</main>
-<script src="./demo/index.ts"></script>
+<html>
+  <title>atat - Fast and simple asynchronous JavaScript template engine</title>
+  <main>
+    <button title="Turn on the lights" id="turn-lights-on" class="light-theme">
+      <i class="fas fa-sun"></i>
+    </button>
+    <button title="Turn off the lights" id="turn-lights-off" class="dark-theme">
+      <i class="fas fa-moon"></i>
+    </button>
+    <h1>αtαt</h1>
+    <h3>Fast and simple template engine</h3>
+    <nav></nav>
+    <h3>Simple demo</h3>
+    <section class="demo">
+      <div class="col template">
+        <textarea id="template-simple"></textarea>
+      </div>
+      <div class="col data">
+        <textarea id="data-simple"></textarea>
+      </div>
+      <div class="col result">
+        <div id="error-simple" class="error"></div>
+        <div id="result-simple"></div>
+      </div>
+    </section>
+    <h3>Live demo</h3>
+    <section class="demo">
+      <div class="col template">
+        <textarea id="template"></textarea>
+      </div>
+      <div class="col data">
+        <textarea id="data"></textarea>
+      </div>
+      <div class="col result">
+        <div id="error" class="error"></div>
+        <div id="result"></div>
+      </div>
+    </section>
+  </main>
+  <script src="./demo/index.ts"></script>
+</html>
