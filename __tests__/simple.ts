@@ -25,7 +25,7 @@ describe('Simple tests', () => {
   });
 
   it('should ignore empty blocks', async () => {
-    const result = await render('@for (var i = 0; i < 10; i++) {  }@');
+    const result = await render('@for (var i = 0; i < 10; i++) { }@');
     expect(result).toBe('');
   });
 
@@ -54,6 +54,7 @@ describe('Simple tests', () => {
     it('should apply global config', async () => {
       config({
         it: 'that',
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         loader: jest.fn((path: string) => Promise.resolve('<p>partial</p>')),
       });
       const result = await render('@(that.foo)@@partial(/foo)@', {

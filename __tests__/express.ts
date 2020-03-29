@@ -37,6 +37,7 @@ describe('__express', () => {
       ) => callback(new Error(), null),
     );
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     __express('/path/', { value: '67890' }, (err, result) => {
       expect(err).not.toBeNull();
       done();
