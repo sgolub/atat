@@ -78,7 +78,7 @@ export async function compile(
       if (block.value.trim() === '') {
         return '';
       }
-      return await compileInline(block.value, ctx);
+      return await compileInline(block.value.trim(), ctx);
     }
 
     // block.name === MuchResultTypes.INSIDE
@@ -125,7 +125,7 @@ export async function compileInline(
 
 // compilers
 export async function compileCode(inside: MuchResult): Promise<string> {
-  return inside.value.trim();
+  return inside.value;
 }
 
 export async function compileFor(
@@ -138,9 +138,9 @@ export async function compileFor(
     /\{/g,
     /\}/g,
   );
-  let out = value1;
+  let out = value1.trim();
   out += '{';
-  out += await compile(value2, ctx);
+  out += await compile(value2.trim(), ctx);
   out += '}';
   return out;
 }
@@ -149,7 +149,7 @@ export async function compileFunction(
   inside: IMuchResultInside,
 ): Promise<string> {
   const left = inside.left.value.trim().substring(1);
-  return `${left}${inside.value.trim()}}`;
+  return `${left}${inside.value}}`;
 }
 
 export async function compileIf(
@@ -160,16 +160,19 @@ export async function compileIf(
 
   const blocks = matchRecursive(code, /\{/g, /\}/g);
 
-  const results = await loopAsync(blocks, async block => {
+  const results = await loopAsync(blocks, async (block, i) => {
     if (block.name === MuchResultTypes.OUTSIDE) {
-      return block.value;
+      if (i === 0) {
+        return block.value + '{';
+      }
+      return '}' + block.value + '{';
     }
 
-    const result = await compile(block.value, ctx);
+    const result = await compile(block.value.trim(), ctx);
     return result;
   });
 
-  return results.join('');
+  return results.join('') + '}';
 }
 
 export async function compileSection(
@@ -204,9 +207,9 @@ export async function compileWhile(
     /\}/g,
   );
 
-  let out = value1;
+  let out = value1.trim();
   out += '{';
-  out += await compile(value2, ctx);
+  out += await compile(value2.trim(), ctx);
   out += '}';
 
   return out;
