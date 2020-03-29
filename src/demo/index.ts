@@ -68,12 +68,12 @@ setupDemo(
 setupDemo(
   'if-statement-demo',
   `@if(it.user && it.user.firstName && it.user.secondName){
-<p>@(it.user.firstName)@</p>
-<p>@(it.user.secondName)@</p>
+  <p>@(it.user.firstName)@</p>
+  <p>@(it.user.secondName)@</p>
 } else if (it.user && it.user.firstName) {
-<p>@(it.user.firstName)@</p>
+  <p>@(it.user.firstName)@</p>
 } else {
-<p>User is not defined</p>
+  <p>User is not defined</p>
 }@`,
   `{
   "user": {
@@ -86,14 +86,13 @@ setupDemo(
   'for-while-demo',
   `<ul>
   @for(var i = 0, l = it.users.length; i < l; i++){
-  <li>@(it.users[i].firstName)@ @(it.users[i].secondName)@</li>
+  	<li>@(it.users[i].firstName)@ @(it.users[i].secondName)@</li>
   }@
 </ul>
-
 <ul>
   @{ var i = 0; j = 5; }@
   @while (i < j) {
-  <li>@(i++)@</li>
+  	<li>@(i++)@</li>
   }@
 </ul>`,
   `{
@@ -112,7 +111,7 @@ function setupDemo(demoId, templateValue = '', dataValue = '') {
     scrollbarStyle: 'simple',
     tabSize: 2,
     theme: 'vscode',
-    // lineWrapping: true,
+    lineWrapping: true,
     extraKeys: {
       F11: function(cm) {
         cm.setOption('fullScreen', !cm.getOption('fullScreen'));
