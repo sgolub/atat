@@ -156,7 +156,6 @@ function setupDemo(demoId, templateValue = '', dataValue = '') {
 
   const onchange = debounce(async () => {
     try {
-      console.log((await parse(template.getValue()));
       const html = await render(
         template.getValue(),
         JSON.parse(data.getValue() || '{}'),
