@@ -32,6 +32,10 @@ main {
   max-width: rem(1024px);
 }
 
+h4 {
+  margin-bottom: 0.5rem;
+}
+
 button.light-theme,
 button.dark-theme {
   position: absolute;
@@ -59,8 +63,24 @@ section.demo {
   display: flex;
   flex-wrap: nowrap;
   .col {
+    position: relative;
     width: 33.333333%;
     overflow: auto;
+  }
+  .fullscreen {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 1.2rem;
+    padding: 0.5rem;
+    cursor: pointer;
+    color: $font-color-dark;
+    .fas {
+      transform: rotate(45deg);
+    }
   }
   .error {
     font-family: monospace;
