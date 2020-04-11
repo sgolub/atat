@@ -1018,10 +1018,10 @@ asynckit@^0.4.0:
   resolved "https://registry.yarnpkg.com/asynckit/-/asynckit-0.4.0.tgz#c79ed97f7f34cb8f2ba1bc9790bcc366474b4b79"
   integrity sha1-x57Zf380y48robyXkLzDZkdLS3k=
 
-atat@^1.2.3:
-  version "1.2.4"
-  resolved "https://registry.yarnpkg.com/atat/-/atat-1.2.4.tgz#25072fa877cf4f739b75fae9fab10945eb6ff886"
-  integrity sha512-d2ZlwkltHiBMoGDXX0sR73y968AeR7FsnVFVAJCg3dOV1fLwq3mnTuQeOtQ8cxLlCSaX6gql1S01LpZ2zO8juA==
+atat@^1.2.5:
+  version "1.2.5"
+  resolved "https://registry.yarnpkg.com/atat/-/atat-1.2.5.tgz#73ee02de81ee735b74776fcaf4ba7cb4b1756a06"
+  integrity sha512-MJI2QPu0rHL5VkSAGCX7kOkJL2imcNaFbqTS8gebMEQTEoGipEo/lgb7Vd66fH2mb6a4b1T/AMnwnC7/s7igYQ==
 
 atob@^2.1.2:
   version "2.1.2"
