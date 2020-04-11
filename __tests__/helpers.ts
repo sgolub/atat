@@ -48,6 +48,24 @@ describe('@...(...)@', () => {
     );
   });
 
+  it('@(it.<undefined|null|NaN>)@', async () => {
+    const result1 = await render('@(it.empty)@', {});
+    expect(result1).toEqual('');
+    const result2 = await render('@(it.empty)@', { empty: null });
+    expect(result2).toEqual('');
+    const result3 = await render('@(it.empty)@', { empty: NaN });
+    expect(result3).toEqual('NaN');
+  });
+
+  it('@!(it.<undefined|null|NaN>)@', async () => {
+    const result1 = await render('@!(it.empty)@', {});
+    expect(result1).toEqual('undefined');
+    const result2 = await render('@!(it.empty)@', { empty: null });
+    expect(result2).toEqual('null');
+    const result3 = await render('@!(it.empty)@', { empty: NaN });
+    expect(result3).toEqual('NaN');
+  });
+
   it('@!(...)@', async () => {
     const result = await render('@!(it.html)@', {
       html: '<script>alert("Hello!");</script>',

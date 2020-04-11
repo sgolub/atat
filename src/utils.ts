@@ -1,6 +1,10 @@
 import { HTML_RULES, MATCH_HTML } from './contants';
 import { IKeyValuePair, MuchResult, MuchResultTypes } from './types';
 
+export function toString(v: any): string {
+  return typeof v === 'undefined' || v === null ? '' : String(v);
+}
+
 export function merge(src: IKeyValuePair<any>, dest: IKeyValuePair<any> = {}) {
   for (const x in src) {
     if (!dest.hasOwnProperty(x) && src.hasOwnProperty(x)) {
@@ -41,7 +45,7 @@ export async function loopAsync<T>(
 }
 
 export function encodeHtml(code: string) {
-  return code.toString().replace(MATCH_HTML, m => {
+  return toString(code).replace(MATCH_HTML, m => {
     return HTML_RULES[m] || m;
   });
 }
@@ -62,11 +66,11 @@ export function joinHelper(array: string[], separator = '') {
 }
 
 export function uppercaseHelper(str: string) {
-  return str.toString().toUpperCase();
+  return toString(str).toUpperCase();
 }
 
 export function lowercaseHelper(str: string) {
-  return str.toString().toLowerCase();
+  return toString(str).toLowerCase();
 }
 
 export function matchRecursive(
@@ -174,7 +178,7 @@ export function matchRecursive(
         throw new SyntaxError(
           `Unbalanced delimiter "${rightMatch}" was found in the template\n${str}\n${' '.repeat(
             rightMatch.index,
-          )}${'^'.repeat(rightMatch.toString().length)}`,
+          )}${'^'.repeat(toString(rightMatch).length)}`,
         );
       } else {
         throw new SyntaxError(
