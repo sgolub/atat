@@ -221,7 +221,7 @@ export async function outputAsText(inside: MuchResult): Promise<string | void> {
 }
 
 export async function outputAsHtml(inside: MuchResult): Promise<string | void> {
-  return `this.output += (${inside.value.trim()});`;
+  return `this.output += String(${inside.value.trim()});`;
 }
 
 export async function compileLayout(

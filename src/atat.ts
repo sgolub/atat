@@ -4,10 +4,20 @@ import { DEFAULT_LOADER } from './loaders';
 import { DEFAULT_OPTIONS, IAtatOptions } from './options';
 import { IAtatTemplate } from './types';
 
-export function config(opts: IAtatOptions): void {
-  Object.assign(DEFAULT_OPTIONS, opts);
+/**
+ * Setup global options.
+ * @param {IAtatOptions} options - The options object.
+ */
+export function config(options: IAtatOptions): void {
+  Object.assign(DEFAULT_OPTIONS, options);
 }
 
+/**
+ * Creates a compiled template function.
+ * @param {string} input - The template string.
+ * @param {IAtatOptions} options - The options object.
+ * @return {Promise<IAtatTemplate>} Promise object represents the compiled template function.
+ */
 export async function parse(
   input: string,
   options: IAtatOptions = {},
@@ -39,6 +49,12 @@ export async function parse(
   return ctx.template;
 }
 
+/**
+ * Load template and creates a compiled template function.
+ * @param {string} path The template path.
+ * @param {IAtatOptions} options - The options object.
+ * @return {Promise<IAtatTemplate>} Promise object represents the compiled template function.
+ */
 export async function loadAndParse(
   path: string,
   options: IAtatOptions = {},
@@ -56,6 +72,13 @@ export async function loadAndParse(
   return template;
 }
 
+/**
+ * Render the result string.
+ * @param {string} input - The template string.
+ * @param {*} model The model object.
+ * @param {IAtatOptions} options - The options object.
+ * @return {Promise<string>} Promise object represents the rendered string.
+ */
 export async function render(
   input: string,
   model: any = {},
@@ -65,6 +88,13 @@ export async function render(
   return template(model);
 }
 
+/**
+ * Load a template and render the result string.
+ * @param {string} path The template path.
+ * @param {*} model The model object.
+ * @param {IAtatOptions} options - The options object.
+ * @return {Promise<string>} Promise object represents the rendered string.
+ */
 export async function loadAndRender(
   path: string,
   model: any,
