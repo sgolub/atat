@@ -26,17 +26,18 @@ export async function parse(
 
   const output = await compile(input, ctx);
 
-  const result = new Function(ctx.arguments, `${output};return this.output;`);
+  const result = new Function(
+    `${ctx.options.it}, ${ctx.options.$}, body`,
+    `${output}\nreturn this.output;`,
+  );
 
   const template = (model: any) => {
     ctx.output = '';
-    ctx.model = model || ctx.model;
-
-    let body = result.call(ctx, ctx.model, ctx.helpers, ctx.body);
+    let body = result.call(ctx, model, ctx.helpers, ctx.body);
 
     if (ctx.layout) {
       ctx.layout.context.body = body;
-      body = ctx.layout(ctx.model);
+      return ctx.layout(model);
     }
 
     return body;
@@ -44,9 +45,7 @@ export async function parse(
 
   template.context = ctx;
 
-  ctx.template = template;
-
-  return ctx.template;
+  return template;
 }
 
 /**
