@@ -19,6 +19,7 @@ import {
   matchRecursive,
   regexpExec,
   uppercaseHelper,
+  regexpTest,
 } from './utils';
 
 export const helpers: { [key: string]: AtatHelper } = {
@@ -63,6 +64,17 @@ export const tags: {
   ],
 };
 
+function getCompiler(str: string) {
+  for (let i = 0, l = tags.compilers.length; i < l; i += 1) {
+    const item = tags.compilers[i];
+    if (regexpTest(str, item.regexp)) {
+      return item.compiler;
+    }
+  }
+
+  return null;
+}
+
 export async function compile(
   input: string,
   ctx: AtatContext,
@@ -71,7 +83,7 @@ export async function compile(
     return '';
   }
 
-  const blocks = matchRecursive(input, ctx.tags.open, ctx.tags.close);
+  const blocks = matchRecursive(input, tags.open, tags.close);
 
   const results = await loopAsync(blocks, async block => {
     if (block.name === MuchResultTypes.OUTSIDE) {
@@ -84,7 +96,7 @@ export async function compile(
     // block.name === MuchResultTypes.INSIDE
     const { left } = block;
 
-    const compiler = ctx.getCompiler(left.value) as IAtatCompileFunction;
+    const compiler = getCompiler(left.value) as IAtatCompileFunction;
 
     const result = await compiler(block, ctx);
     return result || '';
@@ -97,7 +109,7 @@ export async function compileInline(
   input: string,
   ctx: AtatContext,
 ): Promise<string> {
-  const blocks = matchInline(input, ctx.tags.inline);
+  const blocks = matchInline(input, tags.inline);
 
   const results = await loopAsync(blocks, async block => {
     if (block.name === MuchResultTypes.OUTSIDE) {
@@ -112,7 +124,7 @@ export async function compileInline(
       return '';
     }
 
-    const compiler = ctx.getCompiler(
+    const compiler = getCompiler(
       left.value + value + right.value,
     ) as IAtatCompileFunction;
 
@@ -149,7 +161,7 @@ export async function compileFunction(
   inside: IMuchResultInside,
 ): Promise<string> {
   const left = inside.left.value.trim().substring(1);
-  return `${left}${inside.value}}`;
+  return `${left}${inside.value}}\n`;
 }
 
 export async function compileIf(
@@ -188,11 +200,11 @@ export async function compileSection(
   }
   const name = match[1].trim();
   const template = await parse(block, ctx.options);
-  if (ctx.sections[name]) {
+  if (ctx.sections.has(name)) {
     throw new Error(`The section "${name}" is already specified`);
   }
   template.context.parent = ctx;
-  ctx.sections[name] = template;
+  ctx.sections.set(name, template);
 }
 
 export async function compileWhile(
@@ -257,9 +269,7 @@ export async function outputSection(
   ctx: AtatContext,
 ): Promise<string | void> {
   const name = escapeQuotes(inside.value);
-  const output =
-    `this.output += (function(){var s = this.getSection('${name}'); ` +
-    `return s?s(${ctx.arguments}):"";}).call(this);`;
+  const output = `this.output += (function () { var s = this.getSection('${name}'); return s ? s(${ctx.options.it}, ${ctx.options.$}) : ''; }).call(this);`;
 
   return output;
 }
