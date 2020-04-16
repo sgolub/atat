@@ -33,7 +33,7 @@ export async function parse(
 
   const template = (model: any) => {
     ctx.output = '';
-    let body = result.call(ctx, model, ctx.helpers, ctx.body);
+    let body = result.call(ctx, model, ctx.options.helpers, ctx.body);
 
     if (ctx.layout) {
       ctx.layout.context.body = body;

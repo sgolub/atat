@@ -62,4 +62,27 @@ describe('@layout(...)@', () => {
     );
     expect(result).toEqual('<html> Body foo<strong>content</strong>foo</html>');
   });
+
+  it('should render template with layout and custom helpers', async () => {
+    fs.readFile = jest.fn(
+      (
+        path: string,
+        encoding: string,
+        callback: (err: Error | null, text: string) => void,
+      ) => callback(null, '<html>@custom(it)@</html>'),
+    );
+
+    const result = await render(
+      '@layout(./path/layout)@',
+      {},
+      {
+        helpers: {
+          custom: function() {
+            return 'custom helper result';
+          },
+        },
+      },
+    );
+    expect(result).toEqual('<html>custom helper result</html>');
+  });
 });

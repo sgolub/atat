@@ -114,7 +114,7 @@ export async function compileInline(
   const results = await loopAsync(blocks, async block => {
     if (block.name === MuchResultTypes.OUTSIDE) {
       ctx.parts.push(block.value);
-      return `this.output += this.parts[${ctx.parts.length - 1}];`;
+      return ` this.output += this.parts[${ctx.parts.length - 1}];`;
     }
 
     // block.name === MuchResultTypes.INSIDE
@@ -229,11 +229,11 @@ export async function compileWhile(
 
 // inline
 export async function outputAsText(inside: MuchResult): Promise<string | void> {
-  return `this.output += this.helpers.encode(${inside.value.trim()});`;
+  return ` this.output += this.helper('encode')(${inside.value.trim()});`;
 }
 
 export async function outputAsHtml(inside: MuchResult): Promise<string | void> {
-  return `this.output += String(${inside.value.trim()});`;
+  return ` this.output += String(${inside.value.trim()});`;
 }
 
 export async function compileLayout(
@@ -258,7 +258,7 @@ export async function compilePartial(
   const template = await loadAndParse(uri, ctx.options);
   ctx.partials.push(template);
   template.context.parent = ctx;
-  const output = `this.output += this.partials[${ctx.partials.length -
+  const output = ` this.output += this.partials[${ctx.partials.length -
     1}](${args});`;
 
   return output;
@@ -269,20 +269,15 @@ export async function outputSection(
   ctx: AtatContext,
 ): Promise<string | void> {
   const name = escapeQuotes(inside.value);
-  const output = `this.output += (function () { var s = this.getSection('${name}'); return s ? s(${ctx.options.it}, ${ctx.options.$}) : ''; }).call(this);`;
+  const output = ` this.output += this.section('${name}')(${ctx.options.it}, ${ctx.options.$});`;
 
   return output;
 }
 
 export async function outputCallHelper(
   inside: IMuchResultInside,
-  ctx: AtatContext,
 ): Promise<string> {
   const { left, value } = inside;
   const name = left.value.substring(1, left.value.length - 1);
-  if (typeof ctx.helpers[name] !== 'function') {
-    throw new Error(`Helper "${name}" is not declarated`);
-  }
-
-  return `this.output += this.helpers['${name}'](${value.trim()});`;
+  return ` this.output += this.helper('${name}')(${value.trim()});`;
 }
