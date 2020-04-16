@@ -1,6 +1,10 @@
 import { HTML_RULES, MATCH_HTML } from './contants';
 import { IKeyValuePair, MuchResult, MuchResultTypes } from './types';
 
+export function noop() {
+  return '';
+}
+
 export function toString(v: any): string {
   return typeof v === 'undefined' || v === null ? '' : String(v);
 }

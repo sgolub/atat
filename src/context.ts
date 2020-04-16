@@ -1,12 +1,17 @@
 import { helpers } from './compiler';
 import { DEFAULT_OPTIONS, IAtatOptions } from './options';
 import { AtatHelper, IAtatTemplate } from './types';
-import { merge } from './utils';
+import { merge, loopByObject, noop } from './utils';
 import { AtatLoader } from './loaders';
 
 export class AtatContext {
-  public options: { it: string; $: string; loader: AtatLoader };
-  public helpers: { [key: string]: AtatHelper };
+  public options: {
+    it: string;
+    $: string;
+    loader: AtatLoader;
+    helpers: { [name: string]: AtatHelper };
+  };
+  public helpers: Map<string, AtatHelper> = new Map();
 
   public parent: AtatContext | null = null;
   public parts: string[] = [];
@@ -18,15 +23,30 @@ export class AtatContext {
 
   constructor(options: IAtatOptions) {
     const { it, $, loader } = merge(DEFAULT_OPTIONS, options);
-    this.options = { it, $, loader };
-    this.helpers = merge(helpers, options.helpers);
+    this.options = { it, $, loader, helpers: {} };
+    loopByObject(merge(helpers, options.helpers), (helper, name) => {
+      this.helpers.set(name, helper);
+      this.options.helpers[name] = helper;
+    });
   }
 
-  public getSection(name: string): IAtatTemplate | null {
-    return this.sections.has(name)
-      ? this.sections.get(name) || null
-      : this.parent
-      ? this.parent.getSection(name)
-      : null;
+  public section(name: string): IAtatTemplate {
+    if (this.sections.has(name)) {
+      return this.sections.get(name) as IAtatTemplate;
+    } else if (this.parent) {
+      return this.parent.section(name);
+    } else {
+      return noop as IAtatTemplate;
+    }
+  }
+
+  public helper(name: string): AtatHelper {
+    if (this.helpers.has(name)) {
+      return this.helpers.get(name) as AtatHelper;
+    } else if (this.parent) {
+      return this.parent.helper(name);
+    } else {
+      throw new Error(`Helper "${name}" is not declarated`);
+    }
   }
 }
