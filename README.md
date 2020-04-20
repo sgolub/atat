@@ -29,7 +29,7 @@ $ npm install --save atat
 
 ## Tests
 
-Using npm or bower:
+Using yarn or npm:
 
 ```bash
 $ yarn test
@@ -95,14 +95,14 @@ config(options);
 
 // also you can pass options to the parse and render methods
 const tmpl = await parse(templateString, options);
-const html = await render(templateString, { lang: "en" }, options);
+const html = await render(templateString, { /* model */ }, options);
 ```
 
 ### Loaders
 
 Loaders allow you to load templates asynchronously. There are two default loaders available right from the library:
 - `DEFAULT_LOADER` - for Node.js, default loader, uses `fs` module
-- `FETCH_LOADER` - for Browser, loads templates through `fetch` method
+- `FETCH_LOADER` - for a browser, loads templates through `fetch` method
 
 ```js
 import { loadAndRender, loadAndParse, config, FETCH_LOADER, DEFAULT_LOADER } from 'atat';
@@ -230,7 +230,7 @@ Embedded JavaScript code
 
 ```html
 <ul>
-  @{ var i = 0; j = 5; }@
+  @{ var i = 0, j = 5; }@
   @while (i < j) {
   <li>@(i++)@</li>
   }@
@@ -265,7 +265,7 @@ const options = {
     }
 };
 
-const result = await atat.render(template, model, options);
+const result = await atat.render(template, { lang: 'en' }, options);
 ```
 
 ```html
@@ -481,7 +481,7 @@ Example available [here](https://github.com/sgolub/atat/tree/master/example)
 
 ### Demo
 
-Coming soon...
+[Live demo](https://sgolub.github.io/atat)
 
 ## License
 
