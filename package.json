@@ -15,7 +15,7 @@
     "templating"
   ],
   "repository": "https://github.com/sgolub/atat",
-  "website": "https://sgolub.github.io/atat",
+  "homepage": "https://sgolub.github.io/atat",
   "main": "lib/index.js",
   "files": [
     "lib/**/*"
