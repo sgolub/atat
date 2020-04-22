@@ -46,7 +46,9 @@ setupDemo(
 );
 setupDemo(
   'raw-html-output-demo',
-  `<p>@!(it.rawHTML)@</p>`,
+  `<p>
+  @!(it.rawHTML)@
+</p>`,
   `{
   "rawHTML": "<i>Hello!</i>"
 }`,
