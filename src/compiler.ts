@@ -20,6 +20,7 @@ import {
   regexpExec,
   uppercaseHelper,
   regexpTest,
+  trimLines,
 } from './utils';
 
 export const helpers: { [key: string]: AtatHelper } = {
@@ -90,7 +91,7 @@ export async function compile(
       if (block.value.trim() === '') {
         return '';
       }
-      return await compileInline(block.value.trim(), ctx);
+      return await compileInline(trimLines(block.value), ctx);
     }
 
     // block.name === MuchResultTypes.INSIDE
@@ -152,7 +153,7 @@ export async function compileFor(
   );
   let out = value1.trim();
   out += '{';
-  out += await compile(value2.trim(), ctx);
+  out += await compile(value2, ctx);
   out += '}';
   return out;
 }
@@ -180,7 +181,7 @@ export async function compileIf(
       return '}' + block.value + '{';
     }
 
-    const result = await compile(block.value.trim(), ctx);
+    const result = await compile(block.value, ctx);
     return result;
   });
 
@@ -221,7 +222,7 @@ export async function compileWhile(
 
   let out = value1.trim();
   out += '{';
-  out += await compile(value2.trim(), ctx);
+  out += await compile(value2, ctx);
   out += '}';
 
   return out;

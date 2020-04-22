@@ -49,20 +49,24 @@ describe('@...(...)@', () => {
   });
 
   it('@(it.<undefined|null|NaN>)@', async () => {
-    const result1 = await render('@(it.empty)@', {});
+    const result1 = await render('@(it.undefinedValue)@', {
+      undefinedValue: undefined,
+    });
     expect(result1).toEqual('');
-    const result2 = await render('@(it.empty)@', { empty: null });
+    const result2 = await render('@(it.nullValue)@', { nullValue: null });
     expect(result2).toEqual('');
-    const result3 = await render('@(it.empty)@', { empty: NaN });
+    const result3 = await render('@(it.NaNValue)@', { NaNValue: NaN });
     expect(result3).toEqual('NaN');
   });
 
   it('@!(it.<undefined|null|NaN>)@', async () => {
-    const result1 = await render('@!(it.empty)@', {});
+    const result1 = await render('@!(it.undefinedValue)@', {
+      undefinedValue: undefined,
+    });
     expect(result1).toEqual('undefined');
-    const result2 = await render('@!(it.empty)@', { empty: null });
+    const result2 = await render('@!(it.nullValue)@', { nullValue: null });
     expect(result2).toEqual('null');
-    const result3 = await render('@!(it.empty)@', { empty: NaN });
+    const result3 = await render('@!(it.NaNValue)@', { NaNValue: NaN });
     expect(result3).toEqual('NaN');
   });
 

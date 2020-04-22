@@ -11,7 +11,7 @@ describe('@while(...){ ... }@', () => {
         🎂
       }@`,
     );
-    expect(result).toEqual('🎂🎂🎂');
+    expect(result).toEqual('        🎂\n        🎂\n        🎂\n');
   });
 
   it('should render while inside of while', async () => {
@@ -27,6 +27,8 @@ describe('@while(...){ ... }@', () => {
         }@
       }@`,
     );
-    expect(result).toEqual('🍕🍕🍕🍕🍕🍕');
+    expect(result).toEqual(
+      '          🍕\n          🍕\n          🍕\n          🍕\n          🍕\n          🍕\n',
+    );
   });
 });

@@ -9,7 +9,7 @@ describe('Code block', () => {
       }@
       ${text}`,
     );
-    expect(result).toEqual(text);
+    expect(result).toEqual(`      ${text}`);
   });
 
   it('should render template with non empty block', async () => {
@@ -20,6 +20,6 @@ describe('Code block', () => {
       }@
       ${text}@(value)@`,
     );
-    expect(result).toEqual(`${text}12345`);
+    expect(result).toEqual(`      ${text}12345`);
   });
 });
