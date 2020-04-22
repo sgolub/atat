@@ -5,6 +5,10 @@ export function noop() {
   return '';
 }
 
+export function trimLines(str: string) {
+  return str.replace(/^[\t\f\v\r ]*\n/g, '').replace(/\r?\n[\t\f\v ]*$/g, '\n');
+}
+
 export function toString(v: any): string {
   return typeof v === 'undefined' || v === null ? '' : String(v);
 }

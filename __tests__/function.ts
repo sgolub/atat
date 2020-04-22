@@ -10,6 +10,6 @@ describe('@function (...) { ... }@', () => {
       }@
       @(sum(1, 2))@`,
     );
-    expect(result).toEqual('3');
+    expect(result).toEqual('      3');
   });
 });

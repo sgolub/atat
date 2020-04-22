@@ -7,7 +7,7 @@ describe('@for (...) { ... }@', () => {
         🎂
       }@`,
     );
-    expect(result).toEqual('🎂🎂🎂');
+    expect(result).toEqual('        🎂\n        🎂\n        🎂\n');
   });
 
   it('should render for inside for', async () => {
@@ -18,6 +18,8 @@ describe('@for (...) { ... }@', () => {
         }@
       }@`,
     );
-    expect(result).toEqual('🍕🍕🍕🍕🍕🍕🍕🍕🍕');
+    expect(result).toEqual(
+      '          🍕\n          🍕\n          🍕\n          🍕\n          🍕\n          🍕\n          🍕\n          🍕\n          🍕\n',
+    );
   });
 });

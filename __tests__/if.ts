@@ -7,7 +7,7 @@ describe('@if (...) { ... }@', () => {
         👍
       }@`,
     );
-    expect(result).toEqual('👍');
+    expect(result).toEqual('        👍\n');
   });
 
   it('should render empty string', async () => {
@@ -28,7 +28,7 @@ describe('@if (...) { ... }@', () => {
         show: true,
       },
     );
-    expect(result).toEqual('👍');
+    expect(result).toEqual('        👍\n');
   });
 
   it('should render empty string by value from model', async () => {
@@ -60,6 +60,6 @@ describe('@if (...) { ... }@', () => {
         },
       },
     );
-    expect(result).toEqual(`<p>William</p>`);
+    expect(result).toEqual(`        <p>William</p>\n`);
   });
 });
