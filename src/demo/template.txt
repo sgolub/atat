@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>
+      User profile - @(it.user.firstName)@ @(it.user.secondName)@ - @(it.user.role)@
+    </title>
+    <meta charset="utf-8" />
+    <base href="/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+  <boby>
+    <aside class="profile">
+      <header>
+        <h1>@upper(it.user.firstName)@ @upper(it.user.secondName)@</h1>
+        <h2>@lower(it.user.role)@</h2>
+      </header>
+      <div class="profile-bio">
+        @!(it.user.bio)@
+      </div>
+    </aside>
+
+    @if(it.employees.length > 0) {
+    <table class="employees">
+      <tr>
+        <th>Firstname</th>
+        <th>Lastname</th>
+        <th>Role</th>
+      </tr>
+        @for(var i = 0, l = it.employees.length; i < l; i++){
+        <tr>
+          @{ var employee = it.employees[i]; }@
+          <td>@upper(employee.firstName)@</td>
+          <td>@upper(employee.secondName)@</td>
+          <td>@lower(employee.role)@</td>
+        </tr>
+        }@
+    </table>
+    } else {
+      <p class="text-muted">No employees</p>
+    }@
+  </boby>
+</html>

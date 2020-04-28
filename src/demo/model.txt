@@ -1,0 +1,25 @@
+{
+  "user": {
+    "firstName": "Charlotte",
+    "secondName": "Gamboa",
+    "role": "Manager",
+    "bio": "<p>It takes monumental improvement for us to change how we live our lives.</p>"
+  },
+  "employees": [
+    {
+      "firstName": "Elaine",
+      "secondName": "Reeves",
+      "role": "Designer"
+    },
+    {
+      "firstName": "Andrea",
+      "secondName": "Patrick",
+      "role": "Engineer"
+    },
+    {
+      "firstName": "Kim",
+      "secondName": "Johnston",
+      "role": "Engineer"
+    }
+  ]
+}

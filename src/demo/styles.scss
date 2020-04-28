@@ -17,6 +17,10 @@ $github-color-dark: #666;
   @return $size / 16px * 1rem;
 }
 
+* {
+  box-sizing: border-box;
+}
+
 html {
   background-color: $backgroud-dark;
   color: $font-color-dark;
@@ -30,42 +34,61 @@ main {
   width: 100%;
   margin: 0 auto;
   max-width: rem(1024px);
+  padding: 0 0.5rem;
+}
+
+footer {
+  font-size: 80%;
+  padding: 2rem;
+  text-align: center;
 }
 
 h4 {
   margin-bottom: 0.5rem;
 }
 
-button.light-theme,
-button.dark-theme {
+.buttons {
   position: absolute;
   top: 0;
   right: 0;
-  font-size: 1.5rem;
-  cursor: pointer;
-  padding: 0.67rem;
-  margin: 0;
-  background: transparent;
-  border: none;
-  outline: none;
-}
+  display: flex;
+  padding: 0.5rem 0.5rem 0 0;
 
-button.light-theme {
-  color: $font-color-dark;
-}
+  &>span {
+    margin-left: 1rem;
+  }
 
-button.dark-theme {
-  display: none;
-  color: $font-color-light;
+  .light-theme,
+  .dark-theme {
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0 0 0 1rem;
+    margin: 0;
+    background: transparent;
+    border: none;
+    outline: none;
+  }
+
+  .light-theme {
+    color: $font-color-dark;
+  }
+
+  .dark-theme {
+    display: none;
+    color: $font-color-light;
+  }
 }
 
 section.demo {
   display: flex;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   .col {
+    width: 100%;
     position: relative;
-    width: 33.333333%;
     overflow: auto;
+    textarea {
+      height: 100%;
+    }
   }
   .fullscreen {
     position: absolute;
@@ -88,18 +111,21 @@ section.demo {
     padding: 0.5rem;
     display: none;
   }
-  .template,
   .data {
+    width: 33.3333%;
     border: solid 1px #aaa;
-    border-right: none;
+    border-top-right-radius: 0.25rem;
   }
   .template {
+    width: 66.6666%;
+    border: solid 1px #aaa;
+    border-right: none;
     border-top-left-radius: 0.25rem;
-    border-bottom-left-radius: 0.25rem;
   }
   .result {
     border: solid 1px #aaa;
-    border-top-right-radius: 0.25rem;
+    border-top: none;
+    border-bottom-left-radius: 0.25rem;
     border-bottom-right-radius: 0.25rem;
     background: #1e1e1e;
     pre {
@@ -119,7 +145,7 @@ section.demo {
     display: none;
   }
   section.demo .result {
-    background: #F3F5F6;
+    background: #f3f5f6;
   }
 }
 
