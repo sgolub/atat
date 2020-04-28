@@ -135,12 +135,11 @@ Encoded output
 
 ```html
 <p>@(it.user.firstName)@</p>
-<p>@encode(it.user.firstName)@</p>
 
 <!-- 
-  Model: { user: { firstName: 'William' } }
+  Model: { user: { firstName: 'Charlotte' } }
   Output:
-  <p>William</p>
+  <p>Charlotte</p>
  -->
 ```
 
@@ -161,15 +160,16 @@ Embedded JavaScript code
 ```html
 @{
   // Any JavaScript code is acceptable in this block
-  const { firstName, secondName } = it.user;
+  var firstName = it.user.firstName;
+  var secondName = it.user.secondName;
 }@
 
 <p>@(firstName)@ @(secondName)@</p>
 
 <!-- 
-  Model: { user: { firstName: 'William', secondName: 'Smith' } }
+  Model: { user: { firstName: 'Charlotte', secondName: 'Gamboa' } }
   Output:
-  <p>William Smith</p>
+  <p>Charlotte Gamboa</p>
  -->
 ```
 
@@ -182,9 +182,9 @@ Embedded JavaScript code
 }@
 
 <!-- 
-  Model: { user: { firstName: 'William', secondName: 'Smith' } }
+  Model: { user: { firstName: 'Charlotte', secondName: 'Gamboa' } }
   Output:
-  <p>William</p>
+  <p>Charlotte</p>
   <p>Smith</p>
  -->
 ```
@@ -202,9 +202,9 @@ Embedded JavaScript code
 }@
 
 <!-- 
-  Model: { user: { firstName: 'William', secondName: '' } }
+  Model: { user: { firstName: 'Charlotte', secondName: '' } }
   Output:
-  <p>William</p>
+  <p>Charlotte</p>
  -->
 ```
 
@@ -218,10 +218,10 @@ Embedded JavaScript code
 </ul>
 
 <!-- 
-  Model: { users: [{ firstName: 'William', secondName: 'Smith' }] }
+  Model: { users: [{ firstName: 'Charlotte', secondName: 'Gamboa' }] }
   Output:
   <ul>
-    <li>William Smith</li>
+    <li>Charlotte Gamboa</li>
   </ul>
  -->
 ```

@@ -1,6 +1,6 @@
 {
   "name": "atat",
-  "version": "1.2.9",
+  "version": "1.2.10",
   "author": "Sergey Golub",
   "license": "MIT",
   "description": "Fast and simple template engine",
@@ -12,7 +12,8 @@
     "nodejs",
     "template",
     "templating-engine",
-    "templating"
+    "templating",
+    "typescript"
   ],
   "repository": "https://github.com/sgolub/atat",
   "homepage": "https://sgolub.github.io/atat",
@@ -53,7 +54,7 @@
     }
   },
   "engines": {
-    "node": ">=8.6.0"
+    "node": ">=8.10.0"
   },
   "devDependencies": {
     "@types/jest": "^24.0.20",
