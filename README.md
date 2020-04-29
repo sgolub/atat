@@ -1,8 +1,12 @@
-[![Build Status](https://github.com/sgolub/atat/workflows/build/badge.svg)](https://github.com/sgolub/atat/actions)
+<p align="center">
+  <img alt="logo" src="https://sgolub.github.io/atat/android-chrome-512x512.e5a25301.png" width="128">
+</p>
 
 # αtαt
 
 Fast and simple asynchronous JavaScript template engine without dependencies and for any environment (:
+
+[![Build Status](https://github.com/sgolub/atat/workflows/build/badge.svg)](https://github.com/sgolub/atat/actions)
 
 ## But why?
 
