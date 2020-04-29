@@ -1,9 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>
-      User profile - @(it.user.firstName)@ @(it.user.secondName)@ - @(it.user.role)@
-    </title>
+    <title>User profile - @(it.user.firstName)@ @(it.user.secondName)@ - @(it.user.role)@</title>
     <meta charset="utf-8" />
     <base href="/" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -18,7 +16,6 @@
         @!(it.user.bio)@
       </div>
     </aside>
-
     @if(it.employees.length > 0) {
     <table class="employees">
       <tr>
