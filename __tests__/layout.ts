@@ -42,7 +42,7 @@ describe('@layout(...)@', () => {
       await render(
         '@layout(./path/layout1)@@layout(./path/layout2)@ Body <strong>content</strong>',
       );
-    } catch (err) {
+    } catch (err: any) {
       expect(err.toString()).toEqual('Error: Layout is already specified');
     }
   });
