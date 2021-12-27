@@ -59,7 +59,7 @@ describe('@section ...{ ... }@', () => {
           '@section script{<script>console.log(@(it.value)@);</script>}@',
         { value: '111' },
       );
-    } catch (err) {
+    } catch (err: any) {
       expect(err.toString()).toBe(
         'Error: The section "script" is already specified',
       );
@@ -79,7 +79,7 @@ describe('@section ...{ ... }@', () => {
           '@section {<script>console.log(@(it.value)@);</script>}@',
         { value: '111' },
       );
-    } catch (err) {
+    } catch (err: any) {
       expect(err.toString()).toBe('Error: Section name is not specified');
     }
   });

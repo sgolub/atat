@@ -9,7 +9,7 @@ describe('Simple tests', () => {
   it('should cause an unbalanced delimiter error', async () => {
     try {
       await render('@(it.value}@@');
-    } catch (err) {
+    } catch (err: any) {
       expect(err.toString()).toBe(
         'SyntaxError: Unbalanced delimiter "}@" was found in the template\n@(it.value}@@\n          ^^',
       );
@@ -19,7 +19,7 @@ describe('Simple tests', () => {
   it('should cause a JS error', async () => {
     try {
       await render('@{ it.foo(); }@');
-    } catch (err) {
+    } catch (err: any) {
       expect(err.toString()).toBe('TypeError: it.foo is not a function');
     }
   });
@@ -37,7 +37,7 @@ describe('Simple tests', () => {
   it('should cause an error if helper is not declarated', async () => {
     try {
       await render('@foo(it.value)@');
-    } catch (err) {
+    } catch (err: any) {
       expect(err.toString()).toBe('Error: Helper "foo" is not declarated');
     }
   });
